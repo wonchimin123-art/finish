@@ -9,16 +9,17 @@
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <style>
         body { font-family: "Pretendard Variable", Pretendard, -apple-system, sans-serif; }
-        /* 부드러운 페이지 전환 애니메이션 */
         .page-enter { animation: slideIn 0.3s ease-out forwards; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden { display: none !important; }
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #10b981; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .chat-scroll::-webkit-scrollbar { width: 4px; }
         .chat-scroll::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 4px; }
+        
+        /* 사이드바 메뉴 활성화 스타일 */
+        .nav-item.active { background-color: #ecfdf5; color: #059669; font-weight: 700; border-right: 3px solid #059669; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
@@ -27,10 +28,16 @@
     <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center gap-2 cursor-pointer" onclick="location.hash=''">
-                    <div class="bg-emerald-600 text-white p-1.5 rounded-lg shadow-md"><i data-lucide="map-pin"></i></div>
-                    <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500">대전여행 가이드</span>
-                </div>
+                <!-- 로고 & 홈 링크 -->
+                <a href="#" onclick="location.hash=''; return false;" class="flex items-center gap-2 cursor-pointer group">
+                    <div class="bg-emerald-600 text-white p-1.5 rounded-lg shadow-md group-hover:bg-emerald-700 transition-colors">
+                        <i data-lucide="map-pin"></i>
+                    </div>
+                    <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500 group-hover:from-emerald-700 group-hover:to-teal-600 transition-all">
+                        대전 여행 가이드
+                    </span>
+                </a>
+                
                 <div class="flex items-center gap-3">
                     <button id="auth-btn" onclick="toggleAuth()" class="flex items-center text-xs font-bold px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
                         <i data-lucide="user" class="w-3.5 h-3.5 mr-1"></i> 관리자
@@ -41,98 +48,168 @@
     </nav>
 
     <!-- ================= [1] 메인 레이아웃 ================= -->
-    <div id="home-view" class="max-w-7xl mx-auto px-4 py-8 page-enter">
+    <div id="main-layout" class="max-w-7xl mx-auto px-4 py-8 page-enter">
         <div class="flex flex-col lg:flex-row gap-8 items-start">
             
             <!-- [좌측 사이드바] -->
-            <aside class="w-full lg:w-80 shrink-0 space-y-6 order-2 lg:order-1">
+            <aside class="w-full lg:w-72 shrink-0 space-y-6 order-2 lg:order-1">
                 
-                <!-- 1. 방문자 현황 -->
+                <!-- 1. 메뉴 (게시판 분리) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-4 bg-gray-50 border-b border-gray-100 font-bold text-gray-700 flex items-center">
+                        <i data-lucide="menu" class="w-4 h-4 mr-2"></i> 메뉴
+                    </div>
+                    <nav class="flex flex-col text-sm">
+                        <a onclick="location.hash=''" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600">
+                            <i data-lucide="home" class="w-4 h-4 mr-3"></i> 홈 (여행지 목록)
+                        </a>
+                        <a onclick="location.hash='#board/notice'" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600">
+                            <i data-lucide="megaphone" class="w-4 h-4 mr-3"></i> 공지사항
+                        </a>
+                        <a onclick="location.hash='#board/tip'" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600">
+                            <i data-lucide="lightbulb" class="w-4 h-4 mr-3"></i> 대전 여행 꿀팁
+                        </a>
+                        <a onclick="location.hash='#board/event'" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600">
+                            <i data-lucide="calendar" class="w-4 h-4 mr-3"></i> 축제 & 이벤트
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- 2. 방문자 현황 -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <h3 class="font-bold text-gray-800 mb-4 flex items-center"><i data-lucide="bar-chart-3" class="w-5 h-5 mr-2 text-emerald-600"></i> 방문자 현황</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-emerald-50 p-4 rounded-xl text-center">
-                            <div class="text-xs text-emerald-600 font-bold mb-1">오늘 방문</div>
-                            <div id="daily-count" class="text-2xl font-extrabold text-emerald-700">0</div>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-xl text-center">
-                            <div class="text-xs text-gray-500 font-bold mb-1">누적 방문</div>
-                            <div id="total-count" class="text-xl font-bold text-gray-700">0</div>
-                        </div>
+                    <h3 class="font-bold text-gray-800 mb-4 flex items-center"><i data-lucide="bar-chart-3" class="w-4 h-4 mr-2 text-emerald-600"></i> 방문자 통계</h3>
+                    <div class="flex justify-between items-center text-sm mb-2">
+                        <span class="text-gray-500">오늘</span>
+                        <span id="daily-count" class="font-bold text-emerald-600">0</span>
+                    </div>
+                    <div class="w-full bg-gray-100 h-1.5 rounded-full mb-4 overflow-hidden">
+                        <div class="bg-emerald-500 h-1.5 rounded-full animate-[width_1s_ease-out]" style="width: 60%"></div>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-500">누적</span>
+                        <span id="total-count" class="font-bold text-gray-700">0</span>
                     </div>
                 </div>
 
-                <!-- 2. 공지사항 (클릭 시 이동) -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 group cursor-pointer hover:border-emerald-300 transition-colors" onclick="location.hash='#notice'">
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="font-bold text-gray-800 flex items-center"><i data-lucide="bell" class="w-5 h-5 mr-2 text-emerald-600"></i> 꿀팁 & 공지</h3>
-                        <span class="text-xs text-gray-400 group-hover:text-emerald-600 flex items-center">전체보기 <i data-lucide="chevron-right" class="w-3 h-3 ml-1"></i></span>
+                <!-- 3. 실시간 채팅방 (PC용) -->
+                <div class="hidden lg:flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 h-[420px] overflow-hidden sticky top-24">
+                    <div class="bg-emerald-600 p-3 text-white font-bold flex justify-between items-center shrink-0">
+                        <span class="flex items-center text-sm"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> 실시간 톡</span>
+                        <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">ON</span>
                     </div>
-                    <ul id="sidebar-notice-list" class="space-y-2">
-                        <li class="text-xs text-gray-400 text-center py-4">로딩 중...</li>
-                    </ul>
-                </div>
-
-                <!-- 3. 채팅방 (PC용) -->
-                <div class="hidden lg:flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 h-[400px] overflow-hidden sticky top-24">
-                    <div class="bg-emerald-600 p-4 text-white font-bold flex justify-between items-center shrink-0">
-                        <span class="flex items-center"><i data-lucide="message-circle" class="w-5 h-5 mr-2"></i> 실시간 여행 톡</span>
-                        <span class="text-[10px] bg-emerald-500 px-2 py-0.5 rounded-full">LIVE</span>
-                    </div>
-                    <div id="desktop-chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 text-sm chat-scroll">
+                    <div id="desktop-chat-messages" class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50 text-sm chat-scroll">
                         <div class="text-center text-xs text-gray-400 py-10">로딩 중...</div>
                     </div>
-                    <form onsubmit="sendChat(event, 'desktop')" class="p-3 border-t bg-white shrink-0">
-                        <div class="flex gap-2">
-                            <input id="desktop-chat-input" class="flex-1 bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="메시지 입력..." required>
-                            <button type="submit" class="bg-emerald-600 text-white p-2 rounded-lg hover:bg-emerald-700"><i data-lucide="send" class="w-4 h-4"></i></button>
+                    <form onsubmit="sendChat(event, 'desktop')" class="p-2 border-t bg-white shrink-0">
+                        <div class="flex gap-1">
+                            <input id="desktop-chat-input" class="flex-1 bg-gray-100 rounded-lg px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-emerald-500" placeholder="메시지 입력..." required>
+                            <button type="submit" class="bg-emerald-600 text-white p-2 rounded-lg hover:bg-emerald-700"><i data-lucide="send" class="w-3 h-3"></i></button>
                         </div>
                     </form>
                 </div>
             </aside>
 
-            <!-- [우측 메인 컨텐츠] -->
-            <section class="flex-1 w-full order-1 lg:order-2">
-                <!-- 히어로 배너 -->
-                <div class="relative bg-emerald-900 rounded-3xl overflow-hidden h-[240px] mb-8 shadow-lg group">
-                    <div class="absolute inset-0 opacity-60">
-                        <img id="hero-bg-img" src="https://images.unsplash.com/photo-1627960682701-7b001a140228?auto=format&fit=crop&q=80&w=1600" class="w-full h-full object-cover transition-transform duration-[20s] group-hover:scale-110">
+            <!-- [우측 컨텐츠 영역] - 여기가 라우팅에 따라 바뀜 -->
+            <section class="flex-1 w-full order-1 lg:order-2 min-h-[500px]">
+                
+                <!-- (A) 홈 뷰: 여행지 목록 -->
+                <div id="home-view">
+                    <!-- 히어로 배너 -->
+                    <div class="relative bg-emerald-900 rounded-3xl overflow-hidden h-[240px] mb-8 shadow-lg group">
+                        <div class="absolute inset-0 opacity-60">
+                            <img id="hero-bg-img" src="https://images.unsplash.com/photo-1627960682701-7b001a140228?auto=format&fit=crop&q=80&w=1600" class="w-full h-full object-cover transition-transform duration-[20s] group-hover:scale-110">
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent"></div>
+                        <div class="relative z-10 h-full flex flex-col justify-center px-8 md:px-12 items-start text-left">
+                            <div class="bg-white/20 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded-md mb-3 border border-white/30">DAEJEON TRAVEL</div>
+                            <h1 id="hero-main-text" class="text-3xl md:text-4xl font-extrabold text-white mb-2 leading-tight">노잼도시 탈출!<br><span class="text-emerald-300">대전 핫플 가이드</span></h1>
+                            <p id="hero-sub-text" class="text-emerald-100 text-sm font-light mb-6">현지인이 직접 추천하는 맛집 & 힐링 스팟</p>
+                            <div class="flex gap-2">
+                                <button id="write-btn" onclick="openWriteModal()" class="hidden bg-emerald-600 text-white text-sm font-bold py-2.5 px-5 rounded-full shadow-lg hover:bg-emerald-700 transition-all active:scale-95 flex items-center">
+                                    <i data-lucide="edit-3" class="w-4 h-4 mr-2"></i> 여행지 등록
+                                </button>
+                                <button id="edit-hero-btn" onclick="openHeroEditModal()" class="hidden bg-black/50 backdrop-blur text-white text-xs px-3 py-2 rounded-full hover:bg-black/70 flex items-center border border-white/20">
+                                    <i data-lucide="settings" class="w-3.5 h-3.5 mr-1.5"></i> 배경 편집
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
-                    <div class="relative z-10 h-full flex flex-col justify-center px-8 md:px-12 items-start text-left">
-                        <div class="bg-white/20 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded-md mb-3 border border-white/30">DAEJEON TRAVEL</div>
-                        <h1 id="hero-main-text" class="text-3xl md:text-4xl font-extrabold text-white mb-2 leading-tight">노잼도시 탈출!<br><span class="text-emerald-300">대전 핫플 가이드</span></h1>
-                        <p id="hero-sub-text" class="text-emerald-100 text-sm font-light mb-6">현지인이 직접 추천하는 맛집 & 힐링 스팟</p>
-                        <div class="flex gap-2">
-                            <button id="write-btn" onclick="openWriteModal()" class="hidden bg-emerald-600 text-white text-sm font-bold py-2.5 px-5 rounded-full shadow-lg hover:bg-emerald-700 transition-all active:scale-95 flex items-center">
-                                <i data-lucide="edit-3" class="w-4 h-4 mr-2"></i> 여행지 등록
-                            </button>
-                            <button id="edit-hero-btn" onclick="openHeroEditModal()" class="hidden bg-black/50 backdrop-blur text-white text-xs px-3 py-2 rounded-full hover:bg-black/70 flex items-center border border-white/20">
-                                <i data-lucide="settings" class="w-3.5 h-3.5 mr-1.5"></i> 배경/문구 편집
-                            </button>
+
+                    <!-- 필터 -->
+                    <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col sm:flex-row justify-between items-center gap-3 sticky top-16 z-30">
+                        <div class="flex gap-1 overflow-x-auto max-w-full scrollbar-hide w-full sm:w-auto pb-1 sm:pb-0">
+                            <button onclick="filterDistrict('전체')" class="cat-btn active px-3 py-1.5 rounded-lg text-sm font-bold bg-emerald-100 text-emerald-700 transition-colors whitespace-nowrap" data-val="전체">전체</button>
+                            <button onclick="filterDistrict('동구')" class="cat-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap" data-val="동구">동구</button>
+                            <button onclick="filterDistrict('중구')" class="cat-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap" data-val="중구">중구</button>
+                            <button onclick="filterDistrict('서구')" class="cat-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap" data-val="서구">서구</button>
+                            <button onclick="filterDistrict('유성구')" class="cat-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap" data-val="유성구">유성구</button>
+                            <button onclick="filterDistrict('대덕구')" class="cat-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap" data-val="대덕구">대덕구</button>
+                        </div>
+                        <select onchange="sortPlaces(this.value)" class="bg-gray-50 border-0 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 focus:ring-2 focus:ring-emerald-500 w-full sm:w-auto">
+                            <option value="recent">✨ 최신순</option>
+                            <option value="rating">⭐ 평점순</option>
+                            <option value="views">🔥 조회순</option>
+                        </select>
+                    </div>
+
+                    <div id="loader-area" class="flex justify-center py-20"><div class="loader"></div></div>
+                    <div id="places-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6 fade-in hidden"></div>
+                </div>
+
+                <!-- (B) 게시판 뷰: 공지/꿀팁/이벤트 -->
+                <div id="board-view" class="hidden fade-in">
+                    <div class="flex justify-between items-end mb-6 border-b border-gray-200 pb-4">
+                        <div>
+                            <h2 id="board-title" class="text-2xl font-bold text-gray-800">게시판</h2>
+                            <p id="board-desc" class="text-sm text-gray-500 mt-1">유용한 정보를 확인하세요.</p>
+                        </div>
+                        <button id="board-write-btn" onclick="openNoticeModal()" class="hidden bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg font-bold hover:bg-emerald-700 flex items-center">
+                            <i data-lucide="pen-tool" class="w-4 h-4 mr-2"></i> 글쓰기
+                        </button>
+                    </div>
+                    <div id="board-list" class="space-y-4"></div>
+                </div>
+
+                <!-- (C) 상세 뷰: 여행지 상세 -->
+                <div id="detail-view" class="hidden fade-in">
+                    <div class="mb-4">
+                        <button onclick="history.back()" class="flex items-center text-gray-500 hover:text-emerald-600 font-bold transition-colors">
+                            <i data-lucide="arrow-left" class="w-5 h-5 mr-1"></i> 뒤로가기
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100">
+                        <!-- 이미지 슬라이더 (꽉 차게) -->
+                        <div class="relative w-full bg-gray-100 group aspect-video">
+                            <img id="detail-img" src="" class="w-full h-full object-cover">
+                            <button onclick="prevImage()" id="btn-prev" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 backdrop-blur text-white p-2 rounded-full hover:bg-black/50 hidden"><i data-lucide="chevron-left"></i></button>
+                            <button onclick="nextImage()" id="btn-next" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 backdrop-blur text-white p-2 rounded-full hover:bg-black/50 hidden"><i data-lucide="chevron-right"></i></button>
+                            <div id="img-indicator" class="absolute bottom-4 right-4 bg-black/50 backdrop-blur text-white text-xs px-3 py-1 rounded-full font-medium">1 / 1</div>
+                        </div>
+
+                        <div class="p-6 md:p-10">
+                            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 border-b border-gray-100 pb-6">
+                                <div>
+                                    <div class="flex items-center gap-2 mb-3">
+                                        <span id="detail-district" class="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1 rounded font-bold"></span>
+                                        <div class="flex items-center text-yellow-500 text-sm font-bold"><i data-lucide="star" class="w-4 h-4 fill-yellow-500 mr-1"></i> <span id="detail-rating"></span></div>
+                                    </div>
+                                    <h1 id="detail-title" class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight"></h1>
+                                </div>
+                                <div class="text-gray-400 text-sm flex items-center shrink-0">
+                                    <i data-lucide="eye" class="w-4 h-4 mr-1.5"></i> <span id="detail-views"></span>회 조회
+                                </div>
+                            </div>
+                            <div class="prose prose-emerald max-w-none mb-10">
+                                <p id="detail-desc" class="text-gray-700 leading-8 whitespace-pre-line text-lg"></p>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-900 mb-3 flex items-center text-sm uppercase tracking-wide text-gray-400">Tags</h3>
+                                <div id="detail-tags" class="flex flex-wrap gap-2"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- 필터 & 정렬 -->
-                <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col sm:flex-row justify-between items-center gap-3 sticky top-16 z-30">
-                    <div class="flex gap-1 overflow-x-auto max-w-full scrollbar-hide w-full sm:w-auto pb-1 sm:pb-0">
-                        <button onclick="filterDistrict('전체')" class="cat-btn active px-3 py-1.5 rounded-lg text-sm font-bold bg-emerald-100 text-emerald-700 transition-colors whitespace-nowrap" data-val="전체">전체</button>
-                        <button onclick="filterDistrict('동구')" class="cat-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap" data-val="동구">동구</button>
-                        <button onclick="filterDistrict('중구')" class="cat-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap" data-val="중구">중구</button>
-                        <button onclick="filterDistrict('서구')" class="cat-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap" data-val="서구">서구</button>
-                        <button onclick="filterDistrict('유성구')" class="cat-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap" data-val="유성구">유성구</button>
-                        <button onclick="filterDistrict('대덕구')" class="cat-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap" data-val="대덕구">대덕구</button>
-                    </div>
-                    <select onchange="sortPlaces(this.value)" class="bg-gray-50 border-0 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 focus:ring-2 focus:ring-emerald-500 w-full sm:w-auto">
-                        <option value="recent">✨ 최신순</option>
-                        <option value="rating">⭐ 평점순</option>
-                        <option value="views">🔥 조회순</option>
-                    </select>
-                </div>
-
-                <div id="loader-area" class="flex justify-center py-20"><div class="loader"></div></div>
-                <div id="places-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6 fade-in hidden"></div>
 
                 <footer class="mt-12 text-center text-gray-400 text-xs py-6 border-t border-gray-100">
                     <p>대전여행 가이드 &copy; 2025</p>
@@ -141,90 +218,25 @@
         </div>
     </div>
 
-    <!-- ================= [2] 상세 페이지 (URL로 작동) ================= -->
-    <div id="detail-view" class="hidden fixed inset-0 z-[60] bg-white overflow-y-auto page-enter">
-        <!-- 상세 헤더 -->
-        <div class="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-gray-200 px-4 h-14 flex items-center justify-between">
-            <button onclick="history.back()" class="flex items-center text-gray-600 hover:text-emerald-600 font-bold transition-colors">
-                <i data-lucide="arrow-left" class="w-5 h-5 mr-1"></i> 목록으로
-            </button>
-            <span class="font-bold text-gray-800 text-sm truncate max-w-[200px]" id="header-title"></span>
-            <div class="w-5"></div>
-        </div>
-
-        <div class="max-w-4xl mx-auto pb-20">
-            <!-- 이미지 영역 (꽉 차게 수정됨: object-cover) -->
-            <div class="relative w-full bg-black group aspect-video md:aspect-[21/9]">
-                <img id="detail-img" src="" class="w-full h-full object-cover">
-                <button onclick="prevImage()" id="btn-prev" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 hidden"><i data-lucide="chevron-left"></i></button>
-                <button onclick="nextImage()" id="btn-next" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 hidden"><i data-lucide="chevron-right"></i></button>
-                <div id="img-indicator" class="absolute bottom-4 right-4 bg-black/60 text-white text-xs px-3 py-1 rounded-full font-medium">1 / 1</div>
-            </div>
-
-            <div class="px-5 py-8">
-                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 border-b border-gray-100 pb-6">
-                    <div>
-                        <div class="flex items-center gap-2 mb-2">
-                            <span id="detail-district" class="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1 rounded font-bold"></span>
-                            <div class="flex items-center text-yellow-500 text-sm font-bold"><i data-lucide="star" class="w-4 h-4 fill-yellow-500 mr-1"></i> <span id="detail-rating"></span></div>
-                        </div>
-                        <h1 id="detail-title" class="text-3xl font-extrabold text-gray-900 leading-tight"></h1>
-                    </div>
-                    <div class="text-gray-400 text-sm flex items-center">
-                        <i data-lucide="eye" class="w-4 h-4 mr-1.5"></i> <span id="detail-views"></span>명이 봤어요
-                    </div>
-                </div>
-                <div class="prose prose-emerald max-w-none">
-                    <p id="detail-desc" class="text-gray-700 leading-8 whitespace-pre-line text-lg"></p>
-                </div>
-                <div class="mt-10">
-                    <h3 class="font-bold text-gray-900 mb-3 flex items-center"><i data-lucide="hash" class="w-4 h-4 mr-1 text-emerald-500"></i> 관련 태그</h3>
-                    <div id="detail-tags" class="flex flex-wrap gap-2"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ================= [3] 공지사항 게시판 페이지 ================= -->
-    <div id="notice-board-view" class="hidden fixed inset-0 z-[60] bg-white overflow-y-auto page-enter">
-        <div class="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-gray-200 px-4 h-14 flex items-center justify-between">
-            <button onclick="history.back()" class="flex items-center text-gray-600 hover:text-emerald-600 font-bold transition-colors">
-                <i data-lucide="arrow-left" class="w-5 h-5 mr-1"></i> 홈으로
-            </button>
-            <span class="font-bold text-gray-800 text-lg">📢 꿀팁 & 공지사항</span>
-            <button id="board-write-btn" onclick="openNoticeModal()" class="hidden text-emerald-600 hover:bg-emerald-50 p-2 rounded-full"><i data-lucide="plus" class="w-5 h-5"></i></button>
-            <div class="w-5 md:hidden" id="board-spacer"></div>
-        </div>
-        <div class="max-w-3xl mx-auto px-4 py-8">
-            <div class="bg-emerald-50 rounded-xl p-6 mb-8 text-center">
-                <h2 class="text-2xl font-bold text-emerald-800 mb-2">대전 여행, 이것만은 알고 가세요!</h2>
-                <p class="text-emerald-600 text-sm">축제 일정부터 현지인 꿀팁까지 모두 모았습니다.</p>
-            </div>
-            <div id="notice-full-list" class="space-y-4">
-                <div class="text-center py-20 text-gray-400">불러오는 중...</div>
-            </div>
-        </div>
-    </div>
-
     <!-- ================= [4] 모달들 ================= -->
 
-    <!-- 모바일 채팅 -->
+    <!-- 모바일 채팅 (버튼 + 창) -->
     <div class="lg:hidden fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-        <div id="mobile-chat-window" class="hidden bg-white w-[320px] h-[450px] rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-[slideUp_0.3s_ease-out]">
-            <div class="bg-emerald-600 p-4 text-white font-bold flex justify-between items-center shrink-0">
-                <span class="flex items-center"><i data-lucide="message-circle" class="w-5 h-5 mr-2"></i> 여행자 수다방</span>
+        <div id="mobile-chat-window" class="hidden bg-white w-[300px] h-[400px] rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-[slideUp_0.3s_ease-out]">
+            <div class="bg-emerald-600 p-3 text-white font-bold flex justify-between items-center shrink-0">
+                <span class="flex items-center text-sm"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> 실시간 톡</span>
                 <button onclick="toggleMobileChat()" class="hover:bg-emerald-700 p-1 rounded"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div id="mobile-chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 text-sm chat-scroll"></div>
-            <form onsubmit="sendChat(event, 'mobile')" class="p-3 border-t bg-white shrink-0">
-                <div class="flex gap-2">
-                    <input id="mobile-chat-input" class="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="메시지 입력..." required>
-                    <button type="submit" class="bg-emerald-600 text-white p-2 rounded-full hover:bg-emerald-700 shadow-md"><i data-lucide="send" class="w-4 h-4"></i></button>
+            <div id="mobile-chat-messages" class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50 text-sm chat-scroll"></div>
+            <form onsubmit="sendChat(event, 'mobile')" class="p-2 border-t bg-white shrink-0">
+                <div class="flex gap-1">
+                    <input id="mobile-chat-input" class="flex-1 bg-gray-100 rounded-full px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-emerald-500" placeholder="메시지 입력..." required>
+                    <button type="submit" class="bg-emerald-600 text-white p-2 rounded-full hover:bg-emerald-700 shadow-md"><i data-lucide="send" class="w-3 h-3"></i></button>
                 </div>
             </form>
         </div>
         <button onclick="toggleMobileChat()" class="bg-emerald-600 text-white p-3.5 rounded-full shadow-xl hover:bg-emerald-700 transition-transform hover:scale-105 flex items-center justify-center ring-4 ring-emerald-50">
-            <i data-lucide="message-circle" class="w-7 h-7"></i>
+            <i data-lucide="message-circle" class="w-6 h-6"></i>
         </button>
     </div>
 
@@ -232,18 +244,23 @@
     <div id="login-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-xs p-8 shadow-2xl">
             <h3 class="font-bold text-xl mb-6 text-center text-gray-800">관리자 접속</h3>
-            <input type="email" id="email" placeholder="아이디(이메일)" class="w-full mb-3 p-3 border rounded-xl bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-emerald-500">
-            <input type="password" id="password" placeholder="비밀번호" class="w-full mb-6 p-3 border rounded-xl bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-emerald-500">
+            <input type="email" id="email" placeholder="이메일" class="w-full mb-3 p-3 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-emerald-500">
+            <input type="password" id="password" placeholder="비밀번호" class="w-full mb-6 p-3 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-emerald-500">
             <button onclick="handleLogin()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 shadow-lg mb-3">로그인</button>
             <button onclick="closeModal('login-modal')" class="w-full py-2 text-gray-400 text-sm hover:text-gray-600">닫기</button>
         </div>
     </div>
 
-    <!-- 공지 등록 -->
+    <!-- 공지/게시글 등록 (카테고리 추가) -->
     <div id="notice-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
-            <h3 class="font-bold text-lg mb-4">공지사항 등록</h3>
-            <textarea id="notice-text" class="w-full mb-4 p-3 border rounded-lg h-32 resize-none" placeholder="내용을 입력하세요 (HTML 태그 사용 가능)"></textarea>
+            <h3 class="font-bold text-lg mb-4">게시글 등록</h3>
+            <select id="notice-cat" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none">
+                <option value="notice">📢 공지사항</option>
+                <option value="tip">🍯 꿀팁</option>
+                <option value="event">🎉 이벤트</option>
+            </select>
+            <textarea id="notice-text" class="w-full mb-4 p-3 border rounded-lg h-32 resize-none outline-none" placeholder="내용을 입력하세요"></textarea>
             <button onclick="saveNotice()" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold">등록</button>
             <button onclick="closeModal('notice-modal')" class="w-full mt-2 py-2 text-gray-400 text-sm">취소</button>
         </div>
@@ -253,10 +270,10 @@
     <div id="notice-detail-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-4 pb-2 border-b">
-                <h3 class="font-bold text-lg text-emerald-700"><i data-lucide="bell" class="inline w-5 h-5 mr-1"></i> 알림</h3>
+                <h3 class="font-bold text-lg text-emerald-700" id="notice-detail-cat"></h3>
                 <button onclick="closeModal('notice-detail-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
             </div>
-            <div id="notice-detail-content" class="text-gray-700 text-sm leading-relaxed whitespace-pre-line min-h-[100px]"></div>
+            <div id="notice-detail-content" class="text-gray-700 text-base leading-relaxed whitespace-pre-line min-h-[100px]"></div>
             <div class="mt-4 text-right text-xs text-gray-400" id="notice-detail-date"></div>
         </div>
     </div>
@@ -266,29 +283,20 @@
         <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
             <h3 class="font-bold text-lg mb-4">메인 화면 설정</h3>
             <div class="space-y-3">
-                <div>
-                    <label class="text-xs font-bold text-gray-500">메인 문구 (HTML 허용)</label>
-                    <input id="edit-hero-title" class="w-full p-2 border rounded bg-gray-50" placeholder="예: 꿀잼도시 대전!">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500">서브 문구</label>
-                    <input id="edit-hero-sub" class="w-full p-2 border rounded bg-gray-50" placeholder="예: 현지인 추천 맛집">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500">배경 이미지 URL</label>
-                    <input id="edit-hero-img" class="w-full p-2 border rounded bg-gray-50" placeholder="https://...">
-                </div>
+                <input id="edit-hero-title" class="w-full p-2 border rounded bg-gray-50" placeholder="메인 문구">
+                <input id="edit-hero-sub" class="w-full p-2 border rounded bg-gray-50" placeholder="서브 문구">
+                <input id="edit-hero-img" class="w-full p-2 border rounded bg-gray-50" placeholder="배경 이미지 URL">
                 <button onclick="saveHeroConfig()" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold mt-2">저장하기</button>
                 <button onclick="closeModal('hero-edit-modal')" class="w-full py-2 text-gray-400 text-sm">취소</button>
             </div>
         </div>
     </div>
 
-    <!-- 글쓰기 -->
+    <!-- 여행지 글쓰기 -->
     <div id="write-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
-                <h3 id="write-modal-title" class="font-bold text-xl text-gray-900">여행기 작성</h3>
+                <h3 id="write-modal-title" class="font-bold text-xl text-gray-900">여행지 작성</h3>
                 <button onclick="closeModal('write-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
             </div>
             <input type="hidden" id="edit-id">
@@ -333,7 +341,7 @@
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc, deleteDoc, increment, setDoc, getDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc, deleteDoc, increment, setDoc, getDoc, query, orderBy, limit, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
         let app, auth, db, storage;
@@ -350,66 +358,101 @@
         let currentSort = "recent";
 
         // ============ [ROUTER] 페이지 전환 로직 ============
-        // URL Hash가 바뀔 때마다 화면을 전환합니다.
         window.addEventListener('hashchange', handleRoute);
         window.addEventListener('load', handleRoute);
 
         function handleRoute() {
             const hash = location.hash;
-            // 모든 뷰 숨김
-            document.getElementById("home-view").classList.add("hidden");
-            document.getElementById("detail-view").classList.add("hidden");
-            document.getElementById("notice-board-view").classList.add("hidden");
+            // 뷰 초기화
+            document.querySelectorAll('[id$="-view"]').forEach(el => el.classList.add("hidden"));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove("active")); // 사이드바 활성 초기화
 
             if (hash.startsWith("#detail/")) {
                 const id = hash.split("/")[1];
                 showDetailView(id);
-            } else if (hash === "#notice") {
-                showNoticeBoard();
+            } else if (hash.startsWith("#board/")) {
+                const type = hash.split("/")[1];
+                showBoardView(type);
+                // 사이드바 활성화
+                const link = document.querySelector(`a[onclick*="#board/${type}"]`);
+                if(link) link.classList.add("active");
             } else {
-                // 기본 홈 (hash가 없거나 이상할 때)
                 document.getElementById("home-view").classList.remove("hidden");
+                document.querySelector(`a[onclick="location.hash=''"]`).classList.add("active"); // 홈버튼 활성
                 window.scrollTo(0,0);
             }
         }
 
-        // 페이지 이동 함수들 (history push)
-        window.goHome = () => location.hash = "";
-        window.goNoticeBoard = () => location.hash = "#notice";
-        
-        function showNoticeBoard() {
-            document.getElementById("notice-board-view").classList.remove("hidden");
+        // 게시판 뷰 로직
+        function showBoardView(type) {
+            const titles = { notice: "공지사항", tip: "대전 여행 꿀팁", event: "축제 & 이벤트" };
+            const descs = { notice: "새로운 소식을 확인하세요.", tip: "현지인이 알려주는 진짜 정보!", event: "다채로운 즐거움이 가득!" };
+            
+            document.getElementById("board-title").innerText = titles[type];
+            document.getElementById("board-desc").innerText = descs[type];
+            document.getElementById("board-view").classList.remove("hidden");
             window.scrollTo(0,0);
-            loadFullNotices();
+            loadBoardData(type);
         }
 
+        // 게시판 데이터 로드 (필터링)
+        function loadBoardData(type) {
+            if(!db) return;
+            const list = document.getElementById("board-list");
+            list.innerHTML = '<div class="text-center py-20 text-gray-400">로딩 중...</div>';
+            
+            // 카테고리 필터 쿼리
+            const q = query(collection(db, "notices"), where("category", "==", type), orderBy("createdAt", "desc"));
+            
+            onSnapshot(q, (snap) => {
+                list.innerHTML = "";
+                if(!snap.empty) {
+                    snap.forEach(doc => {
+                        const n = doc.data();
+                        const date = new Date(n.createdAt).toLocaleDateString();
+                        const safeText = n.text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        const icon = type === 'notice' ? 'megaphone' : (type === 'tip' ? 'lightbulb' : 'calendar');
+                        
+                        list.innerHTML += `
+                            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onclick="openNoticeDetail('${type}', '${safeText}', '${date}')">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h3 class="font-bold text-gray-800 text-lg flex items-center">
+                                        <i data-lucide="${icon}" class="w-4 h-4 mr-2 text-emerald-600"></i> ${type === 'event' ? 'D-Day' : ''}
+                                    </h3>
+                                    <span class="text-xs text-gray-400">${date}</span>
+                                </div>
+                                <p class="text-gray-600 line-clamp-2">${n.text}</p>
+                            </div>
+                        `;
+                    });
+                    lucide.createIcons();
+                } else {
+                    list.innerHTML = '<div class="text-center py-20 text-gray-400">등록된 글이 없습니다.</div>';
+                }
+            });
+        }
+
+        // 상세 뷰 로직 (조회수 중복 방지)
         function showDetailView(id) {
-            // 데이터가 아직 로드되지 않았으면 대기 (간단 처리)
-            if (allPlaces.length === 0) {
-                // 약간의 지연 후 재시도 (실제 앱에선 로딩화면 보여줌)
-                setTimeout(() => showDetailView(id), 200);
-                return;
-            }
-
             const place = allPlaces.find(p => p.id === id);
-            if(!place) {
-                alert("존재하지 않는 글입니다.");
-                location.hash = "";
-                return;
-            }
+            if(!place && allPlaces.length === 0) { setTimeout(()=>showDetailView(id), 200); return; } // 로딩 대기
+            if(!place) { alert("글 없음"); location.hash=""; return; }
 
-            if (db) updateDoc(doc(db, "places", id), { views: increment(1) }).catch(e=>{});
+            // 조회수 증가: 세션 스토리지로 중복 방지 (안드로메다행 막기)
+            if (db && !sessionStorage.getItem(`viewed_${id}`)) {
+                updateDoc(doc(db, "places", id), { views: increment(1) }).catch(e=>{});
+                sessionStorage.setItem(`viewed_${id}`, "true");
+            }
 
             currentDetailImages = (place.images && place.images.length > 0) ? place.images : [place.image || 'https://via.placeholder.com/800?text=No+Image'];
             currentImgIdx = 0;
             updateCarousel();
 
             document.getElementById("detail-title").innerText = place.name;
-            document.getElementById("header-title").innerText = place.name;
             document.getElementById("detail-desc").innerText = place.description;
             document.getElementById("detail-district").innerText = place.district;
             document.getElementById("detail-rating").innerText = place.rating || 0;
-            document.getElementById("detail-views").innerText = (place.views || 0) + 1;
+            document.getElementById("detail-views").innerText = (place.views || 0) + (sessionStorage.getItem(`viewed_${id}`) ? 0 : 1); // 표시 보정
             document.getElementById("detail-tags").innerHTML = (place.tags || []).map(t => `<span class="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg text-sm font-medium">#${t}</span>`).join('');
 
             document.getElementById("detail-view").classList.remove("hidden");
@@ -417,7 +460,7 @@
             lucide.createIcons();
         }
 
-        // ============ 이미지 슬라이더 ============
+        // 이미지 슬라이더
         let currentDetailImages = [];
         let currentImgIdx = 0;
         window.updateCarousel = () => {
@@ -438,7 +481,7 @@
         window.nextImage = () => { if(currentImgIdx < currentDetailImages.length-1) { currentImgIdx++; updateCarousel(); }};
         window.prevImage = () => { if(currentImgIdx > 0) { currentImgIdx--; updateCarousel(); }};
 
-        // ============ 데이터 로드 & 렌더링 ============
+        // 데이터 로드
         if (db) {
             onSnapshot(collection(db, "places"), (snapshot) => {
                 allPlaces = [];
@@ -446,13 +489,13 @@
                 document.getElementById("loader-area").classList.add("hidden");
                 document.getElementById("places-grid").classList.remove("hidden");
                 renderPlaces();
-                
-                // 만약 현재 상세페이지 URL에 있다면 내용 갱신 (새로고침 대응)
+                // 상세페이지 갱신
                 if(location.hash.startsWith("#detail/")) {
-                    handleRoute(); 
+                    const id = location.hash.split("/")[1];
+                    const p = allPlaces.find(x => x.id === id);
+                    if(p) document.getElementById("detail-views").innerText = p.views; // 조회수만 실시간 갱신
                 }
             });
-
             onSnapshot(doc(db, "config", "hero"), (doc) => {
                 if(doc.exists()) {
                     const d = doc.data();
@@ -477,13 +520,7 @@
                 const thumb = (place.images && place.images.length > 0) ? place.images[0] : (place.image || 'https://via.placeholder.com/400?text=No+Image');
                 const card = document.createElement("div");
                 card.className = "group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-gray-100 overflow-hidden flex flex-col h-full cursor-pointer relative";
-                
-                // 클릭 시 URL 해시 변경 -> 라우터가 페이지 이동 처리
-                card.onclick = (e) => { 
-                    if(e.target.closest('.admin-btn')) return; 
-                    location.hash = "#detail/" + place.id;
-                };
-
+                card.onclick = (e) => { if(e.target.closest('.admin-btn')) return; location.hash = "#detail/" + place.id; };
                 let adminHtml = isAdmin ? `<div class="absolute top-2 right-2 z-20 flex gap-1"><button onclick="editPlace('${place.id}')" class="admin-btn bg-white/90 p-2 rounded-full text-blue-600 hover:bg-blue-100 shadow-sm"><i data-lucide="edit-2" class="w-3 h-3"></i></button><button onclick="deletePlace('${place.id}')" class="admin-btn bg-white/90 p-2 rounded-full text-red-600 hover:bg-red-100 shadow-sm"><i data-lucide="trash-2" class="w-3 h-3"></i></button></div>` : "";
                 card.innerHTML = `<div class="relative h-48 overflow-hidden bg-gray-100"><img src="${thumb}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"><div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-[10px] font-bold text-emerald-600 shadow-sm z-10">${place.district}</div>${adminHtml}</div><div class="p-5 flex flex-col flex-1"><div class="flex justify-between items-start mb-2"><h3 class="text-lg font-bold text-gray-800 group-hover:text-emerald-600 transition-colors line-clamp-1">${place.name}</h3><div class="flex items-center text-yellow-500 text-xs font-bold bg-yellow-50 px-1.5 py-0.5 rounded ml-2 shrink-0"><i data-lucide="star" class="w-3 h-3 fill-yellow-500 mr-1"></i> ${place.rating || 0}</div></div><p class="text-gray-500 text-sm mb-4 line-clamp-2 leading-relaxed">${place.description}</p><div class="mt-auto flex items-center justify-between"><div class="flex gap-1 flex-wrap">${(place.tags || []).slice(0, 3).map(t => `<span class="bg-gray-100 text-gray-500 text-[10px] px-2 py-1 rounded-md">#${t}</span>`).join('')}</div><div class="text-gray-400 text-xs flex items-center"><i data-lucide="eye" class="w-3 h-3 mr-1"></i> ${place.views || 0}</div></div></div>`;
                 grid.appendChild(card);
@@ -505,7 +542,6 @@
                 currentUser = user;
                 const authBtn = document.getElementById("auth-btn");
                 const writeBtn = document.getElementById("write-btn");
-                const noticeBtn = document.getElementById("add-notice-btn");
                 const boardWriteBtn = document.getElementById("board-write-btn");
                 const editHeroBtn = document.getElementById("edit-hero-btn");
                 
@@ -513,14 +549,12 @@
                     authBtn.innerHTML = `<i data-lucide="log-out" class="w-3.5 h-3.5 mr-1"></i> 로그아웃`;
                     authBtn.onclick = async () => { if(confirm("로그아웃?")) await signOut(auth); };
                     writeBtn.classList.remove("hidden");
-                    noticeBtn.classList.remove("hidden");
                     boardWriteBtn.classList.remove("hidden");
                     editHeroBtn.classList.remove("hidden");
                 } else {
                     authBtn.innerHTML = `<i data-lucide="user" class="w-3.5 h-3.5 mr-1"></i> 관리자`;
                     authBtn.onclick = toggleAuth;
                     writeBtn.classList.add("hidden");
-                    noticeBtn.classList.add("hidden");
                     boardWriteBtn.classList.add("hidden");
                     editHeroBtn.classList.add("hidden");
                 }
@@ -592,55 +626,11 @@
                 setDoc(doc(db, "stats", "global"), { total: increment(1), [todayKey]: increment(1) }, { merge: true });
                 sessionStorage.setItem("visited", "true");
             }
-            onSnapshot(query(collection(db, "notices"), orderBy("createdAt", "desc"), limit(5)), (snap) => {
-                const list = document.getElementById("sidebar-notice-list");
-                if(!snap.empty) {
-                    list.innerHTML = "";
-                    snap.forEach(doc => {
-                        const n = doc.data();
-                        const date = new Date(n.createdAt).toLocaleDateString();
-                        const shortText = n.text.length > 15 ? n.text.substring(0, 15) + "..." : n.text;
-                        const safeText = n.text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                        const li = document.createElement("li");
-                        li.className = "flex justify-between items-center text-sm border-b border-gray-50 pb-2 cursor-pointer hover:bg-gray-50 rounded px-1 transition-colors";
-                        li.onclick = (e) => { e.stopPropagation(); openNoticeDetail(safeText, date); };
-                        li.innerHTML = `<span class="text-gray-700 truncate w-40">${shortText}</span><span class="text-xs text-gray-400 shrink-0">${date}</span>`;
-                        list.appendChild(li);
-                    });
-                } else {
-                    list.innerHTML = '<li class="text-xs text-gray-400 text-center py-4">등록된 공지가 없습니다.</li>';
-                }
-            });
         }
 
-        window.loadFullNotices = () => {
-            if(!db) return;
-            onSnapshot(query(collection(db, "notices"), orderBy("createdAt", "desc")), (snap) => {
-                const list = document.getElementById("notice-full-list");
-                if(!snap.empty) {
-                    list.innerHTML = "";
-                    snap.forEach(doc => {
-                        const n = doc.data();
-                        const date = new Date(n.createdAt).toLocaleDateString();
-                        const safeText = n.text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                        list.innerHTML += `
-                            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onclick="openNoticeDetail('${safeText}', '${date}')">
-                                <div class="flex justify-between items-start mb-2">
-                                    <h3 class="font-bold text-gray-800 text-lg flex items-center"><i data-lucide="megaphone" class="w-4 h-4 mr-2 text-emerald-600"></i> 공지/팁</h3>
-                                    <span class="text-xs text-gray-400">${date}</span>
-                                </div>
-                                <p class="text-gray-600 line-clamp-2">${n.text}</p>
-                            </div>
-                        `;
-                    });
-                    lucide.createIcons();
-                } else {
-                    list.innerHTML = '<div class="text-center py-20 text-gray-400">등록된 게시글이 없습니다.</div>';
-                }
-            });
-        };
-
-        window.openNoticeDetail = (text, date) => {
+        window.openNoticeDetail = (type, text, date) => {
+            const titles = { notice: "공지사항", tip: "꿀팁", event: "이벤트" };
+            document.getElementById("notice-detail-cat").innerText = titles[type] || "알림";
             document.getElementById("notice-detail-content").innerText = text;
             document.getElementById("notice-detail-date").innerText = date;
             document.getElementById("notice-detail-modal").classList.remove("hidden");
@@ -703,8 +693,9 @@
         };
         window.deletePlace = async(id) => { if(confirm("삭제?") && db) await deleteDoc(doc(db, "places", id)); };
         window.saveNotice = async() => {
+            const cat = document.getElementById("notice-cat").value;
             const t = document.getElementById("notice-text").value;
-            if(t && db) { await addDoc(collection(db, "notices"), {text:t, createdAt:Date.now()}); closeModal("notice-modal"); alert("등록됨"); }
+            if(t && db) { await addDoc(collection(db, "notices"), {category: cat, text:t, createdAt:Date.now()}); closeModal("notice-modal"); alert("등록됨"); showBoardView(cat); }
         };
 
         window.toggleAuth = () => document.getElementById("login-modal").classList.remove("hidden");
