@@ -18,10 +18,22 @@
         .chat-scroll::-webkit-scrollbar { width: 4px; }
         .chat-scroll::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 4px; }
         .nav-item.active { background-color: #ecfdf5; color: #059669; font-weight: 700; border-right: 3px solid #059669; }
-        .transition-opacity { transition: opacity 0.3s ease-in-out; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
+
+    <!-- 설정 오류 시 표시될 오버레이 -->
+    <div id="config-error-overlay" class="fixed inset-0 z-[999] bg-black/80 flex items-center justify-center hidden">
+        <div class="bg-white p-8 rounded-2xl max-w-md text-center shadow-2xl">
+            <div class="text-red-500 mb-4 flex justify-center"><i data-lucide="alert-triangle" class="w-12 h-12"></i></div>
+            <h2 class="text-xl font-bold mb-2">설정이 필요합니다</h2>
+            <p class="text-gray-600 mb-6 text-sm">
+                Firebase 설정(API Key)이 완료되지 않았거나 잘못되었습니다.<br>
+                index.html 파일의 <code>firebaseConfig</code> 부분을 확인해주세요.
+            </p>
+            <button onclick="location.reload()" class="bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-gray-800">새로고침</button>
+        </div>
+    </div>
 
     <!-- 상단 네비게이션 -->
     <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
@@ -31,7 +43,7 @@
                     <button onclick="toggleSidebar()" class="lg:hidden p-2 hover:bg-gray-100 rounded-lg text-gray-600">
                         <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
-                    <div class="flex items-center gap-2 cursor-pointer" onclick="location.hash=''">
+                    <div class="flex items-center gap-2 cursor-pointer" onclick="goHome()">
                         <div class="bg-emerald-600 text-white p-1.5 rounded-lg shadow-md"><i data-lucide="map-pin"></i></div>
                         <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500">대전 여행 가이드</span>
                     </div>
@@ -122,7 +134,7 @@
             <!-- [우측 컨텐츠 영역] -->
             <section class="flex-1 w-full order-1 lg:order-2 min-h-[500px]">
                 
-                <!-- (A) 홈 뷰 -->
+                <!-- (A) 홈 뷰: 여행지 목록 -->
                 <div id="home-view">
                     <!-- 히어로 -->
                     <div class="relative bg-emerald-900 rounded-3xl overflow-hidden h-[240px] mb-8 shadow-lg group">
@@ -429,7 +441,7 @@
         // ============================================================
         // ▼▼▼▼▼▼▼ [필수] 본인 키를 덮어쓰세요! ▼▼▼▼▼▼▼
         const firebaseConfig = {
-            apiKey: "AIzaSyC0SzZuWIl-E0L4VItN4nrHu-O1DaoZd88",
+ apiKey: "AIzaSyC0SzZuWIl-E0L4VItN4nrHu-O1DaoZd88",
   authDomain: "project-5196212932199830884.firebaseapp.com",
   projectId: "project-5196212932199830884",
   storageBucket: "project-5196212932199830884.firebasestorage.app",
@@ -464,16 +476,31 @@
         let freeBoardSort = "desc";
         let currentFreePostId = null;
 
-        // ============ [ROUTER] ============
-        window.addEventListener('hashchange', handleRoute);
-        window.addEventListener('load', handleRoute);
+        // Function declarations (Hoisting fixes ReferenceErrors)
+        window.menuClick = (hash) => location.hash = hash;
+        
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById("sidebar");
+            const backdrop = document.getElementById("mobile-sidebar-backdrop");
+            if (sidebar.classList.contains("-translate-x-full")) {
+                sidebar.classList.remove("-translate-x-full");
+                backdrop.classList.remove("hidden");
+                setTimeout(() => backdrop.classList.add("opacity-100"), 10);
+            } else {
+                sidebar.classList.add("-translate-x-full");
+                backdrop.classList.remove("opacity-100");
+                setTimeout(() => backdrop.classList.add("hidden"), 300);
+            }
+        };
 
+        window.goHome = () => location.hash = "";
+
+        // Core Functions
         function handleRoute() {
             const hash = location.hash;
             document.querySelectorAll('[id$="-view"]').forEach(el => el.classList.add("hidden"));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove("active"));
             
-            // 모바일 메뉴 닫기
             document.getElementById("sidebar").classList.add("-translate-x-full");
             document.getElementById("mobile-sidebar-backdrop").classList.add("hidden");
             document.getElementById("mobile-sidebar-backdrop").classList.remove("opacity-100");
@@ -498,22 +525,8 @@
                 window.scrollTo(0,0);
             }
         }
-
-        window.menuClick = (hash) => location.hash = hash;
-
-        window.toggleSidebar = () => {
-            const sidebar = document.getElementById("sidebar");
-            const backdrop = document.getElementById("mobile-sidebar-backdrop");
-            if (sidebar.classList.contains("-translate-x-full")) {
-                sidebar.classList.remove("-translate-x-full");
-                backdrop.classList.remove("hidden");
-                setTimeout(() => backdrop.classList.add("opacity-100"), 10);
-            } else {
-                sidebar.classList.add("-translate-x-full");
-                backdrop.classList.remove("opacity-100");
-                setTimeout(() => backdrop.classList.add("hidden"), 300);
-            }
-        };
+        window.addEventListener('hashchange', handleRoute);
+        window.addEventListener('load', handleRoute);
 
         function showBoardView(type) {
             const titles = { notice: "공지사항", tip: "대전 여행 꿀팁", event: "축제 & 이벤트" };
@@ -523,7 +536,6 @@
             document.getElementById("board-view").classList.remove("hidden");
             window.scrollTo(0,0);
             
-            // 관리자면 글쓰기 버튼 표시
             const btn = document.getElementById("board-write-btn");
             if(isAdmin) btn.classList.remove("hidden"); else btn.classList.add("hidden");
             
@@ -535,260 +547,194 @@
             const list = document.getElementById("board-list");
             list.innerHTML = '<div class="text-center py-20 text-gray-400">로딩 중...</div>';
             
-            const q = query(collection(db, "notices"), where("category", "==", type), orderBy("createdAt", "desc"));
+            // 로컬 필터링 사용 (인덱스 에러 방지)
+            const filtered = allNotices.filter(n => n.category === type).sort((a,b) => b.createdAt - a.createdAt);
             
-            onSnapshot(q, (snap) => {
-                list.innerHTML = "";
-                if(!snap.empty) {
-                    snap.forEach(doc => {
-                        const n = doc.data();
-                        const date = new Date(n.createdAt).toLocaleDateString();
-                        const safeText = n.text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                        const safeTitle = (n.title || n.text.substring(0, 20)).replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                        const icon = type === 'notice' ? 'megaphone' : (type === 'tip' ? 'lightbulb' : 'calendar');
-                        
-                        list.innerHTML += `
-                            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onclick="openNoticeDetail('${doc.id}')">
-                                <div class="flex justify-between items-start mb-2">
-                                    <h3 class="font-bold text-gray-800 text-lg flex items-center">
-                                        <i data-lucide="${icon}" class="w-4 h-4 mr-2 text-emerald-600"></i> ${safeTitle}
-                                    </h3>
-                                    <span class="text-xs text-gray-400 shrink-0">${date}</span>
-                                </div>
-                                <p class="text-gray-500 text-sm line-clamp-1">${n.text.replace(/<[^>]*>/g, '')}</p> 
-                            </div>
-                        `;
-                    });
-                    lucide.createIcons();
-                } else {
-                    list.innerHTML = '<div class="text-center py-20 text-gray-400">등록된 글이 없습니다.</div>';
-                }
-            });
-        }
-
-        // ★ 자유게시판
-        window.loadFreeBoard = () => {
-            if(!db) return;
-            const list = document.getElementById("free-board-list");
-            list.innerHTML = '<div class="text-center py-20 text-gray-400">로딩 중...</div>';
-            const q = query(collection(db, "free_posts"), orderBy("createdAt", freeBoardSort));
-            
-            onSnapshot(q, (snap) => {
-                list.innerHTML = "";
-                if(!snap.empty) {
-                    snap.forEach(doc => {
-                        const p = doc.data();
-                        const date = new Date(p.createdAt).toLocaleDateString();
-                        const avatar = p.photo || 'https://via.placeholder.com/40?text=U';
-                        list.innerHTML += `
-                            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onclick="openFreeDetail('${doc.id}', '${p.uid}')">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <img src="${avatar}" class="w-8 h-8 rounded-full border border-gray-100">
-                                    <div>
-                                        <div class="text-xs text-gray-500">${p.author}</div>
-                                        <h3 class="font-bold text-gray-800 text-base line-clamp-1">${p.title}</h3>
-                                    </div>
-                                    <span class="text-xs text-gray-400 ml-auto">${date}</span>
-                                </div>
-                                <p class="text-gray-500 text-sm line-clamp-2 pl-11">${p.text}</p>
-                            </div>
-                        `;
-                    });
-                } else {
-                    list.innerHTML = '<div class="text-center py-20 text-gray-400">자유롭게 글을 남겨보세요!</div>';
-                }
-            });
-        };
-
-        window.openFreeDetail = async (id, uid) => {
-            currentFreePostId = id; 
-            const docSnap = await getDoc(doc(db, "free_posts", id));
-            if(!docSnap.exists()) return alert("삭제된 글입니다.");
-            const p = docSnap.data();
-
-            document.getElementById("free-detail-title").innerText = p.title;
-            document.getElementById("free-detail-content").innerText = p.text;
-            document.getElementById("free-detail-author").innerText = p.author;
-            document.getElementById("free-detail-date").innerText = new Date(p.createdAt).toLocaleDateString();
-            document.getElementById("free-detail-avatar").src = p.photo || 'https://via.placeholder.com/40?text=U';
-            
-            const btnBox = document.getElementById("free-owner-btns");
-            // 관리자거나 본인 글이면 삭제 버튼 표시
-            if (isAdmin || (currentUser && currentUser.uid === uid)) {
-                btnBox.classList.remove("hidden");
-                btnBox.classList.add("flex");
-                document.getElementById("btn-free-delete").onclick = async () => {
-                    if(confirm("삭제하시겠습니까?")) {
-                        await deleteDoc(doc(db, "free_posts", id));
-                        closeModal("free-detail-modal");
-                    }
-                };
-            } else {
-                btnBox.classList.add("hidden");
-            }
-            
-            loadComments(id); 
-            document.getElementById("free-detail-modal").classList.remove("hidden");
-        };
-
-        // 댓글
-        let commentUnsub;
-        function loadComments(postId) {
-            if(commentUnsub) commentUnsub();
-            const list = document.getElementById("comment-list");
-            list.innerHTML = "<div class='text-xs text-gray-400 text-center'>로딩...</div>";
-            
-            const q = query(collection(db, "comments"), where("postId", "==", postId), orderBy("createdAt", "asc"));
-            commentUnsub = onSnapshot(q, (snap) => {
-                document.getElementById("comment-count").innerText = snap.size;
-                list.innerHTML = "";
-                if(snap.empty) {
-                    list.innerHTML = "<div class='text-xs text-gray-400 text-center py-2'>첫 댓글을 남겨보세요!</div>";
-                    return;
-                }
-                snap.forEach(d => {
-                    const c = d.data();
-                    const date = new Date(c.createdAt).toLocaleDateString();
-                    // 본인 댓글 or 관리자면 삭제 가능
-                    const isOwner = isAdmin || (currentUser && currentUser.uid === c.uid);
-                    const delBtn = isOwner ? `<button onclick="deleteComment('${d.id}')" class="text-[10px] text-red-400 hover:text-red-600 ml-2">삭제</button>` : "";
+            list.innerHTML = "";
+            if(filtered.length > 0) {
+                filtered.forEach(n => {
+                    const date = new Date(n.createdAt).toLocaleDateString();
+                    const safeTitle = (n.title || n.text.substring(0, 20)).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    const icon = type === 'notice' ? 'megaphone' : (type === 'tip' ? 'lightbulb' : 'calendar');
                     
                     list.innerHTML += `
-                        <div class="bg-white p-2.5 rounded-lg border border-gray-100 shadow-sm text-sm">
-                            <div class="flex justify-between items-start mb-1">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="font-bold text-gray-700 text-xs">${c.author}</span>
-                                    <span class="text-[10px] text-gray-400">${date}</span>
-                                </div>
-                                ${delBtn}
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onclick="openNoticeDetail('${n.id}')">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-bold text-gray-800 text-lg flex items-center">
+                                    <i data-lucide="${icon}" class="w-4 h-4 mr-2 text-emerald-600"></i> ${safeTitle}
+                                </h3>
+                                <span class="text-xs text-gray-400 shrink-0">${date}</span>
                             </div>
-                            <div class="text-gray-600 text-sm break-all">${c.text}</div>
+                            <p class="text-gray-500 text-sm line-clamp-1">${n.text.replace(/<[^>]*>/g, '')}</p> 
                         </div>
                     `;
                 });
-                list.scrollTop = list.scrollHeight;
+                lucide.createIcons();
+            } else {
+                list.innerHTML = '<div class="text-center py-20 text-gray-400">등록된 글이 없습니다.</div>';
+            }
+        }
+
+        // Show Detail with Error Handling
+        function showDetailView(id) {
+            try {
+                if (allPlaces.length === 0) {
+                    setTimeout(() => showDetailView(id), 500); // Retry later
+                    return;
+                }
+
+                const place = allPlaces.find(p => p.id === id);
+                if(!place) { 
+                    alert("해당 여행지를 찾을 수 없습니다."); 
+                    location.hash=""; 
+                    return; 
+                }
+
+                // Increase View Count safely
+                if (db && !sessionStorage.getItem(`viewed_${id}`)) {
+                    updateDoc(doc(db, "places", id), { views: increment(1) }).catch(e=>{});
+                    sessionStorage.setItem(`viewed_${id}`, "true");
+                    place.views = (place.views || 0) + 1;
+                }
+
+                currentDetailImages = (place.images && place.images.length > 0) ? place.images : [place.image || 'https://via.placeholder.com/800?text=No+Image'];
+                currentImgIdx = 0;
+                
+                // Loader Setup
+                const imgLoader = document.getElementById("detail-img-loader");
+                const imgEl = document.getElementById("detail-img");
+                
+                imgEl.onload = () => {
+                    imgLoader.classList.add("hidden");
+                    imgEl.classList.remove("opacity-0");
+                };
+                
+                window.updateCarousel = () => {
+                    imgLoader.classList.remove("hidden");
+                    imgEl.classList.add("opacity-0");
+                    
+                    const prev = document.getElementById("btn-prev");
+                    const next = document.getElementById("btn-next");
+                    const indic = document.getElementById("img-indicator");
+                    
+                    imgEl.src = currentDetailImages[currentImgIdx];
+                    indic.innerText = `${currentImgIdx + 1} / ${currentDetailImages.length}`;
+                    
+                    if(currentDetailImages.length > 1) {
+                        indic.classList.remove("hidden");
+                        if(currentImgIdx === 0) prev.classList.add("hidden"); else prev.classList.remove("hidden");
+                        if(currentImgIdx === currentDetailImages.length - 1) next.classList.add("hidden"); else next.classList.remove("hidden");
+                    } else {
+                        indic.classList.add("hidden"); prev.classList.add("hidden"); next.classList.add("hidden");
+                    }
+                };
+                
+                updateCarousel();
+
+                document.getElementById("detail-title").innerText = place.name;
+                document.getElementById("detail-desc").innerText = place.description;
+                document.getElementById("detail-district").innerText = place.district;
+                document.getElementById("detail-rating").innerText = place.rating || 0;
+                document.getElementById("detail-views").innerText = place.views || 0;
+                document.getElementById("detail-tags").innerHTML = (place.tags || []).map(t => `<span class="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg text-sm font-medium">#${t}</span>`).join('');
+
+                document.getElementById("detail-view").classList.remove("hidden");
+                window.scrollTo(0, 0);
+                if(window.lucide) lucide.createIcons();
+            } catch(e) {
+                console.error("Detail Error:", e);
+                alert("오류가 발생했습니다.");
+                location.hash = "";
+            }
+        }
+
+        let currentDetailImages = [];
+        let currentImgIdx = 0;
+        window.updateCarousel = () => {};
+        window.nextImage = () => { if(currentImgIdx < currentDetailImages.length-1) { currentImgIdx++; updateCarousel(); }};
+        window.prevImage = () => { if(currentImgIdx > 0) { currentImgIdx--; updateCarousel(); }};
+
+        // Window exposed functions for HTML onclick
+        window.filterDistrict = (d) => { currentFilter = d; updateFilterUI(); renderPlaces(); };
+        window.sortPlaces = (s) => { currentSort = s; renderPlaces(); };
+        function updateFilterUI() {
+            document.querySelectorAll(".cat-btn").forEach(btn => {
+                if(btn.dataset.val === currentFilter) btn.className = "cat-btn active px-3 py-1.5 rounded-lg text-sm font-bold bg-emerald-100 text-emerald-700 transition-colors whitespace-nowrap";
+                else btn.className = "cat-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap";
             });
         }
 
-        window.saveComment = async (e) => {
-            e.preventDefault();
-            if(!currentUser) { alert("로그인이 필요합니다."); return; }
-            const inp = document.getElementById("comment-input");
-            const text = inp.value.trim();
-            if(!text) return;
-            
-            try {
-                await addDoc(collection(db, "comments"), {
-                    postId: currentFreePostId,
-                    text,
-                    author: currentUser.displayName || "익명",
-                    uid: currentUser.uid,
-                    createdAt: Date.now()
-                });
-                inp.value = "";
-            } catch(e) { alert("작성 실패"); }
+        window.renderPlaces = () => {
+            const grid = document.getElementById("places-grid");
+            grid.innerHTML = "";
+            let filtered = currentFilter === "전체" ? allPlaces : allPlaces.filter(p => p.district === currentFilter);
+            filtered.sort((a, b) => {
+                if(currentSort === 'rating') return (b.rating||0) - (a.rating||0);
+                if(currentSort === 'views') return (b.views||0) - (a.views||0);
+                return (b.createdAt||0) - (a.createdAt||0);
+            });
+            filtered.forEach(place => {
+                const thumb = (place.images && place.images.length > 0) ? place.images[0] : (place.image || 'https://via.placeholder.com/400?text=No+Image');
+                const card = document.createElement("div");
+                card.className = "group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-gray-100 overflow-hidden flex flex-col h-full cursor-pointer relative";
+                card.onclick = (e) => { 
+                    if(e.target.closest('.admin-btn')) return; 
+                    location.hash = "#detail/" + place.id; 
+                };
+                let adminHtml = isAdmin ? `<div class="absolute top-2 right-2 z-20 flex gap-1"><button onclick="event.stopPropagation(); editPlace('${place.id}')" class="admin-btn bg-white/90 p-2 rounded-full text-blue-600 hover:bg-blue-100 shadow-sm"><i data-lucide="edit-2" class="w-3 h-3"></i></button><button onclick="event.stopPropagation(); deletePlace('${place.id}')" class="admin-btn bg-white/90 p-2 rounded-full text-red-600 hover:bg-red-100 shadow-sm"><i data-lucide="trash-2" class="w-3 h-3"></i></button></div>` : "";
+                card.innerHTML = `<div class="relative h-48 overflow-hidden bg-gray-100"><img src="${thumb}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"><div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-[10px] font-bold text-emerald-600 shadow-sm z-10">${place.district}</div>${adminHtml}</div><div class="p-5 flex flex-col flex-1"><div class="flex justify-between items-start mb-2"><h3 class="text-lg font-bold text-gray-800 group-hover:text-emerald-600 transition-colors line-clamp-1">${place.name}</h3><div class="flex items-center text-yellow-500 text-xs font-bold bg-yellow-50 px-1.5 py-0.5 rounded ml-2 shrink-0"><i data-lucide="star" class="w-3 h-3 fill-yellow-500 mr-1"></i> ${place.rating || 0}</div></div><p class="text-gray-500 text-sm mb-4 line-clamp-2 leading-relaxed">${place.description}</p><div class="mt-auto flex items-center justify-between"><div class="flex gap-1 flex-wrap">${(place.tags || []).slice(0, 3).map(t => `<span class="bg-gray-100 text-gray-500 text-[10px] px-2 py-1 rounded-md">#${t}</span>`).join('')}</div><div class="text-gray-400 text-xs flex items-center"><i data-lucide="eye" class="w-3 h-3 mr-1"></i> ${place.views || 0}</div></div></div>`;
+                grid.appendChild(card);
+            });
+            lucide.createIcons();
         };
 
-        window.deleteComment = async (id) => {
-            if(confirm("댓글을 삭제할까요?")) await deleteDoc(doc(db, "comments", id));
-        };
-
-        window.openFreeWriteModal = () => {
-            if(!currentUser) { alert("로그인이 필요합니다."); openLoginModal(); return; }
-            document.getElementById("free-title").value = "";
-            document.getElementById("free-text").value = "";
-            document.getElementById("free-write-modal").classList.remove("hidden");
-        };
-
-        window.saveFreePost = async () => {
-            const title = document.getElementById("free-title").value;
-            const text = document.getElementById("free-text").value;
-            if(!title || !text) return alert("내용을 입력해주세요.");
-            try {
-                await addDoc(collection(db, "free_posts"), {
-                    title, text,
-                    author: currentUser.displayName || "익명",
-                    uid: currentUser.uid,
-                    photo: currentUser.photoURL,
-                    createdAt: Date.now()
-                });
-                closeModal("free-write-modal");
-                alert("등록되었습니다!");
-            } catch(e) { alert("오류: " + e.message); }
-        };
-        
-        window.sortFreeBoard = (mode) => { freeBoardSort = mode; loadFreeBoard(); };
-
-        // 공지 상세 및 수정/삭제
-        window.openNoticeDetail = (id) => {
-            // 리스트 클릭 시 메모리에 있는 데이터가 최신이 아닐 수 있으므로 DB 확인
-            let n = allNotices.find(item => item.id === id);
-            
-            // 데이터가 없으면 Fetch 시도 (새로고침 직후 등 대비)
-            if (!n) {
-                getDoc(doc(db, "notices", id)).then(snap => {
-                    if(snap.exists()) {
-                        n = {id: snap.id, ...snap.data()};
-                        renderNoticeDetail(n);
-                    } else {
-                        alert("존재하지 않는 글입니다.");
-                    }
-                });
-            } else {
-                renderNoticeDetail(n);
-            }
-        };
-
-        function renderNoticeDetail(n) {
-            const titles = { notice: "공지사항", tip: "꿀팁", event: "이벤트" };
-            document.getElementById("notice-detail-cat").innerText = titles[n.category] || "알림";
-            document.getElementById("notice-detail-title").innerText = n.title || "";
-            document.getElementById("notice-detail-content").innerHTML = n.text; 
-            document.getElementById("notice-detail-date").innerText = new Date(n.createdAt).toLocaleDateString();
-            
-            const btns = document.getElementById("notice-admin-btns");
-            if(isAdmin) {
-                btns.classList.remove("hidden");
-                btns.classList.add("flex");
-                // 함수에 ID를 직접 바인딩
-                document.getElementById("btn-notice-edit").onclick = () => { closeModal('notice-detail-modal'); editNotice(n.id); };
-                document.getElementById("btn-notice-delete").onclick = () => { deleteNotice(n.id); };
-            } else {
-                btns.classList.add("hidden");
-            }
-            document.getElementById("notice-detail-modal").classList.remove("hidden");
-        }
-
-        window.editNotice = (id) => {
-            getDoc(doc(db, "notices", id)).then(snap => {
-                if(snap.exists()) {
-                    const n = snap.data();
-                    openNoticeModal();
-                    document.getElementById("notice-modal-title").innerText = "게시글 수정";
-                    document.getElementById("notice-edit-id").value = id;
-                    document.getElementById("notice-cat").value = n.category;
-                    document.getElementById("notice-title").value = n.title || "";
-                    document.getElementById("notice-text").value = n.text;
-                    document.getElementById("notice-save-btn").innerText = "수정하기";
+        // Data Loading
+        if (db) {
+            onSnapshot(collection(db, "places"), (snapshot) => {
+                allPlaces = [];
+                snapshot.forEach(doc => allPlaces.push({ id: doc.id, ...doc.data() }));
+                document.getElementById("loader-area").classList.add("hidden");
+                document.getElementById("places-grid").classList.remove("hidden");
+                renderPlaces();
+                if(location.hash.startsWith("#detail/")) {
+                    handleRoute(); // Refresh detail if open
                 }
             });
-        };
-
-        window.deleteNotice = async (id) => {
-            if(confirm("정말 삭제하시겠습니까?")) {
-                await deleteDoc(doc(db, "notices", id));
-                closeModal("notice-detail-modal");
-                alert("삭제되었습니다.");
+            onSnapshot(collection(db, "notices"), (snapshot) => {
+                allNotices = [];
+                snapshot.forEach(doc => allNotices.push({ id: doc.id, ...doc.data() }));
+                if(location.hash.startsWith("#board/")) loadBoardData(location.hash.split("/")[1]);
+            });
+            // Stats
+            const offset = 1000 * 60 * 60 * 9;
+            const todayKey = new Date(Date.now() + offset).toISOString().split('T')[0];
+            onSnapshot(doc(db, "stats", "global"), (doc) => {
+                if(doc.exists()) {
+                    document.getElementById("total-count").innerText = (doc.data().total||0).toLocaleString();
+                    document.getElementById("daily-count").innerText = (doc.data()[todayKey]||0).toLocaleString();
+                }
+            });
+            if(!sessionStorage.getItem("visited")) {
+                setDoc(doc(db, "stats", "global"), { total: increment(1), [todayKey]: increment(1) }, { merge: true });
+                sessionStorage.setItem("visited", "true");
             }
-        };
+            onSnapshot(doc(db, "config", "hero"), (doc) => {
+                if(doc.exists()) {
+                    const d = doc.data();
+                    if(d.title) document.getElementById("hero-main-text").innerHTML = d.title;
+                    if(d.subtitle) document.getElementById("hero-sub-text").innerText = d.subtitle;
+                    if(d.image) document.getElementById("hero-bg-img").src = d.image;
+                }
+            });
+        }
 
+        // Auth
         if (auth) {
             onAuthStateChanged(auth, (user) => {
                 currentUser = user;
-                // ★ 관리자 판별 로직 수정 ★
-                // 이메일/비번 로그인(providerId: password)이면 관리자로 인정
+                // 이메일/비번이면 관리자
                 const isPasswordAuth = user && user.providerData.some(p => p.providerId === 'password');
-                isAdmin = isPasswordAuth; // 이메일 로그인 = 관리자
+                isAdmin = isPasswordAuth; 
                 
                 const authBtn = document.getElementById("auth-btn");
                 const profileImg = document.getElementById("user-profile-img");
@@ -796,14 +742,8 @@
                 if(user) {
                     authBtn.innerHTML = `<i data-lucide="log-out" class="w-3.5 h-3.5 mr-1"></i> 로그아웃`;
                     authBtn.onclick = async () => { if(confirm("로그아웃?")) await signOut(auth); };
-                    
-                    if(user.photoURL) {
-                        profileImg.src = user.photoURL;
-                        profileImg.classList.remove("hidden");
-                    } else {
-                        profileImg.classList.add("hidden");
-                    }
-                    
+                    if(user.photoURL) { profileImg.src = user.photoURL; profileImg.classList.remove("hidden"); } 
+                    else profileImg.classList.add("hidden");
                     updateAdminUI();
                 } else {
                     authBtn.innerHTML = `<i data-lucide="log-in" class="w-3.5 h-3.5 mr-1"></i> 로그인`;
@@ -812,10 +752,7 @@
                     isAdmin = false;
                     updateAdminUI();
                 }
-                
-                // 리스트 갱신 (버튼 보이기 위해)
                 renderPlaces();
-                if(location.hash.startsWith("#board/")) loadBoardData(location.hash.split("/")[1]);
                 if(location.hash === "#freeboard") loadFreeBoard();
             });
         }
@@ -831,289 +768,185 @@
             });
         }
 
-        // ... [이전 코드와 동일한 나머지 함수들] ...
-        
+        // Standard Functions
         window.openLoginModal = () => document.getElementById("login-modal").classList.remove("hidden");
         window.closeModal = (id) => document.getElementById(id).classList.add("hidden");
-        window.handleAdminLogin = async() => {
-            try { 
-                await signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value); 
-                closeModal("login-modal"); 
-            } catch(e) { alert("로그인 실패: " + e.message); }
+        window.handleAdminLogin = async() => { try { await signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value); closeModal("login-modal"); } catch(e) { alert("로그인 실패: " + e.message); }};
+        window.loginWithGoogle = async () => { try { const provider = new GoogleAuthProvider(); await signInWithPopup(auth, provider); closeModal("login-modal"); } catch (error) { alert("로그인 실패: " + error.message); }};
+
+        // Notice & Freeboard
+        window.openNoticeDetail = (id) => {
+            const n = allNotices.find(item => item.id === id);
+            if(!n) return; // Fallback handled by sync
+            
+            const titles = { notice: "공지사항", tip: "꿀팁", event: "이벤트" };
+            document.getElementById("notice-detail-cat").innerText = titles[n.category] || "알림";
+            document.getElementById("notice-detail-title").innerText = n.title || "";
+            document.getElementById("notice-detail-content").innerHTML = n.text; 
+            document.getElementById("notice-detail-date").innerText = new Date(n.createdAt).toLocaleDateString();
+            
+            const btns = document.getElementById("notice-admin-btns");
+            if(isAdmin) {
+                btns.classList.remove("hidden");
+                btns.classList.add("flex");
+                document.getElementById("btn-notice-edit").onclick = () => { closeModal('notice-detail-modal'); editNotice(n.id); };
+                document.getElementById("btn-notice-delete").onclick = () => { deleteNotice(n.id); };
+            } else {
+                btns.classList.add("hidden");
+            }
+            document.getElementById("notice-detail-modal").classList.remove("hidden");
         };
-        window.loginWithGoogle = async () => {
-            const provider = new GoogleAuthProvider();
+        window.editNotice = (id) => {
+            const n = allNotices.find(item => item.id === id);
+            if(!n) return;
+            openNoticeModal();
+            document.getElementById("notice-modal-title").innerText = "게시글 수정";
+            document.getElementById("notice-edit-id").value = id;
+            document.getElementById("notice-cat").value = n.category;
+            document.getElementById("notice-title").value = n.title || "";
+            document.getElementById("notice-text").value = n.text;
+            document.getElementById("notice-save-btn").innerText = "수정하기";
+        };
+        window.deleteNotice = async (id) => { if(confirm("삭제?")) { await deleteDoc(doc(db, "notices", id)); closeModal("notice-detail-modal"); }};
+        window.openNoticeModal = () => { document.getElementById("notice-modal-title").innerText="게시글 등록"; document.getElementById("notice-edit-id").value=""; document.getElementById("notice-title").value=""; document.getElementById("notice-text").value=""; document.getElementById("notice-save-btn").innerText="등록"; document.getElementById("notice-modal").classList.remove("hidden"); };
+        window.saveNotice = async() => {
+            const id = document.getElementById("notice-edit-id").value;
+            const cat = document.getElementById("notice-cat").value;
+            const title = document.getElementById("notice-title").value;
+            const t = document.getElementById("notice-text").value;
+            if(!title || !t) return alert("입력 필요");
             try {
-                await signInWithPopup(auth, provider);
-                closeModal("login-modal");
-            } catch (error) { alert("구글 로그인 실패: " + error.message); }
+                if(id) await updateDoc(doc(db, "notices", id), {category:cat, title, text:t});
+                else await addDoc(collection(db, "notices"), {category:cat, title, text:t, createdAt:Date.now()});
+                closeModal("notice-modal");
+                if (location.hash.startsWith(`#board/${cat}`)) loadBoardData(cat);
+            } catch(e) { alert("실패"); }
         };
-        
-        // ... [나머지 필수 함수들: savePlace, editPlace 등 유지] ...
-        // (코드 길이 제한으로 핵심 로직만 변경, 나머지는 위와 동일)
-        
+
+        window.loadFreeBoard = () => {
+            if(!db) return;
+            const list = document.getElementById("free-board-list");
+            list.innerHTML = '<div class="text-center py-20 text-gray-400">로딩...</div>';
+            const q = query(collection(db, "free_posts"), orderBy("createdAt", freeBoardSort));
+            onSnapshot(q, (snap) => {
+                list.innerHTML = "";
+                snap.forEach(doc => {
+                    const p = doc.data();
+                    const date = new Date(p.createdAt).toLocaleDateString();
+                    const avatar = p.photo || 'https://via.placeholder.com/40?text=U';
+                    list.innerHTML += `<div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onclick="openFreeDetail('${doc.id}', '${p.uid}')"><div class="flex items-center gap-3 mb-2"><img src="${avatar}" class="w-8 h-8 rounded-full border border-gray-100"><div><div class="text-xs text-gray-500">${p.author}</div><h3 class="font-bold text-gray-800 text-base line-clamp-1">${p.title}</h3></div><span class="text-xs text-gray-400 ml-auto">${date}</span></div><p class="text-gray-500 text-sm line-clamp-2 pl-11">${p.text}</p></div>`;
+                });
+                if(snap.empty) list.innerHTML = '<div class="text-center py-20 text-gray-400">글이 없습니다.</div>';
+            });
+        };
+        window.openFreeDetail = async (id, uid) => {
+            currentFreePostId = id;
+            const docSnap = await getDoc(doc(db, "free_posts", id));
+            if(!docSnap.exists()) return alert("삭제된 글");
+            const p = docSnap.data();
+            document.getElementById("free-detail-title").innerText = p.title;
+            document.getElementById("free-detail-content").innerText = p.text;
+            document.getElementById("free-detail-author").innerText = p.author;
+            document.getElementById("free-detail-date").innerText = new Date(p.createdAt).toLocaleDateString();
+            document.getElementById("free-detail-avatar").src = p.photo || 'https://via.placeholder.com/40?text=U';
+            
+            const btnBox = document.getElementById("free-owner-btns");
+            if (isAdmin || (currentUser && currentUser.uid === uid)) {
+                btnBox.classList.remove("hidden"); btnBox.classList.add("flex");
+                document.getElementById("btn-free-delete").onclick = async () => { if(confirm("삭제?")) { await deleteDoc(doc(db, "free_posts", id)); closeModal("free-detail-modal"); } };
+            } else btnBox.classList.add("hidden");
+            
+            loadComments(id);
+            document.getElementById("free-detail-modal").classList.remove("hidden");
+        };
+        window.openFreeWriteModal = () => { if(!currentUser) { alert("로그인 필요"); openLoginModal(); return; } document.getElementById("free-title").value=""; document.getElementById("free-text").value=""; document.getElementById("free-write-modal").classList.remove("hidden"); };
+        window.saveFreePost = async () => {
+            const title = document.getElementById("free-title").value;
+            const text = document.getElementById("free-text").value;
+            if(!title || !text) return alert("입력 필요");
+            await addDoc(collection(db, "free_posts"), {title, text, author:currentUser.displayName||"익명", uid:currentUser.uid, photo:currentUser.photoURL, createdAt:Date.now()});
+            closeModal("free-write-modal"); alert("등록됨");
+        };
+        window.sortFreeBoard = (m) => { freeBoardSort = m; loadFreeBoard(); };
+
+        // Comments
+        let commentUnsub;
+        function loadComments(postId) {
+            if(commentUnsub) commentUnsub();
+            const list = document.getElementById("comment-list");
+            const q = query(collection(db, "comments"), where("postId", "==", postId), orderBy("createdAt", "asc"));
+            commentUnsub = onSnapshot(q, (snap) => {
+                document.getElementById("comment-count").innerText = snap.size;
+                list.innerHTML = "";
+                snap.forEach(d => {
+                    const c = d.data();
+                    const date = new Date(c.createdAt).toLocaleDateString();
+                    const isOwner = isAdmin || (currentUser && currentUser.uid === c.uid);
+                    const delBtn = isOwner ? `<button onclick="deleteComment('${d.id}')" class="text-[10px] text-red-400 ml-2">삭제</button>` : "";
+                    list.innerHTML += `<div class="bg-white p-2.5 rounded-lg border border-gray-100 shadow-sm text-sm"><div class="flex justify-between items-start mb-1"><div class="flex items-center gap-1.5"><span class="font-bold text-gray-700 text-xs">${c.author}</span><span class="text-[10px] text-gray-400">${date}</span></div>${delBtn}</div><div class="text-gray-600 text-sm break-all">${c.text}</div></div>`;
+                });
+                if(snap.empty) list.innerHTML="<div class='text-center text-xs text-gray-400'>댓글 없음</div>";
+            });
+        }
+        window.saveComment = async (e) => {
+            e.preventDefault(); if(!currentUser) return alert("로그인 필요");
+            const inp = document.getElementById("comment-input");
+            if(inp.value.trim()) { await addDoc(collection(db, "comments"), {postId:currentFreePostId, text:inp.value, author:currentUser.displayName||"익명", uid:currentUser.uid, createdAt:Date.now()}); inp.value=""; }
+        };
+        window.deleteComment = async (id) => { if(confirm("삭제?")) await deleteDoc(doc(db, "comments", id)); };
+
+        // Edit/Save Place
         let upImgs = [];
-        window.openWriteModal = () => { 
-            upImgs = []; 
-            document.getElementById("preview-area").innerHTML = ""; 
-            document.getElementById("write-modal-title").innerText = "여행지 작성";
-            document.getElementById("edit-id").value = "";
-            document.getElementById("inp-name").value = "";
-            document.getElementById("inp-desc").value = "";
-            document.getElementById("inp-tags").value = "";
-            document.getElementById("write-modal").classList.remove("hidden"); 
-        };
+        window.openWriteModal = () => { upImgs=[]; document.getElementById("preview-area").innerHTML=""; document.getElementById("write-modal").classList.remove("hidden"); };
         document.getElementById("inp-files").addEventListener("change", async(e) => {
             const files = Array.from(e.target.files);
-            const status = document.getElementById("upload-status");
             if(!files.length) return;
-            status.classList.remove("hidden");
-            try {
-                if(storage) {
-                    const urls = await Promise.all(files.map(f => uploadBytesResumable(ref(storage, 'img/'+Date.now()+'_'+f.name), f).then(s => getDownloadURL(s.ref))));
-                    upImgs = [...upImgs, ...urls];
-                    const preview = document.getElementById("preview-area");
-                    urls.forEach(u => preview.innerHTML += `<img src="${u}" class="h-16 w-16 object-cover rounded-lg border border-gray-200 shrink-0">`);
-                    status.innerText = "완료!";
-                }
-            } catch(e) { alert("업로드 실패"); }
+            document.getElementById("upload-status").classList.remove("hidden");
+            try { const urls = await Promise.all(files.map(f => uploadBytesResumable(ref(storage, 'img/'+Date.now()+'_'+f.name), f).then(s => getDownloadURL(s.ref)))); upImgs=[...upImgs,...urls]; const p=document.getElementById("preview-area"); urls.forEach(u=>p.innerHTML+=`<img src="${u}" class="h-16 w-16 object-cover rounded-lg border">`); document.getElementById("upload-status").innerText="완료"; } catch(e){alert("업로드 실패");}
         });
         window.savePlace = async() => {
             const id = document.getElementById("edit-id").value;
-            const data = {
-                name: document.getElementById("inp-name").value,
-                district: document.getElementById("inp-district").value,
-                rating: parseFloat(document.getElementById("inp-rating").value)||0,
-                description: document.getElementById("inp-desc").value,
-                tags: document.getElementById("inp-tags").value.split(",").filter(t=>t.trim()),
-                images: upImgs,
-                image: upImgs[0]||"",
-                createdAt: Date.now()
-            };
-            if(!data.name) return alert("제목 입력 필수");
-            const btn = document.getElementById("save-btn");
-            btn.disabled=true; btn.innerText="저장 중...";
-            try {
-                if(db) {
-                    if(id) await updateDoc(doc(db, "places", id), data);
-                    else { data.views=0; await addDoc(collection(db, "places"), data); }
-                    closeModal("write-modal");
-                }
-            } catch(e) { alert("저장 실패"); }
-            btn.disabled=false; btn.innerText="저장하기";
+            const data = { name: document.getElementById("inp-name").value, district: document.getElementById("inp-district").value, rating: parseFloat(document.getElementById("inp-rating").value)||0, description: document.getElementById("inp-desc").value, tags: document.getElementById("inp-tags").value.split(",").filter(t=>t.trim()), images: upImgs, image: upImgs[0]||"", createdAt: Date.now() };
+            if(!data.name) return alert("제목 필요");
+            try { if(id) await updateDoc(doc(db, "places", id), data); else { data.views=0; await addDoc(collection(db, "places"), data); } closeModal("write-modal"); } catch(e){alert("실패");}
         };
         window.editPlace = (id) => {
-            const p = allPlaces.find(x=>x.id===id);
-            if(!p) return;
-            openWriteModal();
-            document.getElementById("write-modal-title").innerText = "여행지 수정";
-            document.getElementById("edit-id").value = p.id;
-            document.getElementById("inp-name").value = p.name;
-            document.getElementById("inp-district").value = p.district;
-            document.getElementById("inp-rating").value = p.rating;
-            document.getElementById("inp-desc").value = p.description;
-            document.getElementById("inp-tags").value = p.tags.join(",");
-            upImgs = p.images||[p.image];
-            const preview = document.getElementById("preview-area");
-            upImgs.forEach(u => { if(u) preview.innerHTML += `<img src="${u}" class="h-16 w-16 object-cover rounded-lg border border-gray-200 shrink-0">`; });
+            const p = allPlaces.find(x=>x.id===id); if(!p) return;
+            openWriteModal(); document.getElementById("edit-id").value=p.id; document.getElementById("inp-name").value=p.name; document.getElementById("inp-district").value=p.district; document.getElementById("inp-rating").value=p.rating; document.getElementById("inp-desc").value=p.description; document.getElementById("inp-tags").value=p.tags.join(","); upImgs=p.images||[p.image];
+            const pr = document.getElementById("preview-area"); upImgs.forEach(u=>{if(u) pr.innerHTML+=`<img src="${u}" class="h-16 w-16 object-cover rounded-lg border">`;});
         };
         window.deletePlace = async(id) => { if(confirm("삭제?") && db) await deleteDoc(doc(db, "places", id)); };
         
-        window.openHeroEditModal = () => {
-            const title = document.getElementById("hero-main-text").innerHTML;
-            const sub = document.getElementById("hero-sub-text").innerText;
-            const img = document.getElementById("hero-bg-img").src;
-            document.getElementById("edit-hero-title").value = title;
-            document.getElementById("edit-hero-sub").value = sub;
-            document.getElementById("edit-hero-img").value = img;
-            document.getElementById("hero-edit-modal").classList.remove("hidden");
-        };
-        window.saveHeroConfig = async () => {
-            const title = document.getElementById("edit-hero-title").value;
-            const sub = document.getElementById("edit-hero-sub").value;
-            const image = document.getElementById("edit-hero-img").value;
-            try {
-                await setDoc(doc(db, "config", "hero"), { title, subtitle: sub, image }, { merge: true });
-                closeModal("hero-edit-modal");
-                alert("적용되었습니다!");
-            } catch(e) { alert("저장 실패"); }
-        };
+        window.openHeroEditModal = () => document.getElementById("hero-edit-modal").classList.remove("hidden");
+        window.saveHeroConfig = async () => { try { await setDoc(doc(db, "config", "hero"), {title:document.getElementById("edit-hero-title").value, subtitle:document.getElementById("edit-hero-sub").value, image:document.getElementById("edit-hero-img").value}, {merge:true}); closeModal("hero-edit-modal"); alert("적용됨"); } catch(e){alert("실패");}};
 
-        // 채팅
-        let chatUnsub;
+        // Chat
+        let chatInit = false;
         function initChatListener() {
-            if (!db) return;
+            if (!db || chatInit) return;
+            chatInit = true;
             const q = query(collection(db, "chat"), orderBy("createdAt", "asc"), limit(50));
-            chatUnsub = onSnapshot(q, (snap) => {
+            onSnapshot(q, (snap) => {
                 const boxes = [document.getElementById("desktop-chat-messages"), document.getElementById("mobile-chat-messages")];
-                const htmlContent = [];
+                const html = [];
                 snap.forEach(doc => {
                     const d = doc.data();
-                    const isAdm = d.uid && (d.uid === 'admin' || d.uid === 'SENDER_ID' || (isAdmin && d.uid === currentUser?.uid)); 
-                    // 관리자면 삭제 버튼 추가
-                    let deleteBtn = "";
-                    if (isAdmin) {
-                        deleteBtn = `<button onclick="deleteChat('${doc.id}')" class="ml-2 text-xs text-red-300 hover:text-red-500">×</button>`;
-                    }
-                    const time = new Date(d.createdAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-                    htmlContent.push(`
-                        <div class="flex flex-col ${isAdm?'items-start':'items-end'}">
-                            <div class="${isAdm?'bg-emerald-100 text-emerald-900':'bg-gray-100 text-gray-800'} px-3 py-1.5 rounded-lg text-sm max-w-[85%] flex items-center group">
-                                ${d.text}
-                                ${deleteBtn}
-                            </div>
-                            <span class="text-[9px] text-gray-400 mt-0.5">${time}</span>
-                        </div>
-                    `);
+                    const isAdm = d.uid && (d.uid === 'admin' || d.uid === 'SENDER_ID' || (isAdmin && d.uid === currentUser?.uid));
+                    const delBtn = isAdmin ? `<button onclick="deleteChat('${doc.id}')" class="ml-2 text-xs text-red-300">×</button>` : "";
+                    html.push(`<div class="flex flex-col ${isAdm?'items-start':'items-end'}"><div class="${isAdm?'bg-emerald-100 text-emerald-900':'bg-gray-100 text-gray-800'} px-3 py-1.5 rounded-lg text-sm max-w-[85%] flex items-center">${d.text}${delBtn}</div></div>`);
                 });
-                boxes.forEach(box => { if(box) { box.innerHTML = htmlContent.join(''); box.scrollTop = box.scrollHeight; }});
+                boxes.forEach(b => { if(b) { b.innerHTML = html.join(''); b.scrollTop = b.scrollHeight; }});
             });
         }
         initChatListener();
-        window.toggleMobileChat = () => {
-            const w = document.getElementById("mobile-chat-window");
-            w.classList.toggle("hidden");
-            if(!w.classList.contains("hidden")) setTimeout(() => document.getElementById("mobile-chat-messages").scrollTop = 9999, 100);
-        };
+        window.toggleMobileChat = () => { document.getElementById("mobile-chat-window").classList.toggle("hidden"); };
         window.sendChat = async(e, mode) => {
-            e.preventDefault();
-            const inp = document.getElementById(mode === 'desktop' ? "desktop-chat-input" : "mobile-chat-input");
-            if(inp.value.trim() && db) {
-                await addDoc(collection(db, "chat"), { 
-                    text: inp.value, 
-                    createdAt: Date.now(), 
-                    uid: currentUser ? currentUser.uid : 'anon',
-                    author: currentUser ? (currentUser.displayName || '익명') : '익명'
-                });
-                inp.value = "";
-            }
+            e.preventDefault(); const inp = document.getElementById(mode === 'desktop' ? "desktop-chat-input" : "mobile-chat-input");
+            if(inp.value.trim() && db) { await addDoc(collection(db, "chat"), { text: inp.value, createdAt: Date.now(), uid: currentUser?currentUser.uid:'anon', author: currentUser?currentUser.displayName:'익명' }); inp.value=""; }
         };
-        window.deleteChat = async (id) => {
-            if(confirm("이 메시지를 삭제하시겠습니까?")) {
-                await deleteDoc(doc(db, "chat", id));
-            }
-        };
-
-        if (db) {
-            const offset = 1000 * 60 * 60 * 9;
-            const todayKey = new Date(Date.now() + offset).toISOString().split('T')[0];
-            onSnapshot(doc(db, "stats", "global"), (doc) => {
-                if(doc.exists()) {
-                    document.getElementById("total-count").innerText = (doc.data().total||0).toLocaleString();
-                    document.getElementById("daily-count").innerText = (doc.data()[todayKey]||0).toLocaleString();
-                }
-            });
-            if(!sessionStorage.getItem("visited")) {
-                setDoc(doc(db, "stats", "global"), { total: increment(1), [todayKey]: increment(1) }, { merge: true });
-                sessionStorage.setItem("visited", "true");
-            }
-        }
-
-        // Updated showDetailView with safety check and loader logic
-        function showDetailView(id) {
-            try {
-                // Safety check: if called too early, retry
-                if (allPlaces.length === 0) {
-                    // check if we are loading or just empty
-                    // but for simplicity, wait a bit
-                    setTimeout(() => showDetailView(id), 500);
-                    return;
-                }
-
-                const place = allPlaces.find(p => p.id === id);
-                if(!place) { 
-                    alert("해당 여행지를 찾을 수 없습니다."); 
-                    location.hash=""; 
-                    return; 
-                }
-
-                if (db && !sessionStorage.getItem(`viewed_${id}`)) {
-                    updateDoc(doc(db, "places", id), { views: increment(1) }).catch(e=>{});
-                    sessionStorage.setItem(`viewed_${id}`, "true");
-                    place.views = (place.views || 0) + 1;
-                }
-
-                currentDetailImages = (place.images && place.images.length > 0) ? place.images : [place.image || 'https://via.placeholder.com/800?text=No+Image'];
-                currentImgIdx = 0;
-                
-                // Image Loader Elements
-                const imgLoader = document.getElementById("detail-img-loader");
-                const imgEl = document.getElementById("detail-img");
-                
-                // Setup loader handler
-                imgEl.onload = () => {
-                    imgLoader.classList.add("hidden");
-                    imgEl.classList.remove("opacity-0");
-                };
-                
-                // Override updateCarousel to handle loading state
-                window.updateCarousel = () => {
-                    imgLoader.classList.remove("hidden");
-                    imgEl.classList.add("opacity-0");
-                    
-                    const prev = document.getElementById("btn-prev");
-                    const next = document.getElementById("btn-next");
-                    const indic = document.getElementById("img-indicator");
-                    
-                    // Small delay to allow opacity transition to start before src change if needed, 
-                    // but usually direct src change is fine.
-                    imgEl.src = currentDetailImages[currentImgIdx];
-                    
-                    indic.innerText = `${currentImgIdx + 1} / ${currentDetailImages.length}`;
-                    
-                    if(currentDetailImages.length > 1) {
-                        indic.classList.remove("hidden");
-                        if(currentImgIdx === 0) prev.classList.add("hidden"); else prev.classList.remove("hidden");
-                        if(currentImgIdx === currentDetailImages.length - 1) next.classList.add("hidden"); else next.classList.remove("hidden");
-                    } else {
-                        indic.classList.add("hidden"); prev.classList.add("hidden"); next.classList.add("hidden");
-                    }
-                };
-                
-                // Trigger first load
-                updateCarousel();
-
-                document.getElementById("detail-title").innerText = place.name;
-                document.getElementById("detail-desc").innerText = place.description;
-                document.getElementById("detail-district").innerText = place.district;
-                document.getElementById("detail-rating").innerText = place.rating || 0;
-                document.getElementById("detail-views").innerText = place.views || 0;
-                document.getElementById("detail-tags").innerHTML = (place.tags || []).map(t => `<span class="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg text-sm font-medium">#${t}</span>`).join('');
-
-                document.getElementById("detail-view").classList.remove("hidden");
-                window.scrollTo(0, 0);
-                if(window.lucide) lucide.createIcons();
-            } catch(e) {
-                console.error("Detail View Error:", e);
-                alert("오류가 발생했습니다.");
-                location.hash = "";
-            }
-        }
-
-        let currentDetailImages = [];
-        let currentImgIdx = 0;
-        window.updateCarousel = () => {}; // Initial dummy
-        window.nextImage = () => { if(currentImgIdx < currentDetailImages.length-1) { currentImgIdx++; updateCarousel(); }};
-        window.prevImage = () => { if(currentImgIdx > 0) { currentImgIdx--; updateCarousel(); }};
-
-        if (db) {
-            onSnapshot(collection(db, "places"), (snapshot) => {
-                allPlaces = [];
-                snapshot.forEach(doc => allPlaces.push({ id: doc.id, ...doc.data() }));
-                document.getElementById("loader-area").classList.add("hidden");
-                document.getElementById("places-grid").classList.remove("hidden");
-                renderPlaces();
-                if(location.hash.startsWith("#detail/")) {
-                    const id = location.hash.split("/")[1];
-                    const p = allPlaces.find(x => x.id === id);
-                    if(p) document.getElementById("detail-views").innerText = p.views;
-                }
-            });
-            // ... (rest of snapshots)
-        }
+        window.deleteChat = async (id) => { if(confirm("삭제?")) await deleteDoc(doc(db, "chat", id)); };
 
         window.lucide = lucide;
-
     </script>
 </body>
 </html>
