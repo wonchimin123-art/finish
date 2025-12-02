@@ -3,170 +3,349 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>대전여행 가이드</title>
+    <title>대전여행 가이드 (Live)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         .fade-in { animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .hidden { display: none !important; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #10b981; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-900">
 
-    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.reload()">
-                    <div class="bg-emerald-600 text-white p-1.5 rounded-lg">
-                        <i data-lucide="map-pin"></i>
-                    </div>
-                    <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500">
-                        대전여행 가이드
-                    </span>
+                    <div class="bg-emerald-600 text-white p-1.5 rounded-lg"><i data-lucide="map-pin"></i></div>
+                    <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500">대전여행 가이드</span>
                 </div>
-                <button onclick="alert('관리자 기능은 추후 업데이트 예정입니다!')" class="flex items-center text-sm font-medium px-3 py-1.5 rounded-full text-gray-500 hover:bg-gray-100 transition-colors">
-                    <i data-lucide="log-in" class="w-4 h-4 mr-1.5"></i> 관리자 로그인
-                </button>
+                <div class="flex items-center gap-4">
+                    <div class="hidden md:flex flex-col items-end text-xs text-gray-500">
+                        <span>오늘 방문: <b id="daily-count" class="text-emerald-600">0</b></span>
+                        <span>누적 방문: <b id="total-count" class="text-blue-600">0</b></span>
+                    </div>
+                    <button id="auth-btn" onclick="toggleAuth()" class="flex items-center text-sm font-medium px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                        <i data-lucide="log-in" class="w-4 h-4 mr-1.5"></i> 로그인
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
 
     <div class="relative bg-emerald-900 overflow-hidden group">
         <div class="absolute inset-0 opacity-40">
-            <img src="https://images.unsplash.com/photo-1627960682701-7b001a140228?auto=format&fit=crop&q=80&w=1600" alt="Daejeon" class="w-full h-full object-cover">
+            <img src="https://images.unsplash.com/photo-1627960682701-7b001a140228?auto=format&fit=crop&q=80&w=1600" class="w-full h-full object-cover">
         </div>
         <div class="absolute inset-0 bg-gradient-to-t from-emerald-900 via-transparent to-transparent"></div>
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
-            <h1 class="text-3xl sm:text-5xl font-extrabold text-white mb-4 tracking-tight">
-                과학과 자연이 어우러진 도시, <br class="hidden sm:block" />
-                <span class="text-emerald-300">대전으로 오세요!</span>
-            </h1>
-            <p class="text-emerald-100 text-lg sm:text-xl max-w-2xl mx-auto font-light mb-8">
-                동구의 낭만부터 유성의 힐링까지, 대전 5개 구의 다채로운 매력을 소개합니다.
-            </p>
+        <div class="relative max-w-7xl mx-auto px-4 py-20 text-center">
+            <h1 class="text-3xl font-extrabold text-white mb-4">대전으로 오세요!</h1>
+            <p class="text-emerald-100 text-lg mb-8">과학과 자연이 어우러진 도시</p>
+            <button id="write-btn" onclick="openWriteModal()" class="hidden mx-auto bg-white text-emerald-700 font-bold py-2 px-6 rounded-full shadow-lg hover:bg-emerald-50 transition-all transform hover:scale-105">
+                <i data-lucide="plus" class="inline w-5 h-5 mr-1"></i> 새 여행지 등록
+            </button>
         </div>
     </div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        
-        <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-                <i data-lucide="navigation" class="mr-2 text-emerald-600"></i> 어디로 떠나볼까요?
-            </h2>
-            <div class="flex flex-wrap gap-2" id="category-container"></div>
-        </div>
-
-        <div class="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
-            <p class="text-gray-500 text-sm">
-                총 <span class="font-bold text-emerald-600" id="place-count">0</span>개의 여행지가 기다리고 있습니다.
-            </p>
-            <div class="flex bg-white rounded-lg p-1 border border-gray-200 shadow-sm">
-                <button onclick="sortPlaces('recommendation')" class="px-4 py-1.5 text-xs font-medium rounded-md hover:bg-gray-50 transition-colors">추천순</button>
-                <button onclick="sortPlaces('views')" class="px-4 py-1.5 text-xs font-medium rounded-md hover:bg-gray-50 transition-colors">인기순</button>
-                <button onclick="sortPlaces('rating')" class="px-4 py-1.5 text-xs font-medium rounded-md hover:bg-gray-50 transition-colors">평점순</button>
-            </div>
-        </div>
-
-        <div id="places-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in"></div>
-
+    <main class="max-w-7xl mx-auto px-4 py-12">
+        <div id="loader-area" class="flex justify-center py-10"><div class="loader"></div></div>
+        <div id="places-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 fade-in hidden"></div>
     </main>
 
-    <footer class="bg-gray-900 text-gray-400 py-12 border-t border-gray-800 mt-12">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <div class="flex justify-center items-center gap-2 mb-4">
-                <i data-lucide="map-pin" class="text-emerald-500"></i>
-                <span class="text-xl font-bold text-white">대전여행 가이드</span>
-            </div>
-            <p class="text-sm mb-6">대전의 아름다움, 당신의 일상이 됩니다.</p>
-            <div class="text-xs text-gray-600">&copy; 2025 Daejeon Travel Guide. All rights reserved.</div>
-        </div>
-    </footer>
-
-    <div id="detail-modal" class="fixed inset-0 z-[100] hidden bg-white overflow-y-auto">
-        <div class="max-w-5xl mx-auto min-h-screen bg-white relative">
-            <button onclick="closeModal()" class="fixed top-4 right-4 z-50 bg-black/50 text-white p-2 rounded-full hover:bg-black/70">
-                <i data-lucide="x"></i>
-            </button>
-            <div id="modal-content"></div>
+    <div id="login-modal" class="fixed inset-0 z-[60] hidden bg-black/50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-xs p-6 shadow-2xl">
+            <h3 class="font-bold text-lg mb-4">관리자 로그인</h3>
+            <input type="email" id="email" placeholder="이메일" class="w-full mb-2 p-2 border rounded">
+            <input type="password" id="password" placeholder="비밀번호" class="w-full mb-4 p-2 border rounded">
+            <button onclick="handleLogin()" class="w-full bg-emerald-600 text-white py-2 rounded font-bold hover:bg-emerald-700">로그인</button>
+            <button onclick="closeModal('login-modal')" class="w-full mt-2 text-gray-400 text-sm">닫기</button>
         </div>
     </div>
 
-    <script>
-        // 데이터
-        const placesData = [
-          { id: "1", name: "소제동 카페거리", description: "대전역 동광장을 빠져나와 횡단보도 하나만 건너면 거짓말처럼 시간이 멈춘 마을이 나타납니다. 낡은 기와지붕 위로 나른하게 하품하는 고양이가 보이고, 좁은 골목 사이로 향긋한 커피 볶는 냄새가 바람을 타고 흘러옵니다.\n\n특히 비가 오는 날 처마 끝에서 떨어지는 빗소리를 들으며 마시는 차 한 잔은 그야말로 낭만 그 자체였습니다. SNS에서 핫한 '온천집'의 하얀 모래 정원은 마치 교토의 어느 료칸에 와 있는 듯한 착각을 불러일으키고, 대나무 숲이 우거진 '풍뉴가'에서는 바람에 흔들리는 대나무 소리가 ASMR처럼 들려옵니다.", tags: ["카페", "사진명소", "데이트", "뉴트로", "뚜벅이추천"], image: "https://images.unsplash.com/photo-1596627622998-150992383188?auto=format&fit=crop&q=80&w=800", district: "동구", views: 1205, rating: 4.5 },
-          { id: "2", name: "식장산 전망대", description: "대전의 야경을 논할 때 절대 빼놓을 수 없는 곳, 바로 식장산입니다. 꼬불꼬불한 산길을 차로 15분 정도 오르다 보면 어느새 해발 598m 정상 부근에 도착합니다.\n\n전망대에 세워진 전통 누각 '식장루'에 오르면 더욱 운치 있는 풍경을 즐길 수 있습니다. 이곳에서 바라보는 대전 시내는 평평한 평지 위에 반듯하게 구획된 도시의 불빛들이 기하학적인 아름다움을 뽐냅니다.", tags: ["야경", "드라이브", "전망대", "일몰", "데이트코스"], image: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&q=80&w=800", district: "동구", views: 980, rating: 4.8 },
-          { id: "3", name: "대동 하늘공원", description: "가파른 언덕길을 따라 오밀조밀 모여 있는 달동네가 알록달록한 벽화마을로 변신했습니다. 이곳의 랜드마크인 빨간 풍차 앞에서 내려다보는 풍경은 화려한 빌딩 숲의 야경과는 다른, 사람 냄새 나는 따뜻한 감동을 줍니다.", tags: ["일몰", "산책", "벽화마을", "풍차", "사진찍기좋은곳"], image: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?auto=format&fit=crop&q=80&w=800", district: "동구", views: 845, rating: 4.6 },
-          { id: "4", name: "성심당 본점", description: "대전은 몰라도 성심당은 안다는 말이 있을 정도로, 성심당은 이제 단순한 빵집을 넘어 대전의 상징이자 자부심이 되었습니다. 은행동 본점에 들어서는 순간, 갓 구운 빵 냄새와 활기찬 직원들의 목소리에 압도당하게 됩니다.", tags: ["맛집", "빵지순례", "문화유산", "튀김소보로", "기념품"], image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=800", district: "중구", views: 3200, rating: 4.9 },
-          { id: "5", name: "대전 오월드", description: "동물원, 꽃구경, 놀이기구, 그리고 버드랜드까지! 오월드는 이 모든 것을 한곳에서 즐길 수 있는 중부권 최대 규모의 종합 테마파크입니다. 아이들뿐만 아니라 어른들이 더 신나 할 만한 요소가 가득했습니다.", tags: ["테마파크", "가족여행", "동물원", "놀이공원", "사파리"], image: "https://images.unsplash.com/photo-1558522338-d9d37533605e?auto=format&fit=crop&q=80&w=800", district: "중구", views: 1500, rating: 4.4 },
-          { id: "6", name: "보문산 숲치유센터", description: "복잡한 도심을 떠나 숲이 주는 위로를 받고 싶다면 보문산으로 오세요. 숲 해설가와 함께하는 숲길 걷기, 명상 등 다양한 체험 프로그램을 통해 숲이 주는 맑은 에너지를 온몸으로 느낄 수 있습니다.", tags: ["힐링", "등산", "자연", "숲체험", "트레킹"], image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=800", district: "중구", views: 600, rating: 4.3 },
-          { id: "7", name: "한밭수목원", description: "회색빛 빌딩 숲 사이에 마법처럼 펼쳐진 초록빛 쉼터, 한밭수목원은 국내 최대 규모의 도심형 인공 수목원입니다. 엑스포 시민광장을 중심으로 동원과 서원, 그리고 열대식물원으로 나뉘어 있어 각기 다른 매력을 뽐냅니다.", tags: ["수목원", "피크닉", "자연", "도심속힐링", "산책"], image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&q=80&w=800", district: "서구", views: 2800, rating: 4.7 },
-          { id: "8", name: "장태산 자연휴양림", description: "하늘을 찌를 듯 꼿꼿하게 뻗은 메타세쿼이아 나무들이 빽빽하게 들어찬 숲, 장태산 자연휴양림은 보는 것만으로도 가슴이 웅장해지는 곳입니다. 문재인 전 대통령이 여름 휴가차 방문하여 독서를 즐긴 곳으로 더욱 유명해졌습니다.", tags: ["휴양림", "메타세쿼이아", "힐링", "스카이웨이", "인생샷"], image: "https://images.unsplash.com/photo-1623944893781-a9f987258411?auto=format&fit=crop&q=80&w=800", district: "서구", views: 2100, rating: 4.8 },
-          { id: "9", name: "둔산동 타임월드", description: "대전의 최신 트렌드를 가장 먼저 만나볼 수 있는 곳, 둔산동 타임월드 거리는 '대전의 강남'이라 불리는 최대 번화가입니다. 갤러리아 타임월드 백화점을 중심으로 수많은 맛집과 카페가 즐비합니다.", tags: ["쇼핑", "도시", "맛집", "핫플레이스", "번화가"], image: "https://images.unsplash.com/photo-1533658299863-71887e076633?auto=format&fit=crop&q=80&w=800", district: "서구", views: 1850, rating: 4.2 },
-          { id: "10", name: "엑스포 과학공원", description: "1993년 전 국민을 열광시켰던 대전 엑스포의 영광과 추억이 서린 곳입니다. 우주정거장을 연상시키는 한빛탑에 오르면 대전 도심의 탁 트인 전경을 한눈에 조망할 수 있습니다.", tags: ["야경", "과학", "분수쇼", "한빛탑", "미디어파사드"], image: "https://images.unsplash.com/photo-1565060169190-6218d96b4e3f?auto=format&fit=crop&q=80&w=800", district: "유성구", views: 3200, rating: 4.6 },
-          { id: "11", name: "유성온천 족욕체험장", description: "여행으로 지친 다리의 피로를 말끔히 씻어낼 수 있는 도심 속 오아시스입니다. 40도 전후의 뜨끈한 천연 온천수에 발을 담그고 있으면 온몸의 긴장이 풀리며 노곤한 행복감이 밀려옵니다.", tags: ["온천", "휴식", "무료", "족욕", "피로회복"], image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=800", district: "유성구", views: 1100, rating: 4.5 },
-          { id: "12", name: "국립중앙과학관", description: "우리나라 과학기술의 과거, 현재, 미래를 한눈에 볼 수 있는 국내 최대 규모의 과학관입니다. 아이들은 물론 어른들도 시간 가는 줄 모르고 빠져들게 됩니다.", tags: ["교육", "아이와함께", "박물관", "과학체험", "실내여행"], image: "https://images.unsplash.com/photo-1518152006812-edab29b069ac?auto=format&fit=crop&q=80&w=800", district: "유성구", views: 1450, rating: 4.7 },
-          { id: "13", name: "계족산 황토길", description: "한국관광 100선에 선정된 힐링 명소입니다. 숲길을 따라 조성된 부드러운 황토길은 신발을 벗어던지고 맨발로 걸어야 그 진가를 제대로 느낄 수 있습니다.", tags: ["맨발걷기", "트레킹", "건강", "황토길", "자연치유"], image: "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&q=80&w=800", district: "대덕구", views: 1900, rating: 4.8 },
-          { id: "14", name: "대청댐 물문화관", description: "충청권의 젖줄인 대청호의 웅장한 풍광을 감상할 수 있는 최고의 포인트입니다. 댐 정상 길을 따라 걸으면 탁 트인 호수의 전경이 가슴을 시원하게 뚫어줍니다.", tags: ["댐", "드라이브", "풍경", "대청호", "물문화관"], image: "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&q=80&w=800", district: "대덕구", views: 1300, rating: 4.5 },
-          { id: "15", name: "동춘당 공원", description: "도심 속에 고즈넉이 자리 잡은 한옥 한 채, 송준길 선생의 고택입니다. 꾸밈없이 소박하면서도 기품 있는 한국 전통 건축의 미를 잘 보여줍니다.", tags: ["역사", "산책", "문화재", "한옥", "고택"], image: "https://images.unsplash.com/photo-1597825006277-22f2b36f1c41?auto=format&fit=crop&q=80&w=800", district: "대덕구", views: 600, rating: 4.4 }
-        ];
+    <div id="write-modal" class="fixed inset-0 z-[60] hidden bg-black/50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 id="modal-title" class="font-bold text-lg mb-4">여행지 등록</h3>
+            <input type="hidden" id="edit-id">
+            
+            <label class="block text-sm mb-1">장소 이름</label>
+            <input id="inp-name" class="w-full mb-3 p-2 border rounded" placeholder="예: 성심당">
+            
+            <label class="block text-sm mb-1">구 선택</label>
+            <select id="inp-district" class="w-full mb-3 p-2 border rounded">
+                <option>동구</option><option>중구</option><option>서구</option><option>유성구</option><option>대덕구</option>
+            </select>
+            
+            <label class="block text-sm mb-1">설명</label>
+            <textarea id="inp-desc" rows="5" class="w-full mb-3 p-2 border rounded" placeholder="상세 설명..."></textarea>
+            
+            <label class="block text-sm mb-1">이미지</label>
+            <input type="file" id="inp-file" class="w-full mb-2 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+            <div id="upload-status" class="text-xs text-blue-500 mb-3 hidden">이미지 업로드 중...</div>
+            <input id="inp-img-url" class="w-full mb-3 p-2 border rounded bg-gray-50" placeholder="이미지 URL (직접 입력도 가능)" readonly>
 
-        let activeTab = "전체";
-        let currentPlaces = [...placesData];
+            <label class="block text-sm mb-1">태그 (쉼표로 구분)</label>
+            <input id="inp-tags" class="w-full mb-4 p-2 border rounded" placeholder="맛집, 힐링, 데이트">
 
-        function renderCategories() {
-            const districts = ["전체", "동구", "중구", "서구", "유성구", "대덕구"];
-            const container = document.getElementById("category-container");
-            container.innerHTML = "";
-            districts.forEach(d => {
-                const btn = document.createElement("button");
-                btn.className = `px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border ${activeTab === d ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`;
-                btn.textContent = d;
-                btn.onclick = () => { activeTab = d; filterPlaces(); };
-                container.appendChild(btn);
-            });
+            <button onclick="savePlace()" id="save-btn" class="w-full bg-emerald-600 text-white py-3 rounded font-bold hover:bg-emerald-700">저장하기</button>
+            <button onclick="closeModal('write-modal')" class="w-full mt-2 text-gray-400 text-sm">취소</button>
+        </div>
+    </div>
+
+    <script type="module">
+        // --------------------------------------------------------------------------------
+        // [필수] 아래 firebaseConfig 부분을 본인의 파이어베이스 설정으로 꼭 바꿔주세요!!!
+        // --------------------------------------------------------------------------------
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, deleteDoc, increment, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        const firebaseConfig = {
+            // ▼▼▼▼▼▼▼ 여기를 본인 설정값으로 덮어쓰세요! ▼▼▼▼▼▼▼
+            apiKey: "AIzaSyC0SzZuWIl-E0L4VItN4nrHu-O1DaoZd88",
+            authDomain: "project-5196212932199830884.firebaseapp.com",
+            projectId: "project-5196212932199830884",
+            storageBucket: "project-5196212932199830884.firebasestorage.app",
+            messagingSenderId: "491579175390",
+            appId: "1:491579175390:web:e18c1334c7fd6a6c0ead4f"
+            // ▲▲▲▲▲▲▲ 여기까지 ▲▲▲▲▲▲▲
+        };
+
+        // 1. Firebase 초기화
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        let currentUser = null;
+        let places = [];
+
+        // 2. 관리자 상태 체크
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            const authBtn = document.getElementById("auth-btn");
+            const writeBtn = document.getElementById("write-btn");
+            
+            if (user) {
+                authBtn.innerHTML = `<i data-lucide="log-out" class="w-4 h-4 mr-1.5"></i> 로그아웃`;
+                authBtn.onclick = handleLogout;
+                writeBtn.classList.remove("hidden"); // 글쓰기 버튼 보이기
+            } else {
+                authBtn.innerHTML = `<i data-lucide="log-in" class="w-4 h-4 mr-1.5"></i> 로그인`;
+                authBtn.onclick = toggleAuth;
+                writeBtn.classList.add("hidden");
+            }
+            lucide.createIcons();
+            renderPlaces(); // 로그인 상태 바뀌면 다시 그리기 (수정/삭제 버튼 때문)
+        });
+
+        // 3. 로그인/로그아웃 함수
+        window.toggleAuth = () => document.getElementById("login-modal").classList.remove("hidden");
+        window.closeModal = (id) => document.getElementById(id).classList.add("hidden");
+
+        window.handleLogin = async () => {
+            const email = document.getElementById("email").value;
+            const pw = document.getElementById("password").value;
+            try {
+                await signInWithEmailAndPassword(auth, email, pw);
+                closeModal("login-modal");
+                alert("관리자님 환영합니다!");
+            } catch (e) {
+                alert("로그인 실패: " + e.message);
+            }
+        };
+
+        window.handleLogout = async () => {
+            if(confirm("로그아웃 하시겠습니까?")) await signOut(auth);
+        };
+
+        // 4. 방문자 수 카운트 (새로고침 시 증가)
+        async function updateVisitorStats() {
+            const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+            const statsRef = doc(db, "stats", "visitors");
+            
+            try {
+                // 누적 및 오늘 방문자 증가
+                await setDoc(statsRef, {
+                    total: increment(1),
+                    [today]: increment(1)
+                }, { merge: true });
+
+                // 화면 표시
+                const snap = await getDoc(statsRef);
+                if (snap.exists()) {
+                    const data = snap.data();
+                    document.getElementById("total-count").innerText = (data.total || 0).toLocaleString();
+                    document.getElementById("daily-count").innerText = (data[today] || 0).toLocaleString();
+                }
+            } catch (e) {
+                console.log("통계 업데이트 실패 (콘솔에서 보안 규칙 확인 필요)");
+            }
         }
+        updateVisitorStats();
 
+        // 5. 여행지 데이터 가져오기 (Firestore)
+        async function fetchPlaces() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "places"));
+                places = [];
+                querySnapshot.forEach((doc) => {
+                    places.push({ id: doc.id, ...doc.data() });
+                });
+                
+                document.getElementById("loader-area").classList.add("hidden");
+                document.getElementById("places-grid").classList.remove("hidden");
+                renderPlaces();
+            } catch (e) {
+                console.error("데이터 가져오기 실패:", e);
+                // 데이터 없을 때 예시 데이터 (처음 실행용)
+                document.getElementById("loader-area").innerHTML = "데이터를 불러올 수 없습니다. <br>파이어베이스 설정을 확인하세요.";
+            }
+        }
+        fetchPlaces();
+
+        // 6. 화면 그리기
         function renderPlaces() {
             const grid = document.getElementById("places-grid");
-            const countSpan = document.getElementById("place-count");
             grid.innerHTML = "";
-            countSpan.textContent = currentPlaces.length;
-            currentPlaces.forEach(place => {
+            
+            places.forEach(place => {
+                const isAdmin = !!currentUser;
                 const card = document.createElement("div");
-                card.className = "group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col h-full cursor-pointer";
-                card.onclick = () => openModal(place);
-                const tagsHtml = place.tags.map(tag => `<span class="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded-md font-medium">#${tag}</span>`).join("");
-                card.innerHTML = `<div class="relative h-48 overflow-hidden"><img src="${place.image}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"><div class="absolute top-3 right-3 bg-white/90 backdrop-blur px-2 py-1 rounded-full text-xs font-bold text-emerald-600 shadow-sm flex items-center"><i data-lucide="star" class="w-3 h-3 mr-1 fill-emerald-600"></i> 추천</div><div class="absolute bottom-3 left-3 bg-black/50 backdrop-blur px-2 py-1 rounded-md text-xs font-medium text-white shadow-sm">${place.district}</div></div><div class="p-5 flex-1 flex flex-col"><div class="flex justify-between items-start mb-2"><h3 class="text-xl font-bold text-gray-800 group-hover:text-emerald-600 transition-colors">${place.name}</h3><div class="flex items-center text-yellow-500 text-sm font-bold bg-yellow-50 px-1.5 py-0.5 rounded"><i data-lucide="star" class="w-3 h-3 fill-yellow-500 mr-1"></i> ${place.rating}</div></div><p class="text-gray-600 text-sm leading-relaxed mb-4 flex-1 line-clamp-2">${place.description}</p><div class="flex items-center text-xs text-gray-400 mb-3 space-x-3"><span class="flex items-center"><i data-lucide="eye" class="w-3 h-3 mr-1"></i> ${place.views.toLocaleString()}</span></div><div class="flex flex-wrap gap-2 mt-auto">${tagsHtml}</div></div>`;
+                card.className = "group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all border border-gray-100 overflow-hidden relative";
+                
+                // 관리자용 수정/삭제 버튼
+                let adminControls = "";
+                if (isAdmin) {
+                    adminControls = `
+                        <div class="absolute top-2 left-2 z-10 flex gap-1">
+                            <button onclick="editPlace('${place.id}')" class="bg-white/90 p-1.5 rounded-full text-blue-600 hover:bg-blue-100"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                            <button onclick="deletePlace('${place.id}')" class="bg-white/90 p-1.5 rounded-full text-red-600 hover:bg-red-100"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    ${adminControls}
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="${place.image || 'https://via.placeholder.com/400'}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">${place.district}</div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">${place.name}</h3>
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">${place.description}</p>
+                        <div class="flex gap-2 flex-wrap">
+                            ${(place.tags || []).map(t => `<span class="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded">#${t}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
                 grid.appendChild(card);
             });
             lucide.createIcons();
         }
 
-        function filterPlaces() {
-            currentPlaces = activeTab === "전체" ? [...placesData] : placesData.filter(p => p.district === activeTab);
-            renderCategories(); renderPlaces();
-        }
+        // 7. 이미지 업로드 기능
+        const fileInput = document.getElementById("inp-file");
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
 
-        function sortPlaces(criteria) {
-            if (criteria === 'views') currentPlaces.sort((a, b) => b.views - a.views);
-            else if (criteria === 'rating') currentPlaces.sort((a, b) => b.rating - a.rating);
-            else filterPlaces();
-            renderPlaces();
-        }
+            const status = document.getElementById("upload-status");
+            status.classList.remove("hidden");
+            status.innerText = "업로드 중... (기다려주세요)";
+            
+            try {
+                const storageRef = ref(storage, 'images/' + Date.now() + '_' + file.name);
+                await uploadBytesResumable(storageRef, file);
+                const url = await getDownloadURL(storageRef);
+                
+                document.getElementById("inp-img-url").value = url;
+                status.innerText = "업로드 완료!";
+                status.className = "text-xs text-green-600 mb-3";
+            } catch (error) {
+                console.error(error);
+                status.innerText = "업로드 실패: " + error.message;
+                status.className = "text-xs text-red-600 mb-3";
+            }
+        });
 
-        function openModal(place) {
-            const modal = document.getElementById("detail-modal");
-            const content = document.getElementById("modal-content");
-            const tagsHtml = place.tags.map(tag => `<span class="text-sm bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-full shadow-sm font-medium">#${tag}</span>`).join("");
-            content.innerHTML = `<div class="w-full h-72 md:h-[500px] relative bg-gray-100"><img src="${place.image}" class="w-full h-full object-cover"><div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6 md:p-8 text-white"><div class="flex items-center gap-2 mb-2"><span class="px-2.5 py-1 bg-emerald-600 text-white text-xs font-bold rounded-md shadow-sm">${place.district}</span><div class="flex items-center text-yellow-400 text-sm font-bold bg-black/30 px-2 py-0.5 rounded-md backdrop-blur-sm"><i data-lucide="star" class="w-3 h-3 fill-yellow-400 mr-1"></i> ${place.rating}</div></div><h1 class="text-3xl md:text-4xl font-extrabold text-white mb-2 shadow-sm">${place.name}</h1></div></div><div class="px-6 md:px-8 py-8 md:py-12 max-w-4xl mx-auto"><div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-6"><div class="flex items-center text-gray-500 text-sm font-medium"><i data-lucide="eye" class="w-4 h-4 mr-1.5"></i> ${place.views.toLocaleString()}명이 관심을 가졌어요</div></div><div class="prose prose-lg max-w-none text-gray-700 mb-10 leading-relaxed whitespace-pre-line">${place.description}</div><div class="bg-gray-50 rounded-2xl p-6"><h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center"><i data-lucide="navigation" class="mr-2 text-emerald-600"></i> 관련 태그</h3><div class="flex flex-wrap gap-2.5">${tagsHtml}</div></div></div>`;
-            modal.classList.remove("hidden");
-            document.body.style.overflow = "hidden";
-            lucide.createIcons();
-        }
-        function closeModal() { document.getElementById("detail-modal").classList.add("hidden"); document.body.style.overflow = "auto"; }
-        renderCategories(); renderPlaces(); lucide.createIcons();
+        // 8. 글 저장/수정/삭제
+        window.openWriteModal = () => {
+            document.getElementById("modal-title").innerText = "새 여행지 등록";
+            document.getElementById("edit-id").value = "";
+            document.getElementById("inp-name").value = "";
+            document.getElementById("inp-desc").value = "";
+            document.getElementById("inp-img-url").value = "";
+            document.getElementById("inp-tags").value = "";
+            document.getElementById("upload-status").classList.add("hidden");
+            document.getElementById("write-modal").classList.remove("hidden");
+        };
+
+        window.editPlace = (id) => {
+            const p = places.find(x => x.id === id);
+            if (!p) return;
+            document.getElementById("modal-title").innerText = "여행지 수정";
+            document.getElementById("edit-id").value = p.id;
+            document.getElementById("inp-name").value = p.name;
+            document.getElementById("inp-district").value = p.district;
+            document.getElementById("inp-desc").value = p.description;
+            document.getElementById("inp-img-url").value = p.image;
+            document.getElementById("inp-tags").value = (p.tags || []).join(", ");
+            document.getElementById("write-modal").classList.remove("hidden");
+        };
+
+        window.savePlace = async () => {
+            const id = document.getElementById("edit-id").value;
+            const data = {
+                name: document.getElementById("inp-name").value,
+                district: document.getElementById("inp-district").value,
+                description: document.getElementById("inp-desc").value,
+                image: document.getElementById("inp-img-url").value,
+                tags: document.getElementById("inp-tags").value.split(",").map(t => t.trim()).filter(t=>t),
+                createdAt: Date.now()
+            };
+
+            if (!data.name) return alert("이름을 입력하세요");
+
+            const btn = document.getElementById("save-btn");
+            btn.disabled = true;
+            btn.innerText = "저장 중...";
+
+            try {
+                if (id) {
+                    // 수정
+                    await updateDoc(doc(db, "places", id), data);
+                    alert("수정되었습니다.");
+                } else {
+                    // 신규 등록
+                    await addDoc(collection(db, "places"), data);
+                    alert("등록되었습니다.");
+                }
+                closeModal("write-modal");
+                fetchPlaces(); // 목록 새로고침
+            } catch (e) {
+                alert("저장 실패: " + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "저장하기";
+            }
+        };
+
+        window.deletePlace = async (id) => {
+            if (!confirm("정말 삭제하시겠습니까?")) return;
+            try {
+                await deleteDoc(doc(db, "places", id));
+                fetchPlaces();
+            } catch (e) {
+                alert("삭제 실패: " + e.message);
+            }
+        };
+        
+        // window 객체에 등록 (모듈 스코프 탈출)
+        window.lucide = lucide;
     </script>
 </body>
 </html>
