@@ -303,7 +303,7 @@
             <select id="notice-cat" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none">
                 <option value="notice">📢 공지사항</option>
                 <option value="tip">🍯 꿀팁</option>
-                <option value="festival">🎆 축제</option> <!-- 추가됨 -->
+                <option value="festival">🎆 축제</option> 
                 <option value="event">🎁 이벤트</option>
             </select>
             <input id="notice-title" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none" placeholder="제목을 입력하세요">
@@ -456,6 +456,8 @@
                     let badge = "";
                     if (n.category === 'festival') badge = `<span class="bg-purple-100 text-purple-700 text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold align-middle">🎆 축제</span>`;
                     else if (n.category === 'event') badge = `<span class="bg-orange-100 text-orange-700 text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold align-middle">🎁 이벤트</span>`;
+                    else if (n.category === 'notice') badge = `<span class="bg-red-100 text-red-700 text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold align-middle">📢 공지</span>`;
+                    else if (n.category === 'tip') badge = `<span class="bg-yellow-100 text-yellow-700 text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold align-middle">🍯 꿀팁</span>`;
 
                     list.innerHTML += `<div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onclick="openNoticeDetail('${n.id}')"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-gray-800 text-lg flex items-center"><i data-lucide="${icon}" class="w-4 h-4 mr-2 text-emerald-600"></i> ${safeTitle}${badge}</h3><span class="text-xs text-gray-400 shrink-0">${date}</span></div><p class="text-gray-500 text-sm line-clamp-1">${n.text.replace(/<[^>]*>/g, '')}</p></div>`;
                 });
