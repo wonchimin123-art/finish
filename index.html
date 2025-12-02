@@ -15,10 +15,11 @@
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #10b981; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
+        /* 채팅 스크롤 디자인 */
         .chat-scroll::-webkit-scrollbar { width: 4px; }
         .chat-scroll::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 4px; }
+        .chat-scroll::-webkit-scrollbar-track { background-color: transparent; }
         
-        /* 사이드바 메뉴 활성화 스타일 */
         .nav-item.active { background-color: #ecfdf5; color: #059669; font-weight: 700; border-right: 3px solid #059669; }
     </style>
 </head>
@@ -28,16 +29,10 @@
     <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16 items-center">
-                <!-- 로고 & 홈 링크 -->
-                <a href="#" onclick="location.hash=''; return false;" class="flex items-center gap-2 cursor-pointer group">
-                    <div class="bg-emerald-600 text-white p-1.5 rounded-lg shadow-md group-hover:bg-emerald-700 transition-colors">
-                        <i data-lucide="map-pin"></i>
-                    </div>
-                    <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500 group-hover:from-emerald-700 group-hover:to-teal-600 transition-all">
-                        대전 여행 가이드
-                    </span>
-                </a>
-                
+                <div class="flex items-center gap-2 cursor-pointer" onclick="location.hash=''">
+                    <div class="bg-emerald-600 text-white p-1.5 rounded-lg shadow-md"><i data-lucide="map-pin"></i></div>
+                    <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500">대전 여행 가이드</span>
+                </div>
                 <div class="flex items-center gap-3">
                     <button id="auth-btn" onclick="toggleAuth()" class="flex items-center text-xs font-bold px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
                         <i data-lucide="user" class="w-3.5 h-3.5 mr-1"></i> 관리자
@@ -54,7 +49,7 @@
             <!-- [좌측 사이드바] -->
             <aside class="w-full lg:w-72 shrink-0 space-y-6 order-2 lg:order-1">
                 
-                <!-- 1. 메뉴 (게시판 분리) -->
+                <!-- 1. 메뉴 -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="p-4 bg-gray-50 border-b border-gray-100 font-bold text-gray-700 flex items-center">
                         <i data-lucide="menu" class="w-4 h-4 mr-2"></i> 메뉴
@@ -79,7 +74,7 @@
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <h3 class="font-bold text-gray-800 mb-4 flex items-center"><i data-lucide="bar-chart-3" class="w-4 h-4 mr-2 text-emerald-600"></i> 방문자 통계</h3>
                     <div class="flex justify-between items-center text-sm mb-2">
-                        <span class="text-gray-500">오늘</span>
+                        <span class="text-gray-500">오늘 (KST)</span>
                         <span id="daily-count" class="font-bold text-emerald-600">0</span>
                     </div>
                     <div class="w-full bg-gray-100 h-1.5 rounded-full mb-4 overflow-hidden">
@@ -91,30 +86,36 @@
                     </div>
                 </div>
 
-                <!-- 3. 실시간 채팅방 (PC용) -->
-                <div class="hidden lg:flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 h-[420px] overflow-hidden sticky top-24">
+                <!-- 3. 실시간 채팅방 (PC용) - 방문자 통계 바로 밑에 배치 -->
+                <!-- lg:flex로 PC에서만 보임 / hidden으로 모바일 숨김 -->
+                <div class="hidden lg:flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 h-[400px] overflow-hidden">
                     <div class="bg-emerald-600 p-3 text-white font-bold flex justify-between items-center shrink-0">
                         <span class="flex items-center text-sm"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> 실시간 톡</span>
-                        <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">ON</span>
+                        <div class="flex items-center gap-1">
+                            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                            <span class="text-[10px] text-emerald-100">Live</span>
+                        </div>
                     </div>
+                    <!-- 메시지 영역 -->
                     <div id="desktop-chat-messages" class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50 text-sm chat-scroll">
-                        <div class="text-center text-xs text-gray-400 py-10">로딩 중...</div>
+                        <div class="text-center text-xs text-gray-400 py-10">채팅 서버 연결 중...</div>
                     </div>
+                    <!-- 입력 영역 -->
                     <form onsubmit="sendChat(event, 'desktop')" class="p-2 border-t bg-white shrink-0">
                         <div class="flex gap-1">
                             <input id="desktop-chat-input" class="flex-1 bg-gray-100 rounded-lg px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-emerald-500" placeholder="메시지 입력..." required>
-                            <button type="submit" class="bg-emerald-600 text-white p-2 rounded-lg hover:bg-emerald-700"><i data-lucide="send" class="w-3 h-3"></i></button>
+                            <button type="submit" class="bg-emerald-600 text-white p-2 rounded-lg hover:bg-emerald-700 transition-colors"><i data-lucide="send" class="w-3 h-3"></i></button>
                         </div>
                     </form>
                 </div>
             </aside>
 
-            <!-- [우측 컨텐츠 영역] - 여기가 라우팅에 따라 바뀜 -->
+            <!-- [우측 컨텐츠 영역] -->
             <section class="flex-1 w-full order-1 lg:order-2 min-h-[500px]">
                 
-                <!-- (A) 홈 뷰: 여행지 목록 -->
+                <!-- (A) 홈 뷰 -->
                 <div id="home-view">
-                    <!-- 히어로 배너 -->
+                    <!-- 히어로 -->
                     <div class="relative bg-emerald-900 rounded-3xl overflow-hidden h-[240px] mb-8 shadow-lg group">
                         <div class="absolute inset-0 opacity-60">
                             <img id="hero-bg-img" src="https://images.unsplash.com/photo-1627960682701-7b001a140228?auto=format&fit=crop&q=80&w=1600" class="w-full h-full object-cover transition-transform duration-[20s] group-hover:scale-110">
@@ -156,21 +157,21 @@
                     <div id="places-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6 fade-in hidden"></div>
                 </div>
 
-                <!-- (B) 게시판 뷰: 공지/꿀팁/이벤트 -->
+                <!-- (B) 게시판 뷰 -->
                 <div id="board-view" class="hidden fade-in">
                     <div class="flex justify-between items-end mb-6 border-b border-gray-200 pb-4">
                         <div>
                             <h2 id="board-title" class="text-2xl font-bold text-gray-800">게시판</h2>
                             <p id="board-desc" class="text-sm text-gray-500 mt-1">유용한 정보를 확인하세요.</p>
                         </div>
-                        <button id="board-write-btn" onclick="openNoticeModal()" class="hidden bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg font-bold hover:bg-emerald-700 flex items-center">
+                        <button id="board-write-btn" onclick="openNoticeModal()" class="hidden bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg font-bold hover:bg-emerald-700 flex items-center transition-colors">
                             <i data-lucide="pen-tool" class="w-4 h-4 mr-2"></i> 글쓰기
                         </button>
                     </div>
                     <div id="board-list" class="space-y-4"></div>
                 </div>
 
-                <!-- (C) 상세 뷰: 여행지 상세 -->
+                <!-- (C) 상세 뷰 -->
                 <div id="detail-view" class="hidden fade-in">
                     <div class="mb-4">
                         <button onclick="history.back()" class="flex items-center text-gray-500 hover:text-emerald-600 font-bold transition-colors">
@@ -179,7 +180,6 @@
                     </div>
                     
                     <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100">
-                        <!-- 이미지 슬라이더 (꽉 차게) -->
                         <div class="relative w-full bg-gray-100 group aspect-video">
                             <img id="detail-img" src="" class="w-full h-full object-cover">
                             <button onclick="prevImage()" id="btn-prev" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 backdrop-blur text-white p-2 rounded-full hover:bg-black/50 hidden"><i data-lucide="chevron-left"></i></button>
@@ -251,7 +251,7 @@
         </div>
     </div>
 
-    <!-- 공지/게시글 등록 (카테고리 추가) -->
+    <!-- 공지 등록 -->
     <div id="notice-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
             <h3 class="font-bold text-lg mb-4">게시글 등록</h3>
@@ -278,7 +278,7 @@
         </div>
     </div>
 
-    <!-- 메인화면 편집 모달 -->
+    <!-- 메인화면 편집 -->
     <div id="hero-edit-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
             <h3 class="font-bold text-lg mb-4">메인 화면 설정</h3>
@@ -357,7 +357,7 @@
         let currentFilter = "전체";
         let currentSort = "recent";
 
-        // ============ [ROUTER] 페이지 전환 로직 ============
+        // ============ [ROUTER] ============
         window.addEventListener('hashchange', handleRoute);
         window.addEventListener('load', handleRoute);
 
@@ -365,7 +365,7 @@
             const hash = location.hash;
             // 뷰 초기화
             document.querySelectorAll('[id$="-view"]').forEach(el => el.classList.add("hidden"));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove("active")); // 사이드바 활성 초기화
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove("active")); 
 
             if (hash.startsWith("#detail/")) {
                 const id = hash.split("/")[1];
@@ -373,17 +373,15 @@
             } else if (hash.startsWith("#board/")) {
                 const type = hash.split("/")[1];
                 showBoardView(type);
-                // 사이드바 활성화
                 const link = document.querySelector(`a[onclick*="#board/${type}"]`);
                 if(link) link.classList.add("active");
             } else {
                 document.getElementById("home-view").classList.remove("hidden");
-                document.querySelector(`a[onclick="location.hash=''"]`).classList.add("active"); // 홈버튼 활성
+                document.querySelector(`a[onclick="location.hash=''"]`).classList.add("active");
                 window.scrollTo(0,0);
             }
         }
 
-        // 게시판 뷰 로직
         function showBoardView(type) {
             const titles = { notice: "공지사항", tip: "대전 여행 꿀팁", event: "축제 & 이벤트" };
             const descs = { notice: "새로운 소식을 확인하세요.", tip: "현지인이 알려주는 진짜 정보!", event: "다채로운 즐거움이 가득!" };
@@ -395,13 +393,11 @@
             loadBoardData(type);
         }
 
-        // 게시판 데이터 로드 (필터링)
         function loadBoardData(type) {
             if(!db) return;
             const list = document.getElementById("board-list");
             list.innerHTML = '<div class="text-center py-20 text-gray-400">로딩 중...</div>';
             
-            // 카테고리 필터 쿼리
             const q = query(collection(db, "notices"), where("category", "==", type), orderBy("createdAt", "desc"));
             
             onSnapshot(q, (snap) => {
@@ -432,16 +428,16 @@
             });
         }
 
-        // 상세 뷰 로직 (조회수 중복 방지)
         function showDetailView(id) {
             const place = allPlaces.find(p => p.id === id);
-            if(!place && allPlaces.length === 0) { setTimeout(()=>showDetailView(id), 200); return; } // 로딩 대기
+            if(!place && allPlaces.length === 0) { setTimeout(()=>showDetailView(id), 200); return; }
             if(!place) { alert("글 없음"); location.hash=""; return; }
 
-            // 조회수 증가: 세션 스토리지로 중복 방지 (안드로메다행 막기)
+            // 조회수 버그 수정: 세션 체크 후 1회만 증가
             if (db && !sessionStorage.getItem(`viewed_${id}`)) {
                 updateDoc(doc(db, "places", id), { views: increment(1) }).catch(e=>{});
                 sessionStorage.setItem(`viewed_${id}`, "true");
+                place.views = (place.views || 0) + 1; // 즉시 반영
             }
 
             currentDetailImages = (place.images && place.images.length > 0) ? place.images : [place.image || 'https://via.placeholder.com/800?text=No+Image'];
@@ -452,7 +448,7 @@
             document.getElementById("detail-desc").innerText = place.description;
             document.getElementById("detail-district").innerText = place.district;
             document.getElementById("detail-rating").innerText = place.rating || 0;
-            document.getElementById("detail-views").innerText = (place.views || 0) + (sessionStorage.getItem(`viewed_${id}`) ? 0 : 1); // 표시 보정
+            document.getElementById("detail-views").innerText = place.views || 0;
             document.getElementById("detail-tags").innerHTML = (place.tags || []).map(t => `<span class="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg text-sm font-medium">#${t}</span>`).join('');
 
             document.getElementById("detail-view").classList.remove("hidden");
@@ -460,7 +456,6 @@
             lucide.createIcons();
         }
 
-        // 이미지 슬라이더
         let currentDetailImages = [];
         let currentImgIdx = 0;
         window.updateCarousel = () => {
@@ -481,7 +476,6 @@
         window.nextImage = () => { if(currentImgIdx < currentDetailImages.length-1) { currentImgIdx++; updateCarousel(); }};
         window.prevImage = () => { if(currentImgIdx > 0) { currentImgIdx--; updateCarousel(); }};
 
-        // 데이터 로드
         if (db) {
             onSnapshot(collection(db, "places"), (snapshot) => {
                 allPlaces = [];
@@ -489,11 +483,10 @@
                 document.getElementById("loader-area").classList.add("hidden");
                 document.getElementById("places-grid").classList.remove("hidden");
                 renderPlaces();
-                // 상세페이지 갱신
                 if(location.hash.startsWith("#detail/")) {
                     const id = location.hash.split("/")[1];
                     const p = allPlaces.find(x => x.id === id);
-                    if(p) document.getElementById("detail-views").innerText = p.views; // 조회수만 실시간 갱신
+                    if(p) document.getElementById("detail-views").innerText = p.views;
                 }
             });
             onSnapshot(doc(db, "config", "hero"), (doc) => {
@@ -615,7 +608,8 @@
         };
 
         if (db) {
-            const todayKey = new Date().toISOString().slice(0, 10);
+            const offset = 1000 * 60 * 60 * 9;
+            const todayKey = new Date(Date.now() + offset).toISOString().split('T')[0];
             onSnapshot(doc(db, "stats", "global"), (doc) => {
                 if(doc.exists()) {
                     document.getElementById("total-count").innerText = (doc.data().total||0).toLocaleString();
