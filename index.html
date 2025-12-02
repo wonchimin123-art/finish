@@ -188,7 +188,7 @@
                     <div id="places-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6 fade-in hidden"></div>
                 </div>
 
-                <!-- (B) 게시판 뷰 (공지/팁/이벤트) -->
+                <!-- (B) 게시판 뷰 (공지/팁/이벤트 - 디자인 통일됨) -->
                 <div id="board-view" class="hidden fade-in">
                     <div class="flex justify-between items-end mb-6 border-b border-gray-200 pb-4">
                         <div>
@@ -202,7 +202,7 @@
                     <div id="board-list" class="space-y-4"></div>
                 </div>
 
-                <!-- (C) 자유게시판 목록 -->
+                <!-- (C) 자유게시판 -->
                 <div id="free-board-view" class="hidden fade-in">
                     <div class="flex justify-between items-end mb-6 border-b border-gray-200 pb-4">
                         <div>
@@ -222,58 +222,7 @@
                     <div id="free-board-list" class="space-y-4"></div>
                 </div>
 
-                <!-- (D) 자유게시판 상세 페이지 (New! 페이지 방식) -->
-                <div id="free-detail-view" class="hidden fade-in">
-                    <div class="mb-4">
-                        <button onclick="history.back()" class="flex items-center text-gray-500 hover:text-emerald-600 font-bold transition-colors">
-                            <i data-lucide="arrow-left" class="w-5 h-5 mr-1"></i> 목록으로
-                        </button>
-                    </div>
-                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div class="p-6 md:p-10">
-                            <!-- 글 헤더 -->
-                            <div class="flex justify-between items-start mb-6 pb-4 border-b border-gray-100">
-                                <div class="flex items-center gap-4">
-                                    <img id="free-view-avatar" src="" class="w-12 h-12 rounded-full border border-gray-200">
-                                    <div>
-                                        <h1 id="free-view-title" class="text-2xl font-bold text-gray-900 leading-tight mb-1"></h1>
-                                        <div class="text-sm text-gray-500" id="free-view-author"></div>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="text-xs text-gray-400 block mb-2" id="free-view-date"></span>
-                                    <div id="free-view-owner-btns" class="hidden gap-2 justify-end">
-                                        <button id="btn-free-view-delete" class="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-100 font-bold transition-colors">삭제</button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- 본문 -->
-                            <div class="prose prose-emerald max-w-none mb-12 min-h-[100px]">
-                                <p id="free-view-content" class="text-gray-700 leading-8 whitespace-pre-line text-lg"></p>
-                            </div>
-
-                            <!-- 댓글 영역 -->
-                            <div class="bg-gray-50 rounded-2xl p-6">
-                                <h4 class="font-bold text-gray-800 mb-4 flex items-center">
-                                    <i data-lucide="message-square" class="w-4 h-4 mr-2 text-emerald-600"></i>
-                                    댓글 <span id="free-view-comment-count" class="text-emerald-600 ml-1">0</span>
-                                </h4>
-                                
-                                <div id="free-view-comment-list" class="space-y-3 mb-6">
-                                    <!-- 댓글 리스트 -->
-                                </div>
-
-                                <form onsubmit="saveComment(event)" class="flex gap-2">
-                                    <input id="comment-input" class="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="댓글을 남겨보세요..." required>
-                                    <button type="submit" class="bg-emerald-600 text-white text-sm px-5 rounded-xl font-bold hover:bg-emerald-700 transition-colors">등록</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- (E) 여행지 상세 뷰 -->
+                <!-- (D) 여행지 상세 뷰 -->
                 <div id="detail-view" class="hidden fade-in">
                     <div class="mb-4">
                         <button onclick="history.back()" class="flex items-center text-gray-500 hover:text-emerald-600 font-bold transition-colors">
@@ -314,7 +263,7 @@
                     </div>
                 </div>
 
-                <!-- (F) 공지사항 상세 뷰 (페이지 방식) -->
+                <!-- (E) ★ 공지사항 상세 뷰 (페이지 방식) -->
                 <div id="notice-detail-view" class="hidden fade-in">
                     <div class="mb-4">
                         <button onclick="history.back()" class="flex items-center text-gray-500 hover:text-emerald-600 font-bold transition-colors">
@@ -328,15 +277,63 @@
                                 <h1 id="notice-view-title" class="text-3xl font-extrabold text-gray-900 mb-4 leading-tight"></h1>
                                 <div class="flex justify-between items-center text-sm text-gray-400">
                                     <span id="notice-view-date"></span>
-                                    <!-- 관리자 버튼 -->
                                     <div id="notice-view-admin-btns" class="hidden gap-2">
-                                        <button id="btn-notice-view-edit" class="bg-blue-50 text-blue-600 px-3 py-1 rounded hover:bg-blue-100">수정</button>
-                                        <button id="btn-notice-view-delete" class="bg-red-50 text-red-600 px-3 py-1 rounded hover:bg-red-100">삭제</button>
+                                        <button id="btn-notice-view-edit" class="bg-blue-50 text-blue-600 px-3 py-1 rounded hover:bg-blue-100 text-xs font-bold">수정</button>
+                                        <button id="btn-notice-view-delete" class="bg-red-50 text-red-600 px-3 py-1 rounded hover:bg-red-100 text-xs font-bold">삭제</button>
                                     </div>
                                 </div>
                             </div>
-                            <div class="prose prose-emerald max-w-none">
+                            <div class="prose prose-emerald max-w-none min-h-[200px]">
                                 <p id="notice-view-content" class="text-gray-700 leading-8 whitespace-pre-line text-lg"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- (F) ★ 자유게시판 상세 뷰 (페이지 방식) -->
+                <div id="free-detail-view" class="hidden fade-in">
+                    <div class="mb-4">
+                        <button onclick="history.back()" class="flex items-center text-gray-500 hover:text-emerald-600 font-bold transition-colors">
+                            <i data-lucide="arrow-left" class="w-5 h-5 mr-1"></i> 목록으로
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-6 md:p-10">
+                            <!-- 글 헤더 -->
+                            <div class="flex justify-between items-start mb-6 pb-4 border-b border-gray-100">
+                                <div class="flex items-center gap-4">
+                                    <img id="free-view-avatar" src="" class="w-12 h-12 rounded-full border border-gray-200">
+                                    <div>
+                                        <h1 id="free-view-title" class="text-2xl font-bold text-gray-900 leading-tight mb-1"></h1>
+                                        <div class="text-sm text-gray-500" id="free-view-author"></div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs text-gray-400 block mb-2" id="free-view-date"></span>
+                                    <div id="free-view-owner-btns" class="hidden gap-2 justify-end">
+                                        <button id="btn-free-view-delete" class="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-100 font-bold transition-colors">삭제</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 본문 -->
+                            <div class="prose prose-emerald max-w-none mb-12 min-h-[100px]">
+                                <p id="free-view-content" class="text-gray-700 leading-8 whitespace-pre-line text-lg"></p>
+                            </div>
+
+                            <!-- 댓글 영역 -->
+                            <div class="bg-gray-50 rounded-2xl p-6">
+                                <h4 class="font-bold text-gray-800 mb-4 flex items-center">
+                                    <i data-lucide="message-square" class="w-4 h-4 mr-2 text-emerald-600"></i>
+                                    댓글 <span id="free-view-comment-count" class="text-emerald-600 ml-1">0</span>
+                                </h4>
+                                
+                                <div id="free-view-comment-list" class="space-y-3 mb-6"></div>
+
+                                <form onsubmit="saveComment(event)" class="flex gap-2">
+                                    <input id="comment-input" class="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="댓글을 남겨보세요..." required>
+                                    <button type="submit" class="bg-emerald-600 text-white text-sm px-5 rounded-xl font-bold hover:bg-emerald-700 transition-colors">등록</button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -480,10 +477,10 @@
             if (hash.startsWith("#detail/")) {
                 const id = hash.split("/")[1];
                 showDetailView(id);
-            } else if (hash.startsWith("#notice_detail/")) { 
+            } else if (hash.startsWith("#notice_detail/")) { // ★ 변경됨: 공지사항 상세
                 const id = hash.split("/")[1];
                 showNoticeDetailView(id);
-            } else if (hash.startsWith("#free_detail/")) { // ★ 변경됨: 자유게시판 상세 페이지
+            } else if (hash.startsWith("#free_detail/")) { 
                 const id = hash.split("/")[1];
                 showFreeDetailView(id);
             } else if (hash.startsWith("#board/")) {
@@ -544,13 +541,25 @@
                     else if (n.category === 'notice') badge = `<span class="bg-red-100 text-red-700 text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold align-middle">📢 공지</span>`;
                     else if (n.category === 'tip') badge = `<span class="bg-yellow-100 text-yellow-700 text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold align-middle">🍯 꿀팁</span>`;
 
-                    list.innerHTML += `<div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onclick="location.hash='#notice_detail/${n.id}'"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-gray-800 text-lg flex items-center"><i data-lucide="${icon}" class="w-4 h-4 mr-2 text-emerald-600"></i> ${safeTitle}${badge}</h3><span class="text-xs text-gray-400 shrink-0">${date}</span></div><p class="text-gray-500 text-sm line-clamp-1">${n.text.replace(/<[^>]*>/g, '')}</p></div>`;
+                    // ★ 수정됨: 내용 미리보기 제거 (제목 위주)
+                    list.innerHTML += `
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer flex items-center justify-between" onclick="location.hash='#notice_detail/${n.id}'">
+                            <div class="flex items-center gap-3 overflow-hidden">
+                                <div class="bg-emerald-50 p-2 rounded-lg text-emerald-600 shrink-0"><i data-lucide="${icon}" class="w-5 h-5"></i></div>
+                                <div class="flex-1 min-w-0">
+                                     <h3 class="font-bold text-gray-800 text-base truncate">${safeTitle} ${badge}</h3>
+                                     <span class="text-xs text-gray-400">${date}</span>
+                                </div>
+                            </div>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                        </div>
+                    `;
                 });
                 lucide.createIcons();
             } else { list.innerHTML = '<div class="text-center py-20 text-gray-400">등록된 글이 없습니다.</div>'; }
         }
 
-        // 공지 상세 페이지 뷰 로직
+        // ★ 공지 상세 페이지 뷰 로직 (New!)
         function showNoticeDetailView(id) {
             let n = allNotices.find(item => item.id === id);
             if (!n) {
@@ -568,132 +577,97 @@
             document.getElementById("notice-view-title").innerText = n.title || "";
             document.getElementById("notice-view-content").innerHTML = n.text; 
             document.getElementById("notice-view-date").innerText = new Date(n.createdAt).toLocaleDateString();
+            
             const btns = document.getElementById("notice-view-admin-btns");
             if(isAdmin) {
-                btns.classList.remove("hidden"); btns.classList.add("flex");
+                btns.classList.remove("hidden");
+                btns.classList.add("flex");
                 document.getElementById("btn-notice-view-edit").onclick = () => { editNotice(n.id); };
                 document.getElementById("btn-notice-view-delete").onclick = () => { deleteNotice(n.id); };
-            } else { btns.classList.add("hidden"); }
+            } else {
+                btns.classList.add("hidden");
+            }
             document.getElementById("notice-detail-view").classList.remove("hidden");
             window.scrollTo(0,0);
         }
 
-        // ★ 자유게시판 목록 (제목만 표시)
-        window.loadFreeBoard = () => {
-            if(!db) return;
-            const list = document.getElementById("free-board-list");
-            list.innerHTML = '<div class="text-center py-20 text-gray-400">로딩 중...</div>';
-            const q = query(collection(db, "free_posts"), orderBy("createdAt", freeBoardSort));
-            onSnapshot(q, (snap) => {
-                list.innerHTML = "";
-                if(!snap.empty) {
-                    snap.forEach(doc => {
-                        const p = doc.data();
-                        const date = new Date(p.createdAt).toLocaleDateString();
-                        const badge = (p.isAdmin) ? `<span class="bg-blue-100 text-blue-600 text-[10px] px-1.5 py-0.5 rounded-md font-bold ml-1 align-middle">관리자</span>` : "";
-                        
-                        // ★ 변경됨: 본문 내용 제거, 제목 중심
-                        list.innerHTML += `
-                            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer flex items-center justify-between" onclick="location.hash='#free_detail/${doc.id}'">
-                                <div>
-                                    <h3 class="font-bold text-gray-800 text-base line-clamp-1 mb-1">${p.title}</h3>
-                                    <div class="text-xs text-gray-500 flex items-center gap-2">
-                                        <span>${p.author} ${badge}</span>
-                                        <span class="w-0.5 h-3 bg-gray-300"></span>
-                                        <span>${date}</span>
-                                    </div>
-                                </div>
-                                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
-                            </div>
-                        `;
-                    });
-                    lucide.createIcons();
-                } else {
-                    list.innerHTML = '<div class="text-center py-20 text-gray-400">자유롭게 글을 남겨보세요!</div>';
+        // (기존 공지 수정/삭제 함수 재활용)
+        window.editNotice = (id) => {
+            getDoc(doc(db, "notices", id)).then(snap => {
+                if(snap.exists()) {
+                    const n = snap.data();
+                    openNoticeModal();
+                    document.getElementById("notice-modal-title").innerText = "게시글 수정";
+                    document.getElementById("notice-edit-id").value = id;
+                    document.getElementById("notice-cat").value = n.category;
+                    document.getElementById("notice-title").value = n.title || "";
+                    document.getElementById("notice-text").value = n.text;
+                    document.getElementById("notice-save-btn").innerText = "수정하기";
                 }
             });
         };
 
-        // ★ 자유게시판 상세 페이지 뷰
+        window.deleteNotice = async (id) => {
+            if(confirm("정말 삭제하시겠습니까?")) {
+                await deleteDoc(doc(db, "notices", id));
+                // 삭제 후 해당 게시판 목록으로 이동
+                const n = allNotices.find(item => item.id === id);
+                if (n) location.hash = "#board/" + n.category;
+                else location.hash = "";
+            }
+        };
+
+        // 자유게시판 상세 (기존 유지)
         async function showFreeDetailView(id) {
             currentFreePostId = id;
-            
-            // 데이터 로드
-            let p;
             try {
                 const docSnap = await getDoc(doc(db, "free_posts", id));
                 if(!docSnap.exists()) { alert("삭제된 글입니다."); location.hash=""; return; }
-                p = docSnap.data();
-            } catch(e) { console.error(e); return; }
-
-            const badge = (p.isAdmin) ? `<span class="bg-blue-100 text-blue-600 text-[10px] px-1.5 py-0.5 rounded-md font-bold ml-1 align-middle">관리자</span>` : "";
-            document.getElementById("free-view-title").innerText = p.title;
-            document.getElementById("free-view-content").innerText = p.text;
-            document.getElementById("free-view-author").innerHTML = p.author + badge;
-            document.getElementById("free-view-date").innerText = new Date(p.createdAt).toLocaleDateString();
-            document.getElementById("free-view-avatar").src = p.photo || 'https://via.placeholder.com/40?text=U';
-            
-            const btnBox = document.getElementById("free-view-owner-btns");
-            if (isAdmin || (currentUser && currentUser.uid === p.uid)) {
-                btnBox.classList.remove("hidden"); btnBox.classList.add("flex");
-                document.getElementById("btn-free-view-delete").onclick = async () => {
-                    if(confirm("삭제하시겠습니까?")) {
-                        await deleteDoc(doc(db, "free_posts", id));
-                        location.hash = "#freeboard";
-                    }
-                };
-            } else {
-                btnBox.classList.add("hidden");
-            }
-            
-            // 댓글 로드 (상세뷰용)
-            loadCommentsForView(id);
-            
-            document.getElementById("free-detail-view").classList.remove("hidden");
-            window.scrollTo(0,0);
+                const p = docSnap.data();
+                const badge = (p.isAdmin) ? `<span class="bg-blue-100 text-blue-600 text-[10px] px-1.5 py-0.5 rounded-md font-bold ml-1 align-middle">관리자</span>` : "";
+                
+                document.getElementById("free-view-title").innerText = p.title;
+                document.getElementById("free-view-content").innerText = p.text;
+                document.getElementById("free-view-author").innerHTML = p.author + badge;
+                document.getElementById("free-view-date").innerText = new Date(p.createdAt).toLocaleDateString();
+                document.getElementById("free-view-avatar").src = p.photo || 'https://via.placeholder.com/40?text=U';
+                
+                const btnBox = document.getElementById("free-view-owner-btns");
+                if (isAdmin || (currentUser && currentUser.uid === p.uid)) {
+                    btnBox.classList.remove("hidden"); btnBox.classList.add("flex");
+                    document.getElementById("btn-free-view-delete").onclick = async () => {
+                        if(confirm("삭제하시겠습니까?")) { await deleteDoc(doc(db, "free_posts", id)); location.hash = "#freeboard"; }
+                    };
+                } else btnBox.classList.add("hidden");
+                
+                loadCommentsForView(id);
+                document.getElementById("free-detail-view").classList.remove("hidden");
+                window.scrollTo(0,0);
+            } catch(e) { console.error(e); }
         }
 
-        // 상세뷰용 댓글 로드 함수
         let commentUnsubView;
         function loadCommentsForView(postId) {
             if(commentUnsubView) commentUnsubView();
             const list = document.getElementById("free-view-comment-list");
             list.innerHTML = "<div class='text-xs text-gray-400 text-center'>로딩...</div>";
-            
             const q = query(collection(db, "comments"), where("postId", "==", postId));
             commentUnsubView = onSnapshot(q, (snap) => {
                 const comments = [];
                 snap.forEach(doc => comments.push({id: doc.id, ...doc.data()}));
                 comments.sort((a,b) => a.createdAt - b.createdAt);
-                
                 document.getElementById("free-view-comment-count").innerText = comments.length;
                 list.innerHTML = "";
                 if(comments.length === 0) { list.innerHTML="<div class='text-center text-xs text-gray-400 py-4'>첫 댓글을 남겨보세요!</div>"; return; }
-                
                 comments.forEach(c => {
                     const date = new Date(c.createdAt).toLocaleDateString();
                     const isOwner = isAdmin || (currentUser && currentUser.uid === c.uid);
                     const delBtn = isOwner ? `<button onclick="deleteComment('${c.id}')" class="text-[10px] text-red-400 ml-2 hover:underline">삭제</button>` : "";
                     const badge = (c.isAdmin) ? `<span class="bg-blue-100 text-blue-600 text-[10px] px-1.5 py-0.5 rounded-md font-bold ml-1 align-middle">관리자</span>` : "";
-                    
-                    list.innerHTML += `
-                        <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-sm">
-                            <div class="flex justify-between items-start mb-1">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="font-bold text-gray-700 text-xs">${c.author} ${badge}</span>
-                                    <span class="text-[10px] text-gray-400">${date}</span>
-                                </div>
-                                ${delBtn}
-                            </div>
-                            <div class="text-gray-600 text-sm break-all whitespace-pre-wrap">${c.text}</div>
-                        </div>
-                    `;
+                    list.innerHTML += `<div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-sm"><div class="flex justify-between items-start mb-1"><div class="flex items-center gap-1.5"><span class="font-bold text-gray-700 text-xs">${c.author} ${badge}</span><span class="text-[10px] text-gray-400">${date}</span></div>${delBtn}</div><div class="text-gray-600 text-sm break-all whitespace-pre-wrap">${c.text}</div></div>`;
                 });
             });
         }
-
-        // ... [나머지 기존 함수들: showDetailView, renderPlaces, etc.] ...
-        // (중요: 기존 코드는 그대로 유지하며 라우팅과 리스트 렌더링 부분만 위와 같이 변경됨)
 
         function showDetailView(id) {
             try {
@@ -766,7 +740,6 @@
             if (term) filtered = filtered.filter(p => p.name.toLowerCase().includes(term) || p.description.toLowerCase().includes(term));
             
             filtered.sort((a, b) => { if(currentSort === 'rating') return (b.rating||0) - (a.rating||0); if(currentSort === 'views') return (b.views||0) - (a.views||0); return (b.createdAt||0) - (a.createdAt||0); });
-            
             filtered.forEach(place => {
                 const thumb = (place.images && place.images.length > 0) ? place.images[0] : (place.image || 'https://via.placeholder.com/400?text=No+Image');
                 const card = document.createElement("div");
@@ -816,14 +789,12 @@
             if(!title || !t) return alert("입력 필요");
             try { if(id) await updateDoc(doc(db, "notices", id), {category:cat, title, text:t}); else await addDoc(collection(db, "notices"), {category:cat, title, text:t, createdAt:Date.now()}); closeModal("notice-modal"); if (location.hash.startsWith(`#board/`)) loadBoardData(location.hash.split("/")[1]); if(location.hash.startsWith("#notice_detail/")) showNoticeDetailView(id); } catch(e) { alert("실패"); }
         };
-
         window.openFreeWriteModal = () => { if(!currentUser) { alert("로그인 필요"); openLoginModal(); return; } document.getElementById("free-title").value=""; document.getElementById("free-text").value=""; document.getElementById("free-write-modal").classList.remove("hidden"); };
         window.saveFreePost = async () => { const title = document.getElementById("free-title").value; const text = document.getElementById("free-text").value; if(!title || !text) return alert("입력 필요"); await addDoc(collection(db, "free_posts"), {title, text, author:currentUser.displayName||"익명", uid:currentUser.uid, photo:currentUser.photoURL, createdAt:Date.now(), isAdmin: isAdmin}); closeModal("free-write-modal"); alert("등록됨"); };
         window.sortFreeBoard = (m) => { freeBoardSort = m; loadFreeBoard(); };
 
         window.saveComment = async (e) => { e.preventDefault(); if(!currentUser) return alert("로그인 필요"); const inp = document.getElementById("comment-input"); if(inp.value.trim()) { await addDoc(collection(db, "comments"), {postId:currentFreePostId, text:inp.value, author:currentUser.displayName||"익명", uid:currentUser.uid, createdAt:Date.now(), isAdmin: isAdmin}); inp.value=""; } };
         window.deleteComment = async (id) => { if(confirm("삭제?")) await deleteDoc(doc(db, "comments", id)); };
-
         let upImgs = [];
         window.openWriteModal = () => { upImgs=[]; document.getElementById("preview-area").innerHTML=""; document.getElementById("write-modal").classList.remove("hidden"); };
         document.getElementById("inp-files").addEventListener("change", async(e) => { const files = Array.from(e.target.files); if(!files.length) return; document.getElementById("upload-status").classList.remove("hidden"); try { const urls = await Promise.all(files.map(f => uploadBytesResumable(ref(storage, 'img/'+Date.now()+'_'+f.name), f).then(s => getDownloadURL(s.ref)))); upImgs=[...upImgs,...urls]; const p=document.getElementById("preview-area"); urls.forEach(u=>p.innerHTML+=`<img src="${u}" class="h-16 w-16 object-cover rounded-lg border">`); document.getElementById("upload-status").innerText="완료"; } catch(e){alert("업로드 실패");} });
