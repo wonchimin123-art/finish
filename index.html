@@ -19,11 +19,13 @@
         .chat-scroll::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 4px; }
         .nav-item.active { background-color: #ecfdf5; color: #059669; font-weight: 700; border-right: 3px solid #059669; }
         
+        /* 슬라이더 커스텀 */
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #059669; cursor: pointer; margin-top: -6px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e5e7eb; border-radius: 2px; }
         input[type=range]:focus::-webkit-slider-runnable-track { background: #a7f3d0; }
         
+        /* 소셜 버튼 */
         .btn-kakao { background-color: #FEE500; color: #000000; }
         .btn-twitter { background-color: #000000; color: #ffffff; }
         .btn-facebook { background-color: #1877F2; color: #ffffff; }
@@ -34,7 +36,7 @@
     <!-- 설정 오류 오버레이 -->
     <div id="config-error-overlay" class="fixed inset-0 z-[999] bg-black/90 flex items-center justify-center hidden">
         <div class="bg-white p-8 rounded-2xl max-w-md text-center shadow-2xl">
-            <div class="text-red-500 mb-4 flex justify-center"><i data-lucide="settings" class="w-12 h-12"></i></div>
+            <div class="text-red-500 mb-4 flex justify-center"><i data-lucide="alert-triangle" class="w-12 h-12"></i></div>
             <h2 class="text-xl font-bold mb-2">설정이 필요합니다!</h2>
             <p class="text-gray-600 mb-6 text-sm leading-relaxed">
                 현재 코드에 <b>'본인_PROJECT_ID'</b>가 그대로 남아있습니다.<br>
@@ -197,7 +199,7 @@
                     <div id="places-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6 fade-in hidden"></div>
                 </div>
 
-                <!-- (B) 게시판 뷰 -->
+                <!-- (B) 게시판 뷰 (공지/팁/이벤트) -->
                 <div id="board-view" class="hidden fade-in">
                     <div class="flex justify-between items-end mb-6 border-b border-gray-200 pb-4">
                         <div>
@@ -260,7 +262,7 @@
                                 <div class="text-gray-400 text-sm flex items-center shrink-0"><i data-lucide="eye" class="w-4 h-4 mr-1.5"></i> <span id="detail-views"></span>회 조회</div>
                             </div>
 
-                            <!-- 상세 평점 (그래프) -->
+                            <!-- ★ 상세 평점 (그래프) -->
                             <div id="detail-ratings-box" class="bg-gray-50 rounded-xl p-5 mb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <!-- JS로 채워짐 -->
                             </div>
@@ -298,7 +300,7 @@
                     </div>
                 </div>
 
-                <!-- (F) 자유게시판 상세 뷰 (페이지 방식) -->
+                <!-- (F) ★ 자유게시판 상세 뷰 (페이지 방식) -->
                 <div id="free-detail-view" class="hidden fade-in">
                     <div class="mb-4">
                         <button onclick="history.back()" class="flex items-center text-gray-500 hover:text-emerald-600 font-bold transition-colors">
@@ -538,15 +540,10 @@
             loadBoardData(type);
         }
 
-        // ★ 공지/팁/이벤트 게시판 로직 (클라이언트 정렬)
         function loadBoardData(type) {
             if(!db) return;
             const list = document.getElementById("board-list");
             list.innerHTML = '<div class="text-center py-20 text-gray-400">로딩 중...</div>';
-            
-            // 인덱스 문제를 피하기 위해 collection 전체 구독 후 JS로 필터/정렬
-            // (onSnapshot(collection(db, "notices"))는 아래에서 이미 실행중)
-            // 여기서는 allNotices 배열을 활용
             
             let filtered;
             if (type === 'event') {
@@ -568,6 +565,7 @@
                     else if (n.category === 'notice') badge = `<span class="bg-red-100 text-red-700 text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold align-middle">📢 공지</span>`;
                     else if (n.category === 'tip') badge = `<span class="bg-yellow-100 text-yellow-700 text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold align-middle">🍯 꿀팁</span>`;
 
+                    // ★ 수정됨: onclick -> hash 이동
                     list.innerHTML += `
                         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer flex items-center justify-between" onclick="location.hash='#notice_detail/${n.id}'">
                             <div class="flex items-center gap-3 overflow-hidden">
@@ -585,7 +583,7 @@
             } else { list.innerHTML = '<div class="text-center py-20 text-gray-400">등록된 글이 없습니다.</div>'; }
         }
 
-        // ★ 공지 상세 페이지 뷰 로직
+        // ★ 공지 상세 페이지 뷰 로직 (New!)
         function showNoticeDetailView(id) {
             let n = allNotices.find(item => item.id === id);
             
@@ -647,7 +645,7 @@
             }
         };
 
-        // ★ 자유게시판 상세 (페이지 방식)
+        // 자유게시판 상세 (기존 유지)
         async function showFreeDetailView(id) {
             currentFreePostId = id;
             try {
@@ -764,6 +762,7 @@
                 const imgLoader = document.getElementById("detail-img-loader");
                 const imgEl = document.getElementById("detail-img");
                 imgEl.onload = () => { imgLoader.classList.add("hidden"); imgEl.classList.remove("opacity-0"); };
+                
                 window.updateCarousel = () => {
                     imgLoader.classList.remove("hidden"); imgEl.classList.add("opacity-0");
                     const prev = document.getElementById("btn-prev");
@@ -934,8 +933,53 @@
         let upImgs = [];
         window.openWriteModal = () => { upImgs=[]; document.getElementById("preview-area").innerHTML=""; document.getElementById("write-modal").classList.remove("hidden"); };
         document.getElementById("inp-files").addEventListener("change", async(e) => { const files = Array.from(e.target.files); if(!files.length) return; document.getElementById("upload-status").classList.remove("hidden"); try { const urls = await Promise.all(files.map(f => uploadBytesResumable(ref(storage, 'img/'+Date.now()+'_'+f.name), f).then(s => getDownloadURL(s.ref)))); upImgs=[...upImgs,...urls]; const p=document.getElementById("preview-area"); urls.forEach(u=>p.innerHTML+=`<img src="${u}" class="h-16 w-16 object-cover rounded-lg border">`); document.getElementById("upload-status").innerText="완료"; } catch(e){alert("업로드 실패");} });
-        window.savePlace = async() => { const id = document.getElementById("edit-id").value; const data = { name: document.getElementById("inp-name").value, district: document.getElementById("inp-district").value, rating: parseFloat(document.getElementById("inp-rating").value)||0, description: document.getElementById("inp-desc").value, tags: document.getElementById("inp-tags").value.split(",").filter(t=>t.trim()), images: upImgs, image: upImgs[0]||"", createdAt: Date.now() }; if(!data.name) return alert("제목 필요"); try { if(id) await updateDoc(doc(db, "places", id), data); else { data.views=0; await addDoc(collection(db, "places"), data); } closeModal("write-modal"); } catch(e){alert("실패");} };
-        window.editPlace = (id) => { const p = allPlaces.find(x=>x.id===id); if(!p) return; openWriteModal(); document.getElementById("write-modal-title").innerText="여행지 수정"; document.getElementById("edit-id").value=p.id; document.getElementById("inp-name").value=p.name; document.getElementById("inp-district").value=p.district; document.getElementById("inp-rating").value=p.rating; document.getElementById("inp-desc").value=p.description; document.getElementById("inp-tags").value=p.tags.join(","); upImgs=p.images||[p.image]; const pr = document.getElementById("preview-area"); upImgs.forEach(u=>{if(u) pr.innerHTML+=`<img src="${u}" class="h-16 w-16 object-cover rounded-lg border">`;}); };
+        window.savePlace = async() => { 
+            const id = document.getElementById("edit-id").value;
+            // 상세 평점 읽기
+            const r_clean = parseFloat(document.getElementById('inp-clean').value);
+            const r_access = parseFloat(document.getElementById('inp-access').value);
+            const r_content = parseFloat(document.getElementById('inp-content').value);
+            const r_stay = parseFloat(document.getElementById('inp-stay').value);
+            // 평균 계산
+            const avg = parseFloat(((r_clean + r_access + r_content + r_stay) / 4).toFixed(1));
+
+            const data = { 
+                name: document.getElementById("inp-name").value, 
+                district: document.getElementById("inp-district").value, 
+                rating: avg, // 평균값 저장
+                ratings: { clean: r_clean, access: r_access, content: r_content, stay: r_stay }, // 상세 저장
+                description: document.getElementById("inp-desc").value, 
+                tags: document.getElementById("inp-tags").value.split(",").filter(t=>t.trim()), 
+                images: upImgs, 
+                image: upImgs[0]||"", 
+                createdAt: Date.now() 
+            }; 
+            if(!data.name) return alert("제목 필요"); 
+            try { if(id) await updateDoc(doc(db, "places", id), data); else { data.views=0; await addDoc(collection(db, "places"), data); } closeModal("write-modal"); } catch(e){alert("실패");} 
+        };
+        
+        window.editPlace = (id) => { 
+            const p = allPlaces.find(x=>x.id===id); if(!p) return; 
+            openWriteModal(); 
+            document.getElementById("write-modal-title").innerText="여행지 수정"; 
+            document.getElementById("edit-id").value=p.id; 
+            document.getElementById("inp-name").value=p.name; 
+            document.getElementById("inp-district").value=p.district; 
+            
+            // 평점 로드 (없으면 기본값)
+            if(p.ratings) {
+                document.getElementById('inp-clean').value = p.ratings.clean; document.getElementById('val-clean').innerText = p.ratings.clean;
+                document.getElementById('inp-access').value = p.ratings.access; document.getElementById('val-access').innerText = p.ratings.access;
+                document.getElementById('inp-content').value = p.ratings.content; document.getElementById('val-content').innerText = p.ratings.content;
+                document.getElementById('inp-stay').value = p.ratings.stay; document.getElementById('val-stay').innerText = p.ratings.stay;
+            }
+
+            document.getElementById("inp-desc").value=p.description; 
+            document.getElementById("inp-tags").value=p.tags.join(","); 
+            upImgs=p.images||[p.image]; 
+            const pr = document.getElementById("preview-area"); 
+            upImgs.forEach(u=>{if(u) pr.innerHTML+=`<img src="${u}" class="h-16 w-16 object-cover rounded-lg border">`;}); 
+        };
         window.deletePlace = async(id) => { if(confirm("삭제?") && db) await deleteDoc(doc(db, "places", id)); };
         
         window.openHeroEditModal = () => document.getElementById("hero-edit-modal").classList.remove("hidden");
