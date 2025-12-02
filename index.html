@@ -3,349 +3,596 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>대전여행 가이드 (Live)</title>
+    <title>대전여행 가이드 (Pro)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <style>
-        .fade-in { animation: fadeIn 0.5s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        body { font-family: "Pretendard Variable", Pretendard, -apple-system, sans-serif; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden { display: none !important; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #10b981; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #10b981; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-900">
+<body class="bg-gray-50 text-gray-900">
 
+    <!-- 상단 네비게이션 (공통) -->
     <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.reload()">
-                    <div class="bg-emerald-600 text-white p-1.5 rounded-lg"><i data-lucide="map-pin"></i></div>
+                <div class="flex items-center gap-2 cursor-pointer" onclick="goHome()">
+                    <div class="bg-emerald-600 text-white p-1.5 rounded-lg shadow-md"><i data-lucide="map-pin"></i></div>
                     <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500">대전여행 가이드</span>
                 </div>
-                <div class="flex items-center gap-4">
-                    <div class="hidden md:flex flex-col items-end text-xs text-gray-500">
-                        <span>오늘 방문: <b id="daily-count" class="text-emerald-600">0</b></span>
-                        <span>누적 방문: <b id="total-count" class="text-blue-600">0</b></span>
+                <div class="flex items-center gap-3">
+                    <div class="hidden md:flex flex-col items-end text-[10px] text-gray-500">
+                        <span>Today <b id="daily-count" class="text-emerald-600">0</b></span>
+                        <span>Total <b id="total-count" class="text-gray-600">0</b></span>
                     </div>
-                    <button id="auth-btn" onclick="toggleAuth()" class="flex items-center text-sm font-medium px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
-                        <i data-lucide="log-in" class="w-4 h-4 mr-1.5"></i> 로그인
+                    <button id="auth-btn" onclick="toggleAuth()" class="flex items-center text-xs font-bold px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                        <i data-lucide="user" class="w-3.5 h-3.5 mr-1"></i> 관리자
                     </button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="relative bg-emerald-900 overflow-hidden group">
-        <div class="absolute inset-0 opacity-40">
-            <img src="https://images.unsplash.com/photo-1627960682701-7b001a140228?auto=format&fit=crop&q=80&w=1600" class="w-full h-full object-cover">
+    <!-- ================= [1] 홈 화면 (리스트) ================= -->
+    <div id="home-view" class="fade-in">
+        <!-- 공지사항 -->
+        <div class="bg-emerald-50 border-b border-emerald-100 h-10 flex items-center relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 w-full flex items-center">
+                <span class="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded-full mr-3 font-bold shrink-0">NOTICE</span>
+                <div class="flex-1 overflow-hidden relative h-6">
+                    <div id="notice-track" class="absolute top-0 left-0 w-full transition-transform duration-500">
+                        <div class="h-6 flex items-center text-sm text-emerald-800">등록된 공지사항이 없습니다.</div>
+                    </div>
+                </div>
+                <button id="add-notice-btn" onclick="openNoticeModal()" class="hidden text-emerald-600 hover:text-emerald-800 ml-2"><i data-lucide="plus-circle" class="w-4 h-4"></i></button>
+            </div>
         </div>
-        <div class="absolute inset-0 bg-gradient-to-t from-emerald-900 via-transparent to-transparent"></div>
-        <div class="relative max-w-7xl mx-auto px-4 py-20 text-center">
-            <h1 class="text-3xl font-extrabold text-white mb-4">대전으로 오세요!</h1>
-            <p class="text-emerald-100 text-lg mb-8">과학과 자연이 어우러진 도시</p>
-            <button id="write-btn" onclick="openWriteModal()" class="hidden mx-auto bg-white text-emerald-700 font-bold py-2 px-6 rounded-full shadow-lg hover:bg-emerald-50 transition-all transform hover:scale-105">
-                <i data-lucide="plus" class="inline w-5 h-5 mr-1"></i> 새 여행지 등록
+
+        <!-- 히어로 배너 -->
+        <div class="relative bg-emerald-900 overflow-hidden h-[280px] flex items-center justify-center text-center px-4">
+            <div class="absolute inset-0 opacity-40">
+                <img src="https://images.unsplash.com/photo-1627960682701-7b001a140228?auto=format&fit=crop&q=80&w=1600" class="w-full h-full object-cover animate-[pulse_15s_ease-in-out_infinite]">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-emerald-900/90 via-emerald-900/20 to-transparent"></div>
+            <div class="relative z-10 max-w-2xl">
+                <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-3 drop-shadow-lg">꿀잼도시 대전!</h1>
+                <p class="text-emerald-100 text-sm md:text-base mb-6 font-light">현지인이 추천하는 찐 맛집과 힐링 명소 모음집</p>
+                <button id="write-btn" onclick="openWriteModal()" class="hidden mx-auto bg-white text-emerald-700 font-bold py-2.5 px-6 rounded-full shadow-lg hover:bg-emerald-50 transition-transform active:scale-95 flex items-center">
+                    <i data-lucide="edit-3" class="w-4 h-4 mr-2"></i> 내 여행기 쓰기
+                </button>
+            </div>
+        </div>
+
+        <!-- 메인 컨텐츠 -->
+        <main class="max-w-7xl mx-auto px-4 py-8">
+            <!-- 필터 & 정렬 -->
+            <div class="sticky top-16 z-30 bg-gray-50/95 backdrop-blur py-2 mb-6 flex flex-col md:flex-row justify-between items-center gap-3 border-b border-gray-200 pb-4">
+                <div class="flex bg-white p-1 rounded-full shadow-sm border border-gray-200 overflow-x-auto max-w-full scrollbar-hide">
+                    <button onclick="filterDistrict('전체')" class="cat-btn active px-4 py-1.5 rounded-full text-sm font-bold bg-emerald-600 text-white transition-colors whitespace-nowrap" data-val="전체">전체</button>
+                    <button onclick="filterDistrict('동구')" class="cat-btn px-4 py-1.5 rounded-full text-sm font-medium text-gray-500 hover:bg-gray-100 transition-colors whitespace-nowrap" data-val="동구">동구</button>
+                    <button onclick="filterDistrict('중구')" class="cat-btn px-4 py-1.5 rounded-full text-sm font-medium text-gray-500 hover:bg-gray-100 transition-colors whitespace-nowrap" data-val="중구">중구</button>
+                    <button onclick="filterDistrict('서구')" class="cat-btn px-4 py-1.5 rounded-full text-sm font-medium text-gray-500 hover:bg-gray-100 transition-colors whitespace-nowrap" data-val="서구">서구</button>
+                    <button onclick="filterDistrict('유성구')" class="cat-btn px-4 py-1.5 rounded-full text-sm font-medium text-gray-500 hover:bg-gray-100 transition-colors whitespace-nowrap" data-val="유성구">유성구</button>
+                    <button onclick="filterDistrict('대덕구')" class="cat-btn px-4 py-1.5 rounded-full text-sm font-medium text-gray-500 hover:bg-gray-100 transition-colors whitespace-nowrap" data-val="대덕구">대덕구</button>
+                </div>
+                <select onchange="sortPlaces(this.value)" class="bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <option value="recent">✨ 최신순</option>
+                    <option value="rating">⭐ 평점순</option>
+                    <option value="views">🔥 조회순</option>
+                </select>
+            </div>
+
+            <!-- 로딩바 -->
+            <div id="loader-area" class="flex justify-center py-20"><div class="loader"></div></div>
+            
+            <!-- 리스트 그리드 -->
+            <div id="places-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 fade-in hidden">
+                <!-- 카드들이 여기에 추가됨 -->
+            </div>
+        </main>
+
+        <!-- 푸터 -->
+        <footer class="bg-white border-t border-gray-200 py-10 mt-10">
+            <div class="max-w-7xl mx-auto px-4 text-center text-gray-400 text-xs">
+                <p class="mb-2">대전여행 가이드 &copy; 2025</p>
+                <p>본 사이트는 포트폴리오용으로 제작되었습니다.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ================= [2] 상세 페이지 (Full View) ================= -->
+    <div id="detail-view" class="hidden fixed inset-0 z-[60] bg-white overflow-y-auto animate-[slideUp_0.3s_ease-out]">
+        <!-- 상세 헤더 -->
+        <div class="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-gray-200 px-4 h-14 flex items-center justify-between">
+            <button onclick="goHome()" class="flex items-center text-gray-600 hover:text-emerald-600 font-bold transition-colors">
+                <i data-lucide="arrow-left" class="w-5 h-5 mr-1"></i> 목록으로
             </button>
+            <span class="font-bold text-gray-800 text-sm truncate max-w-[200px]" id="header-title"></span>
+            <div class="w-5"></div> <!-- 공간맞춤용 -->
+        </div>
+
+        <div class="max-w-4xl mx-auto pb-20">
+            <!-- 이미지 영역 -->
+            <div class="relative w-full bg-gray-100 group aspect-video md:aspect-[21/9]">
+                <img id="detail-img" src="" class="w-full h-full object-contain">
+                <button onclick="prevImage()" id="btn-prev" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 hidden"><i data-lucide="chevron-left"></i></button>
+                <button onclick="nextImage()" id="btn-next" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 hidden"><i data-lucide="chevron-right"></i></button>
+                <div id="img-indicator" class="absolute bottom-4 right-4 bg-black/60 text-white text-xs px-3 py-1 rounded-full font-medium">1 / 1</div>
+            </div>
+
+            <!-- 내용 영역 -->
+            <div class="px-5 py-8">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 border-b border-gray-100 pb-6">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span id="detail-district" class="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1 rounded font-bold"></span>
+                            <div class="flex items-center text-yellow-500 text-sm font-bold"><i data-lucide="star" class="w-4 h-4 fill-yellow-500 mr-1"></i> <span id="detail-rating"></span></div>
+                        </div>
+                        <h1 id="detail-title" class="text-3xl font-extrabold text-gray-900 leading-tight"></h1>
+                    </div>
+                    <div class="text-gray-400 text-sm flex items-center">
+                        <i data-lucide="eye" class="w-4 h-4 mr-1.5"></i> <span id="detail-views"></span>명이 봤어요
+                    </div>
+                </div>
+
+                <div class="prose prose-emerald max-w-none">
+                    <p id="detail-desc" class="text-gray-700 leading-8 whitespace-pre-line text-lg"></p>
+                </div>
+
+                <div class="mt-10">
+                    <h3 class="font-bold text-gray-900 mb-3 flex items-center"><i data-lucide="hash" class="w-4 h-4 mr-1 text-emerald-500"></i> 관련 태그</h3>
+                    <div id="detail-tags" class="flex flex-wrap gap-2"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <main class="max-w-7xl mx-auto px-4 py-12">
-        <div id="loader-area" class="flex justify-center py-10"><div class="loader"></div></div>
-        <div id="places-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 fade-in hidden"></div>
-    </main>
+    <!-- ================= [3] 기능 모달들 ================= -->
 
-    <div id="login-modal" class="fixed inset-0 z-[60] hidden bg-black/50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-xs p-6 shadow-2xl">
-            <h3 class="font-bold text-lg mb-4">관리자 로그인</h3>
-            <input type="email" id="email" placeholder="이메일" class="w-full mb-2 p-2 border rounded">
-            <input type="password" id="password" placeholder="비밀번호" class="w-full mb-4 p-2 border rounded">
-            <button onclick="handleLogin()" class="w-full bg-emerald-600 text-white py-2 rounded font-bold hover:bg-emerald-700">로그인</button>
-            <button onclick="closeModal('login-modal')" class="w-full mt-2 text-gray-400 text-sm">닫기</button>
+    <!-- 채팅 위젯 -->
+    <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+        <div id="chat-window" class="hidden bg-white w-[340px] h-[450px] rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-[slideUp_0.3s_ease-out]">
+            <div class="bg-emerald-600 p-4 text-white font-bold flex justify-between items-center shrink-0">
+                <span class="flex items-center"><i data-lucide="message-circle" class="w-5 h-5 mr-2"></i> 여행자 수다방</span>
+                <button onclick="toggleChat()" class="hover:bg-emerald-700 p-1 rounded"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 text-sm"></div>
+            <form onsubmit="sendChat(event)" class="p-3 border-t flex gap-2 bg-white shrink-0">
+                <input id="chat-input" class="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="메시지 입력..." required>
+                <button type="submit" class="bg-emerald-600 text-white p-2 rounded-full hover:bg-emerald-700 shadow-md"><i data-lucide="send" class="w-4 h-4"></i></button>
+            </form>
+        </div>
+        <button onclick="toggleChat()" class="bg-emerald-600 text-white p-3.5 rounded-full shadow-xl hover:bg-emerald-700 transition-transform hover:scale-105 flex items-center justify-center ring-4 ring-emerald-50">
+            <i data-lucide="message-circle" class="w-7 h-7"></i>
+        </button>
+    </div>
+
+    <!-- 로그인 모달 -->
+    <div id="login-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-xs p-8 shadow-2xl">
+            <h3 class="font-bold text-xl mb-6 text-center text-gray-800">관리자 접속</h3>
+            <input type="email" id="email" placeholder="아이디(이메일)" class="w-full mb-3 p-3 border rounded-xl bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+            <input type="password" id="password" placeholder="비밀번호" class="w-full mb-6 p-3 border rounded-xl bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+            <button onclick="handleLogin()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 shadow-lg mb-3">로그인</button>
+            <button onclick="closeModal('login-modal')" class="w-full py-2 text-gray-400 text-sm hover:text-gray-600">닫기</button>
         </div>
     </div>
 
-    <div id="write-modal" class="fixed inset-0 z-[60] hidden bg-black/50 flex items-center justify-center p-4">
+    <!-- 공지 등록 모달 -->
+    <div id="notice-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
+            <h3 class="font-bold text-lg mb-4">공지사항 등록</h3>
+            <input id="notice-text" class="w-full mb-4 p-3 border rounded-lg" placeholder="내용을 입력하세요">
+            <button onclick="saveNotice()" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold">등록</button>
+            <button onclick="closeModal('notice-modal')" class="w-full mt-2 py-2 text-gray-400 text-sm">취소</button>
+        </div>
+    </div>
+
+    <!-- 글쓰기 모달 -->
+    <div id="write-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 id="modal-title" class="font-bold text-lg mb-4">여행지 등록</h3>
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="write-modal-title" class="font-bold text-xl text-gray-900">여행기 작성</h3>
+                <button onclick="closeModal('write-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
+            </div>
             <input type="hidden" id="edit-id">
-            
-            <label class="block text-sm mb-1">장소 이름</label>
-            <input id="inp-name" class="w-full mb-3 p-2 border rounded" placeholder="예: 성심당">
-            
-            <label class="block text-sm mb-1">구 선택</label>
-            <select id="inp-district" class="w-full mb-3 p-2 border rounded">
-                <option>동구</option><option>중구</option><option>서구</option><option>유성구</option><option>대덕구</option>
-            </select>
-            
-            <label class="block text-sm mb-1">설명</label>
-            <textarea id="inp-desc" rows="5" class="w-full mb-3 p-2 border rounded" placeholder="상세 설명..."></textarea>
-            
-            <label class="block text-sm mb-1">이미지</label>
-            <input type="file" id="inp-file" class="w-full mb-2 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
-            <div id="upload-status" class="text-xs text-blue-500 mb-3 hidden">이미지 업로드 중...</div>
-            <input id="inp-img-url" class="w-full mb-3 p-2 border rounded bg-gray-50" placeholder="이미지 URL (직접 입력도 가능)" readonly>
-
-            <label class="block text-sm mb-1">태그 (쉼표로 구분)</label>
-            <input id="inp-tags" class="w-full mb-4 p-2 border rounded" placeholder="맛집, 힐링, 데이트">
-
-            <button onclick="savePlace()" id="save-btn" class="w-full bg-emerald-600 text-white py-3 rounded font-bold hover:bg-emerald-700">저장하기</button>
-            <button onclick="closeModal('write-modal')" class="w-full mt-2 text-gray-400 text-sm">취소</button>
+            <div class="space-y-5">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Title</label>
+                    <input id="inp-name" class="w-full p-3 border rounded-xl bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-emerald-500" placeholder="제목 (예: 성심당 빵지순례)">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">District</label>
+                        <select id="inp-district" class="w-full p-3 border rounded-xl bg-gray-50 outline-none"><option>동구</option><option>중구</option><option>서구</option><option>유성구</option><option>대덕구</option></select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Rating</label>
+                        <input type="number" id="inp-rating" step="0.1" max="5" class="w-full p-3 border rounded-xl bg-gray-50 outline-none" placeholder="4.5">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Photos</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-gray-50 transition-colors relative">
+                        <input type="file" id="inp-files" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        <div id="upload-msg" class="text-sm text-gray-500"><i data-lucide="image-plus" class="inline mb-1"></i><br>클릭하여 사진 추가 (여러 장 가능)</div>
+                        <div id="upload-status" class="text-sm text-blue-600 font-bold hidden">업로드 중...</div>
+                    </div>
+                    <div id="preview-area" class="flex gap-2 mt-3 overflow-x-auto h-20 scrollbar-hide py-1"></div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Content</label>
+                    <textarea id="inp-desc" rows="6" class="w-full p-3 border rounded-xl bg-gray-50 outline-none resize-none" placeholder="내용을 자유롭게 적어주세요."></textarea>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Tags</label>
+                    <input id="inp-tags" class="w-full p-3 border rounded-xl bg-gray-50 outline-none" placeholder="#맛집 #힐링">
+                </div>
+                <button onclick="savePlace()" id="save-btn" class="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-bold hover:bg-emerald-700 shadow-lg transform transition-transform active:scale-95">저장하기</button>
+            </div>
         </div>
     </div>
 
+    <!-- 스크립트 (모듈) -->
     <script type="module">
-        // --------------------------------------------------------------------------------
-        // [필수] 아래 firebaseConfig 부분을 본인의 파이어베이스 설정으로 꼭 바꿔주세요!!!
-        // --------------------------------------------------------------------------------
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, deleteDoc, increment, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-
+        // ============================================================
+        // ▼▼▼▼▼▼▼ [필수] 여기에 본인 키를 덮어쓰세요! ▼▼▼▼▼▼▼
         const firebaseConfig = {
-            // ▼▼▼▼▼▼▼ 여기를 본인 설정값으로 덮어쓰세요! ▼▼▼▼▼▼▼
             apiKey: "AIzaSyC0SzZuWIl-E0L4VItN4nrHu-O1DaoZd88",
             authDomain: "project-5196212932199830884.firebaseapp.com",
             projectId: "project-5196212932199830884",
             storageBucket: "project-5196212932199830884.firebasestorage.app",
-            messagingSenderId: "491579175390",
-            appId: "1:491579175390:web:e18c1334c7fd6a6c0ead4f"
-            // ▲▲▲▲▲▲▲ 여기까지 ▲▲▲▲▲▲▲
+            messagingSenderId: "1:491579175390:web:e18c1334c7fd6a6c0ead4f",
+            appId: "APP_ID"
         };
+        // ============================================================
 
-        // 1. Firebase 초기화
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
+        // 설정값 체크 (경고창)
+        if (firebaseConfig.projectId === "본인_PROJECT_ID") {
+            alert("⚠️ 오류: Firebase 설정이 완료되지 않았습니다!\n\nindex.html 파일을 열고 'firebaseConfig' 부분을 본인의 Firebase 키값으로 변경해주세요.\n(변경하지 않으면 사이트가 작동하지 않습니다)");
+        }
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc, deleteDoc, increment, setDoc, getDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        // 1. 시스템 초기화 (에러 방지)
+        let app, auth, db, storage;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            storage = getStorage(app);
+        } catch(e) {
+            console.error("Firebase 초기화 실패:", e);
+        }
 
         let currentUser = null;
-        let places = [];
+        let allPlaces = [];
+        let currentFilter = "전체";
+        let currentSort = "recent";
 
-        // 2. 관리자 상태 체크
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-            const authBtn = document.getElementById("auth-btn");
-            const writeBtn = document.getElementById("write-btn");
+        // 2. 화면 전환 (페이지 방식)
+        window.goHome = () => {
+            document.getElementById("detail-view").classList.add("hidden");
+            document.getElementById("home-view").classList.remove("hidden");
+            window.scrollTo(0, 0);
+        };
+
+        window.openDetail = async (id) => {
+            const place = allPlaces.find(p => p.id === id);
+            if(!place) return;
+
+            // 조회수 증가 (백그라운드)
+            updateDoc(doc(db, "places", id), { views: increment(1) }).catch(e=>{});
+
+            // 데이터 채우기
+            currentDetailImages = (place.images && place.images.length > 0) ? place.images : [place.image || 'https://via.placeholder.com/800?text=No+Image'];
+            currentImgIdx = 0;
+            updateCarousel();
+
+            document.getElementById("detail-title").innerText = place.name;
+            document.getElementById("header-title").innerText = place.name;
+            document.getElementById("detail-desc").innerText = place.description;
+            document.getElementById("detail-district").innerText = place.district;
+            document.getElementById("detail-rating").innerText = place.rating || 0;
+            document.getElementById("detail-views").innerText = (place.views || 0) + 1;
             
-            if (user) {
-                authBtn.innerHTML = `<i data-lucide="log-out" class="w-4 h-4 mr-1.5"></i> 로그아웃`;
-                authBtn.onclick = handleLogout;
-                writeBtn.classList.remove("hidden"); // 글쓰기 버튼 보이기
+            const tagsDiv = document.getElementById("detail-tags");
+            tagsDiv.innerHTML = (place.tags || []).map(t => `<span class="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg text-sm font-medium">#${t}</span>`).join('');
+
+            // 화면 전환
+            document.getElementById("home-view").classList.add("hidden");
+            document.getElementById("detail-view").classList.remove("hidden");
+            window.scrollTo(0, 0);
+        };
+
+        // 3. 이미지 슬라이더
+        let currentDetailImages = [];
+        let currentImgIdx = 0;
+
+        window.updateCarousel = () => {
+            const img = document.getElementById("detail-img");
+            const prev = document.getElementById("btn-prev");
+            const next = document.getElementById("btn-next");
+            const indic = document.getElementById("img-indicator");
+
+            img.src = currentDetailImages[currentImgIdx];
+            indic.innerText = `${currentImgIdx + 1} / ${currentDetailImages.length}`;
+
+            if(currentDetailImages.length > 1) {
+                indic.classList.remove("hidden");
+                if(currentImgIdx === 0) prev.classList.add("hidden"); else prev.classList.remove("hidden");
+                if(currentImgIdx === currentDetailImages.length - 1) next.classList.add("hidden"); else next.classList.remove("hidden");
             } else {
-                authBtn.innerHTML = `<i data-lucide="log-in" class="w-4 h-4 mr-1.5"></i> 로그인`;
-                authBtn.onclick = toggleAuth;
-                writeBtn.classList.add("hidden");
-            }
-            lucide.createIcons();
-            renderPlaces(); // 로그인 상태 바뀌면 다시 그리기 (수정/삭제 버튼 때문)
-        });
-
-        // 3. 로그인/로그아웃 함수
-        window.toggleAuth = () => document.getElementById("login-modal").classList.remove("hidden");
-        window.closeModal = (id) => document.getElementById(id).classList.add("hidden");
-
-        window.handleLogin = async () => {
-            const email = document.getElementById("email").value;
-            const pw = document.getElementById("password").value;
-            try {
-                await signInWithEmailAndPassword(auth, email, pw);
-                closeModal("login-modal");
-                alert("관리자님 환영합니다!");
-            } catch (e) {
-                alert("로그인 실패: " + e.message);
+                indic.classList.add("hidden");
+                prev.classList.add("hidden");
+                next.classList.add("hidden");
             }
         };
+        window.nextImage = () => { if(currentImgIdx < currentDetailImages.length-1) { currentImgIdx++; updateCarousel(); }};
+        window.prevImage = () => { if(currentImgIdx > 0) { currentImgIdx--; updateCarousel(); }};
 
-        window.handleLogout = async () => {
-            if(confirm("로그아웃 하시겠습니까?")) await signOut(auth);
-        };
-
-        // 4. 방문자 수 카운트 (새로고침 시 증가)
-        async function updateVisitorStats() {
-            const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-            const statsRef = doc(db, "stats", "visitors");
-            
-            try {
-                // 누적 및 오늘 방문자 증가
-                await setDoc(statsRef, {
-                    total: increment(1),
-                    [today]: increment(1)
-                }, { merge: true });
-
-                // 화면 표시
-                const snap = await getDoc(statsRef);
-                if (snap.exists()) {
-                    const data = snap.data();
-                    document.getElementById("total-count").innerText = (data.total || 0).toLocaleString();
-                    document.getElementById("daily-count").innerText = (data[today] || 0).toLocaleString();
-                }
-            } catch (e) {
-                console.log("통계 업데이트 실패 (콘솔에서 보안 규칙 확인 필요)");
-            }
-        }
-        updateVisitorStats();
-
-        // 5. 여행지 데이터 가져오기 (Firestore)
-        async function fetchPlaces() {
-            try {
-                const querySnapshot = await getDocs(collection(db, "places"));
-                places = [];
-                querySnapshot.forEach((doc) => {
-                    places.push({ id: doc.id, ...doc.data() });
-                });
-                
+        // 4. 데이터 로드 & 렌더링
+        if (db) {
+            onSnapshot(collection(db, "places"), (snapshot) => {
+                allPlaces = [];
+                snapshot.forEach(doc => allPlaces.push({ id: doc.id, ...doc.data() }));
                 document.getElementById("loader-area").classList.add("hidden");
                 document.getElementById("places-grid").classList.remove("hidden");
                 renderPlaces();
-            } catch (e) {
-                console.error("데이터 가져오기 실패:", e);
-                // 데이터 없을 때 예시 데이터 (처음 실행용)
-                document.getElementById("loader-area").innerHTML = "데이터를 불러올 수 없습니다. <br>파이어베이스 설정을 확인하세요.";
-            }
+            }, (err) => {
+                console.error(err);
+                document.getElementById("loader-area").innerHTML = `<span class="text-red-500 text-sm">데이터 로딩 실패<br>설정을 확인하세요.</span>`;
+            });
         }
-        fetchPlaces();
 
-        // 6. 화면 그리기
-        function renderPlaces() {
+        window.renderPlaces = () => {
             const grid = document.getElementById("places-grid");
             grid.innerHTML = "";
+
+            let filtered = currentFilter === "전체" ? allPlaces : allPlaces.filter(p => p.district === currentFilter);
             
-            places.forEach(place => {
+            filtered.sort((a, b) => {
+                if(currentSort === 'rating') return (b.rating||0) - (a.rating||0);
+                if(currentSort === 'views') return (b.views||0) - (a.views||0);
+                return (b.createdAt||0) - (a.createdAt||0);
+            });
+
+            filtered.forEach(place => {
                 const isAdmin = !!currentUser;
-                const card = document.createElement("div");
-                card.className = "group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all border border-gray-100 overflow-hidden relative";
+                const thumb = (place.images && place.images.length > 0) ? place.images[0] : (place.image || 'https://via.placeholder.com/400?text=No+Image');
                 
-                // 관리자용 수정/삭제 버튼
-                let adminControls = "";
-                if (isAdmin) {
-                    adminControls = `
-                        <div class="absolute top-2 left-2 z-10 flex gap-1">
-                            <button onclick="editPlace('${place.id}')" class="bg-white/90 p-1.5 rounded-full text-blue-600 hover:bg-blue-100"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                            <button onclick="deletePlace('${place.id}')" class="bg-white/90 p-1.5 rounded-full text-red-600 hover:bg-red-100"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                        </div>
-                    `;
+                const card = document.createElement("div");
+                card.className = "group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-gray-100 overflow-hidden flex flex-col h-full cursor-pointer relative";
+                // 클릭 이벤트 바인딩
+                card.onclick = (e) => {
+                    // 관리자 버튼 클릭 시 상세이동 방지
+                    if(e.target.closest('.admin-btn')) return;
+                    openDetail(place.id);
+                };
+
+                let adminHtml = "";
+                if(isAdmin) {
+                    adminHtml = `<div class="absolute top-2 right-2 z-20 flex gap-1">
+                        <button onclick="editPlace('${place.id}')" class="admin-btn bg-white/90 p-2 rounded-full text-blue-600 hover:bg-blue-100 shadow-sm"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
+                        <button onclick="deletePlace('${place.id}')" class="admin-btn bg-white/90 p-2 rounded-full text-red-600 hover:bg-red-100 shadow-sm"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                    </div>`;
                 }
 
                 card.innerHTML = `
-                    ${adminControls}
-                    <div class="h-48 overflow-hidden relative">
-                        <img src="${place.image || 'https://via.placeholder.com/400'}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                        <div class="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">${place.district}</div>
+                    <div class="relative h-48 overflow-hidden bg-gray-100">
+                        <img src="${thumb}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-[10px] font-bold text-emerald-600 shadow-sm z-10">
+                            ${place.district}
+                        </div>
+                        ${adminHtml}
                     </div>
-                    <div class="p-5">
-                        <h3 class="text-xl font-bold mb-2 text-gray-800">${place.name}</h3>
-                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">${place.description}</p>
-                        <div class="flex gap-2 flex-wrap">
-                            ${(place.tags || []).map(t => `<span class="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded">#${t}</span>`).join('')}
+                    <div class="p-5 flex flex-col flex-1">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-lg font-bold text-gray-800 group-hover:text-emerald-600 transition-colors line-clamp-1">${place.name}</h3>
+                            <div class="flex items-center text-yellow-500 text-xs font-bold bg-yellow-50 px-1.5 py-0.5 rounded ml-2 shrink-0">
+                                <i data-lucide="star" class="w-3 h-3 fill-yellow-500 mr-1"></i> ${place.rating || 0}
+                            </div>
+                        </div>
+                        <p class="text-gray-500 text-sm mb-4 line-clamp-2 leading-relaxed">${place.description}</p>
+                        <div class="mt-auto flex items-center justify-between">
+                            <div class="flex gap-1 flex-wrap">
+                                ${(place.tags || []).slice(0, 3).map(t => `<span class="bg-gray-100 text-gray-500 text-[10px] px-2 py-1 rounded-md">#${t}</span>`).join('')}
+                            </div>
+                            <div class="text-gray-400 text-xs flex items-center">
+                                <i data-lucide="eye" class="w-3 h-3 mr-1"></i> ${place.views || 0}
+                            </div>
                         </div>
                     </div>
                 `;
                 grid.appendChild(card);
             });
             lucide.createIcons();
+        };
+
+        window.filterDistrict = (d) => { currentFilter = d; updateFilterUI(); renderPlaces(); };
+        window.sortPlaces = (s) => { currentSort = s; renderPlaces(); };
+        function updateFilterUI() {
+            document.querySelectorAll(".cat-btn").forEach(btn => {
+                if(btn.dataset.val === currentFilter) {
+                    btn.className = "cat-btn active px-4 py-1.5 rounded-full text-sm font-bold bg-emerald-600 text-white transition-colors whitespace-nowrap";
+                } else {
+                    btn.className = "cat-btn px-4 py-1.5 rounded-full text-sm font-medium text-gray-500 hover:bg-gray-100 transition-colors whitespace-nowrap";
+                }
+            });
         }
 
-        // 7. 이미지 업로드 기능
-        const fileInput = document.getElementById("inp-file");
-        fileInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+        // 5. 기타 기능 (로그인, 글쓰기 등)
+        if (auth) {
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user;
+                const authBtn = document.getElementById("auth-btn");
+                const writeBtn = document.getElementById("write-btn");
+                const noticeBtn = document.getElementById("add-notice-btn");
+                if(user) {
+                    authBtn.innerHTML = `<i data-lucide="log-out" class="w-3.5 h-3.5 mr-1"></i> 로그아웃`;
+                    authBtn.onclick = async () => { if(confirm("로그아웃?")) await signOut(auth); };
+                    writeBtn.classList.remove("hidden");
+                    noticeBtn.classList.remove("hidden");
+                } else {
+                    authBtn.innerHTML = `<i data-lucide="user" class="w-3.5 h-3.5 mr-1"></i> 관리자`;
+                    authBtn.onclick = toggleAuth;
+                    writeBtn.classList.add("hidden");
+                    noticeBtn.classList.add("hidden");
+                }
+                renderPlaces();
+            });
+        }
 
-            const status = document.getElementById("upload-status");
-            status.classList.remove("hidden");
-            status.innerText = "업로드 중... (기다려주세요)";
-            
-            try {
-                const storageRef = ref(storage, 'images/' + Date.now() + '_' + file.name);
-                await uploadBytesResumable(storageRef, file);
-                const url = await getDownloadURL(storageRef);
-                
-                document.getElementById("inp-img-url").value = url;
-                status.innerText = "업로드 완료!";
-                status.className = "text-xs text-green-600 mb-3";
-            } catch (error) {
-                console.error(error);
-                status.innerText = "업로드 실패: " + error.message;
-                status.className = "text-xs text-red-600 mb-3";
+        // 6. 채팅, 공지, 통계 등 나머지 기능 (이전과 동일)
+        
+        // 채팅 로드
+        let chatUnsub;
+        window.toggleChat = () => {
+            const w = document.getElementById("chat-window");
+            w.classList.toggle("hidden");
+            if(!w.classList.contains("hidden") && !chatUnsub && db) {
+                const q = query(collection(db, "chat"), orderBy("createdAt", "asc"), limit(50));
+                chatUnsub = onSnapshot(q, (snap) => {
+                    const box = document.getElementById("chat-messages");
+                    box.innerHTML = "";
+                    snap.forEach(doc => {
+                        const d = doc.data();
+                        const isAdm = d.uid === 'admin';
+                        const time = new Date(d.createdAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+                        box.innerHTML += `<div class="flex flex-col ${isAdm?'items-start':'items-end'}"><div class="${isAdm?'bg-emerald-100 text-emerald-900':'bg-gray-100 text-gray-800'} px-3 py-1.5 rounded-lg text-sm max-w-[85%]">${d.text}</div><span class="text-[9px] text-gray-400 mt-0.5">${time}</span></div>`;
+                    });
+                    box.scrollTop = box.scrollHeight;
+                });
             }
-        });
+        };
+        window.sendChat = async(e) => {
+            e.preventDefault();
+            const inp = document.getElementById("chat-input");
+            if(inp.value.trim() && db) {
+                await addDoc(collection(db, "chat"), { text: inp.value, createdAt: Date.now(), uid: currentUser?'admin':'anon' });
+                inp.value = "";
+            }
+        };
 
-        // 8. 글 저장/수정/삭제
+        // 통계
+        const todayKey = new Date().toISOString().slice(0, 10);
+        if (db) {
+            onSnapshot(doc(db, "stats", "global"), (doc) => {
+                if(doc.exists()) {
+                    document.getElementById("total-count").innerText = (doc.data().total||0).toLocaleString();
+                    document.getElementById("daily-count").innerText = (doc.data()[todayKey]||0).toLocaleString();
+                }
+            });
+            // 통계 증가 (세션체크)
+            if(!sessionStorage.getItem("visited")) {
+                setDoc(doc(db, "stats", "global"), { total: increment(1), [todayKey]: increment(1) }, { merge: true });
+                sessionStorage.setItem("visited", "true");
+            }
+
+            // 공지
+            onSnapshot(query(collection(db, "notices"), orderBy("createdAt", "desc"), limit(5)), (snap) => {
+                if(!snap.empty) {
+                    const notices = [];
+                    snap.forEach(d => notices.push(d.data().text));
+                    const track = document.getElementById("notice-track");
+                    track.innerHTML = notices.map(n => `<div class="h-6 flex items-center text-sm text-emerald-800 font-medium truncate"><i data-lucide="bell" class="w-3 h-3 mr-2"></i> ${n}</div>`).join('');
+                    let i = 0;
+                    if(notices.length>1) setInterval(() => { i=(i+1)%notices.length; track.style.transform=`translateY(-${i*24}px)`; }, 4000);
+                }
+            });
+        }
+
+        // 글쓰기 관련 함수들
+        let upImgs = [];
         window.openWriteModal = () => {
-            document.getElementById("modal-title").innerText = "새 여행지 등록";
-            document.getElementById("edit-id").value = "";
-            document.getElementById("inp-name").value = "";
-            document.getElementById("inp-desc").value = "";
-            document.getElementById("inp-img-url").value = "";
-            document.getElementById("inp-tags").value = "";
-            document.getElementById("upload-status").classList.add("hidden");
+            upImgs = [];
+            document.getElementById("preview-area").innerHTML = "";
             document.getElementById("write-modal").classList.remove("hidden");
         };
+        document.getElementById("inp-files").addEventListener("change", async(e) => {
+            const files = Array.from(e.target.files);
+            const status = document.getElementById("upload-status");
+            const msg = document.getElementById("upload-msg");
+            if(!files.length) return;
+            
+            status.classList.remove("hidden");
+            msg.classList.add("hidden");
+            status.innerText = `${files.length}장 업로드 중...`;
 
-        window.editPlace = (id) => {
-            const p = places.find(x => x.id === id);
-            if (!p) return;
-            document.getElementById("modal-title").innerText = "여행지 수정";
-            document.getElementById("edit-id").value = p.id;
-            document.getElementById("inp-name").value = p.name;
-            document.getElementById("inp-district").value = p.district;
-            document.getElementById("inp-desc").value = p.description;
-            document.getElementById("inp-img-url").value = p.image;
-            document.getElementById("inp-tags").value = (p.tags || []).join(", ");
-            document.getElementById("write-modal").classList.remove("hidden");
-        };
-
-        window.savePlace = async () => {
+            try {
+                if (storage) {
+                    const urls = await Promise.all(files.map(f => uploadBytesResumable(ref(storage, 'img/'+Date.now()+'_'+f.name), f).then(s => getDownloadURL(s.ref))));
+                    upImgs = [...upImgs, ...urls];
+                    const preview = document.getElementById("preview-area");
+                    urls.forEach(u => preview.innerHTML += `<img src="${u}" class="h-16 w-16 object-cover rounded-lg border border-gray-200 shrink-0">`);
+                    status.innerText = "완료!";
+                }
+            } catch(e) { alert("업로드 실패"); }
+        });
+        window.savePlace = async() => {
             const id = document.getElementById("edit-id").value;
             const data = {
                 name: document.getElementById("inp-name").value,
                 district: document.getElementById("inp-district").value,
+                rating: parseFloat(document.getElementById("inp-rating").value)||0,
                 description: document.getElementById("inp-desc").value,
-                image: document.getElementById("inp-img-url").value,
-                tags: document.getElementById("inp-tags").value.split(",").map(t => t.trim()).filter(t=>t),
+                tags: document.getElementById("inp-tags").value.split(",").filter(t=>t.trim()),
+                images: upImgs,
+                image: upImgs[0]||"",
                 createdAt: Date.now()
             };
-
-            if (!data.name) return alert("이름을 입력하세요");
-
+            if(!data.name) return alert("제목 입력 필수");
             const btn = document.getElementById("save-btn");
-            btn.disabled = true;
-            btn.innerText = "저장 중...";
-
+            btn.disabled=true; btn.innerText="저장 중...";
             try {
-                if (id) {
-                    // 수정
-                    await updateDoc(doc(db, "places", id), data);
-                    alert("수정되었습니다.");
-                } else {
-                    // 신규 등록
-                    await addDoc(collection(db, "places"), data);
-                    alert("등록되었습니다.");
+                if (db) {
+                    if(id) await updateDoc(doc(db, "places", id), data);
+                    else { data.views=0; await addDoc(collection(db, "places"), data); }
+                    closeModal("write-modal");
                 }
-                closeModal("write-modal");
-                fetchPlaces(); // 목록 새로고침
-            } catch (e) {
-                alert("저장 실패: " + e.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "저장하기";
-            }
+            } catch(e) { alert("저장 실패"); }
+            btn.disabled=false; btn.innerText="저장하기";
+        };
+        window.editPlace = (id) => {
+            const p = allPlaces.find(x=>x.id===id);
+            if(!p) return;
+            openWriteModal();
+            document.getElementById("edit-id").value = p.id;
+            document.getElementById("inp-name").value = p.name;
+            document.getElementById("inp-district").value = p.district;
+            document.getElementById("inp-rating").value = p.rating;
+            document.getElementById("inp-desc").value = p.description;
+            document.getElementById("inp-tags").value = p.tags.join(",");
+            upImgs = p.images||[p.image];
+            const preview = document.getElementById("preview-area");
+            upImgs.forEach(u => { if(u) preview.innerHTML += `<img src="${u}" class="h-16 w-16 object-cover rounded-lg border border-gray-200 shrink-0">`; });
+        };
+        window.deletePlace = async(id) => { if(confirm("삭제?") && db) await deleteDoc(doc(db, "places", id)); };
+        window.saveNotice = async() => {
+            const t = document.getElementById("notice-text").value;
+            if(t && db) { await addDoc(collection(db, "notices"), {text:t, createdAt:Date.now()}); closeModal("notice-modal"); alert("등록됨"); }
         };
 
-        window.deletePlace = async (id) => {
-            if (!confirm("정말 삭제하시겠습니까?")) return;
-            try {
-                await deleteDoc(doc(db, "places", id));
-                fetchPlaces();
-            } catch (e) {
-                alert("삭제 실패: " + e.message);
-            }
+        // 유틸
+        window.toggleAuth = () => document.getElementById("login-modal").classList.remove("hidden");
+        window.openNoticeModal = () => document.getElementById("notice-modal").classList.remove("hidden");
+        window.closeModal = (id) => document.getElementById(id).classList.add("hidden");
+        window.handleLogin = async() => {
+            try { if (auth) await signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value); closeModal("login-modal"); }
+            catch(e) { alert("로그인 실패"); }
         };
-        
-        // window 객체에 등록 (모듈 스코프 탈출)
         window.lucide = lucide;
+
     </script>
 </body>
 </html>
