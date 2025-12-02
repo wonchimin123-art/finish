@@ -113,8 +113,8 @@
                     </div>
                 </div>
 
-                <!-- 3. 실시간 채팅방 -->
-                <div class="flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 h-[350px] overflow-hidden hidden lg:flex">
+                <!-- 3. 실시간 채팅방 (PC용) -->
+                <div class="hidden lg:flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 h-[350px] overflow-hidden sticky top-24">
                     <div class="bg-emerald-600 p-3 text-white font-bold flex justify-between items-center shrink-0">
                         <span class="flex items-center text-sm"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> 실시간 톡</span>
                         <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span> ON</span>
@@ -178,7 +178,7 @@
                     <div id="places-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6 fade-in hidden"></div>
                 </div>
 
-                <!-- (B) 공지/꿀팁 게시판 -->
+                <!-- (B) 게시판 뷰 (공지/팁/이벤트) -->
                 <div id="board-view" class="hidden fade-in">
                     <div class="flex justify-between items-end mb-6 border-b border-gray-200 pb-4">
                         <div>
@@ -266,8 +266,7 @@
             <button onclick="closeModal('login-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
             <h3 class="font-bold text-xl mb-6 text-center text-gray-800">로그인</h3>
             <button onclick="loginWithGoogle()" class="w-full bg-white border border-gray-300 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-50 flex items-center justify-center mb-4 transition-colors">
-                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                Google로 계속하기
+                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Google로 계속하기
             </button>
             <div class="relative my-6"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div><div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-500">또는 관리자 로그인</span></div></div>
             <input type="email" id="email" placeholder="관리자 이메일" class="w-full mb-3 p-3 border rounded-xl bg-gray-50 outline-none text-sm">
@@ -296,15 +295,17 @@
         </button>
     </div>
 
-    <!-- 공지 등록 -->
+    <!-- 공지/게시글 등록 -->
     <div id="notice-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-lg" id="notice-modal-title">게시글 등록</h3>
-                <button onclick="closeModal('notice-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
-            </div>
+            <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg" id="notice-modal-title">게시글 등록</h3><button onclick="closeModal('notice-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button></div>
             <input type="hidden" id="notice-edit-id">
-            <select id="notice-cat" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none"><option value="notice">📢 공지사항</option><option value="tip">🍯 꿀팁</option><option value="event">🎉 이벤트</option></select>
+            <select id="notice-cat" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none">
+                <option value="notice">📢 공지사항</option>
+                <option value="tip">🍯 꿀팁</option>
+                <option value="festival">🎆 축제</option> <!-- 추가됨 -->
+                <option value="event">🎁 이벤트</option>
+            </select>
             <input id="notice-title" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none" placeholder="제목을 입력하세요">
             <textarea id="notice-text" class="w-full mb-4 p-3 border rounded-lg h-32 resize-none outline-none" placeholder="내용을 입력하세요"></textarea>
             <button onclick="saveNotice()" id="notice-save-btn" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold">등록</button>
@@ -326,85 +327,25 @@
         </div>
     </div>
 
-    <!-- 자유게시판 글쓰기 -->
-    <div id="free-write-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg">자유게시판 글쓰기</h3><button onclick="closeModal('free-write-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button></div>
-            <input id="free-title" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none" placeholder="제목">
-            <textarea id="free-text" class="w-full mb-4 p-3 border rounded-lg h-32 resize-none outline-none" placeholder="내용을 자유롭게 적어주세요."></textarea>
-            <button onclick="saveFreePost()" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold">등록하기</button>
-        </div>
-    </div>
-
-    <!-- ★ 자유게시판 상세 + 댓글 -->
-    <div id="free-detail-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl relative flex flex-col max-h-[90vh]">
-            <div class="p-6 pb-0 flex-none">
-                <div class="flex justify-between items-start mb-4 pb-2 border-b">
-                    <div class="flex items-center gap-3">
-                        <img id="free-detail-avatar" src="" class="w-10 h-10 rounded-full border">
-                        <div>
-                            <div class="text-xs text-gray-500" id="free-detail-author"></div>
-                            <h3 class="font-bold text-lg text-gray-800 leading-tight" id="free-detail-title"></h3>
-                        </div>
-                    </div>
-                    <button onclick="closeModal('free-detail-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
-                </div>
-                <div id="free-detail-content" class="text-gray-700 text-base leading-relaxed whitespace-pre-line min-h-[80px]"></div>
-                <div class="flex justify-between items-center mt-4 pt-2 border-t border-gray-100">
-                    <span class="text-xs text-gray-400" id="free-detail-date"></span>
-                    <div id="free-owner-btns" class="hidden gap-2"><button id="btn-free-delete" class="text-xs bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 font-bold">삭제</button></div>
-                </div>
-            </div>
-            <div class="flex-1 bg-gray-50 p-4 overflow-y-auto border-t mt-4 rounded-b-2xl">
-                <h4 class="text-sm font-bold text-gray-700 mb-3">댓글 <span id="comment-count" class="text-emerald-600">0</span></h4>
-                <div id="comment-list" class="space-y-3 mb-4"></div>
-                <form onsubmit="saveComment(event)" class="flex gap-2">
-                    <input id="comment-input" class="flex-1 text-sm p-2 border rounded-lg outline-none focus:ring-1 focus:ring-emerald-500" placeholder="댓글을 입력하세요..." required>
-                    <button type="submit" class="bg-emerald-600 text-white text-sm px-3 rounded-lg font-bold">등록</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- 여행지 글쓰기/편집 -->
-    <div id="hero-edit-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
-            <h3 class="font-bold text-lg mb-4">메인 화면 설정</h3>
-            <div class="space-y-3">
-                <input id="edit-hero-title" class="w-full p-2 border rounded bg-gray-50" placeholder="메인 문구">
-                <input id="edit-hero-sub" class="w-full p-2 border rounded bg-gray-50" placeholder="서브 문구">
-                <input id="edit-hero-img" class="w-full p-2 border rounded bg-gray-50" placeholder="배경 이미지 URL">
-                <button onclick="saveHeroConfig()" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold mt-2">저장하기</button>
-                <button onclick="closeModal('hero-edit-modal')" class="w-full py-2 text-gray-400 text-sm">취소</button>
-            </div>
-        </div>
-    </div>
-    <div id="write-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-6"><h3 id="write-modal-title" class="font-bold text-xl text-gray-900">여행지 작성</h3><button onclick="closeModal('write-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button></div>
-            <input type="hidden" id="edit-id">
-            <div class="space-y-5">
-                <input id="inp-name" class="w-full p-3 border rounded-xl bg-gray-50 outline-none" placeholder="제목">
-                <div class="grid grid-cols-2 gap-4"><select id="inp-district" class="w-full p-3 border rounded-xl bg-gray-50 outline-none"><option>동구</option><option>중구</option><option>서구</option><option>유성구</option><option>대덕구</option></select><input type="number" id="inp-rating" step="0.1" max="5" class="w-full p-3 border rounded-xl bg-gray-50 outline-none" placeholder="평점 (4.5)"></div>
-                <div><div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center relative"><input type="file" id="inp-files" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"><div id="upload-msg" class="text-sm text-gray-500">사진 추가 (클릭)</div><div id="upload-status" class="text-sm text-blue-600 hidden">업로드 중...</div></div><div id="preview-area" class="flex gap-2 mt-3 overflow-x-auto h-20 scrollbar-hide"></div></div>
-                <textarea id="inp-desc" rows="6" class="w-full p-3 border rounded-xl bg-gray-50 outline-none resize-none" placeholder="내용"></textarea>
-                <input id="inp-tags" class="w-full p-3 border rounded-xl bg-gray-50 outline-none" placeholder="태그 (#맛집)">
-                <button onclick="savePlace()" id="save-btn" class="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-bold">저장하기</button>
-            </div>
-        </div>
-    </div>
+    <!-- 자유게시판 글쓰기 등 기타 모달 생략 (위와 동일) -->
+    <div id="free-write-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl"><div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg">자유게시판 글쓰기</h3><button onclick="closeModal('free-write-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button></div><input id="free-title" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none" placeholder="제목"><textarea id="free-text" class="w-full mb-4 p-3 border rounded-lg h-32 resize-none outline-none" placeholder="내용을 자유롭게 적어주세요."></textarea><button onclick="saveFreePost()" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold">등록하기</button></div></div>
+    <div id="free-detail-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-md shadow-2xl relative flex flex-col max-h-[90vh]"><div class="p-6 pb-0 flex-none"><div class="flex justify-between items-start mb-4 pb-2 border-b"><div class="flex items-center gap-3"><img id="free-detail-avatar" src="" class="w-10 h-10 rounded-full border"><div><div class="text-xs text-gray-500" id="free-detail-author"></div><h3 class="font-bold text-lg text-gray-800 leading-tight" id="free-detail-title"></h3></div></div><button onclick="closeModal('free-detail-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button></div><div id="free-detail-content" class="text-gray-700 text-base leading-relaxed whitespace-pre-line min-h-[80px]"></div><div class="flex justify-between items-center mt-4 pt-2 border-t border-gray-100"><span class="text-xs text-gray-400" id="free-detail-date"></span><div id="free-owner-btns" class="hidden gap-2"><button id="btn-free-delete" class="text-xs bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 font-bold">삭제</button></div></div></div><div class="flex-1 bg-gray-50 p-4 overflow-y-auto border-t mt-4 rounded-b-2xl"><h4 class="text-sm font-bold text-gray-700 mb-3">댓글 <span id="comment-count" class="text-emerald-600">0</span></h4><div id="comment-list" class="space-y-3 mb-4"></div><form onsubmit="saveComment(event)" class="flex gap-2"><input id="comment-input" class="flex-1 text-sm p-2 border rounded-lg outline-none focus:ring-1 focus:ring-emerald-500" placeholder="댓글을 입력하세요..." required><button type="submit" class="bg-emerald-600 text-white text-sm px-3 rounded-lg font-bold">등록</button></form></div></div></div>
+    <div id="hero-edit-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl"><h3 class="font-bold text-lg mb-4">메인 화면 설정</h3><div class="space-y-3"><input id="edit-hero-title" class="w-full p-2 border rounded bg-gray-50" placeholder="메인 문구"><input id="edit-hero-sub" class="w-full p-2 border rounded bg-gray-50" placeholder="서브 문구"><input id="edit-hero-img" class="w-full p-2 border rounded bg-gray-50" placeholder="배경 이미지 URL"><button onclick="saveHeroConfig()" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold mt-2">저장하기</button><button onclick="closeModal('hero-edit-modal')" class="w-full py-2 text-gray-400 text-sm">취소</button></div></div></div>
+    <div id="write-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-6"><h3 id="write-modal-title" class="font-bold text-xl text-gray-900">여행지 작성</h3><button onclick="closeModal('write-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button></div><input type="hidden" id="edit-id"><div class="space-y-5"><input id="inp-name" class="w-full p-3 border rounded-xl bg-gray-50 outline-none" placeholder="제목"><div class="grid grid-cols-2 gap-4"><select id="inp-district" class="w-full p-3 border rounded-xl bg-gray-50 outline-none"><option>동구</option><option>중구</option><option>서구</option><option>유성구</option><option>대덕구</option></select><input type="number" id="inp-rating" step="0.1" max="5" class="w-full p-3 border rounded-xl bg-gray-50 outline-none" placeholder="평점 (4.5)"></div><div><div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center relative"><input type="file" id="inp-files" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"><div id="upload-msg" class="text-sm text-gray-500">사진 추가 (클릭)</div><div id="upload-status" class="text-sm text-blue-600 hidden">업로드 중...</div></div><div id="preview-area" class="flex gap-2 mt-3 overflow-x-auto h-20 scrollbar-hide"></div></div><textarea id="inp-desc" rows="6" class="w-full p-3 border rounded-xl bg-gray-50 outline-none resize-none" placeholder="내용"></textarea><input id="inp-tags" class="w-full p-3 border rounded-xl bg-gray-50 outline-none" placeholder="태그 (#맛집)"><button onclick="savePlace()" id="save-btn" class="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-bold">저장하기</button></div></div></div>
 
     <!-- 스크립트 -->
     <script type="module">
+        // ============================================================
+        // ▼▼▼▼▼▼▼ [필수] 본인 키를 덮어쓰세요! ▼▼▼▼▼▼▼
         const firebaseConfig = {
-apiKey: "AIzaSyC0SzZuWIl-E0L4VItN4nrHu-O1DaoZd88",
+ apiKey: "AIzaSyC0SzZuWIl-E0L4VItN4nrHu-O1DaoZd88",
   authDomain: "project-5196212932199830884.firebaseapp.com",
   projectId: "project-5196212932199830884",
   storageBucket: "project-5196212932199830884.firebasestorage.app",
   messagingSenderId: "491579175390",
   appId: "1:491579175390:web:e18c1334c7fd6a6c0ead4f",
         };
+        // ============================================================
 
         if (firebaseConfig.projectId === "본인_PROJECT_ID") {
             document.getElementById("config-error-overlay").classList.remove("hidden");
@@ -432,6 +373,7 @@ apiKey: "AIzaSyC0SzZuWIl-E0L4VItN4nrHu-O1DaoZd88",
         let freeBoardSort = "desc";
         let currentFreePostId = null;
 
+        // GLOBAL EXPORT to fix ReferenceError
         window.menuClick = (hash) => location.hash = hash;
         window.toggleSidebar = () => {
             const sidebar = document.getElementById("sidebar");
@@ -486,6 +428,7 @@ apiKey: "AIzaSyC0SzZuWIl-E0L4VItN4nrHu-O1DaoZd88",
             document.getElementById("board-desc").innerText = descs[type];
             document.getElementById("board-view").classList.remove("hidden");
             window.scrollTo(0,0);
+            
             const btn = document.getElementById("board-write-btn");
             if(isAdmin) btn.classList.remove("hidden"); else btn.classList.add("hidden");
             loadBoardData(type);
@@ -495,16 +438,26 @@ apiKey: "AIzaSyC0SzZuWIl-E0L4VItN4nrHu-O1DaoZd88",
             if(!db) return;
             const list = document.getElementById("board-list");
             list.innerHTML = '<div class="text-center py-20 text-gray-400">로딩 중...</div>';
-            const filtered = allNotices.filter(n => n.category === type).sort((a,b) => b.createdAt - a.createdAt);
+            
+            let filtered;
+            if (type === 'event') {
+                filtered = allNotices.filter(n => n.category === 'event' || n.category === 'festival');
+            } else {
+                filtered = allNotices.filter(n => n.category === type);
+            }
+            filtered.sort((a,b) => b.createdAt - a.createdAt);
+            
             list.innerHTML = "";
             if(filtered.length > 0) {
                 filtered.forEach(n => {
                     const date = new Date(n.createdAt).toLocaleDateString();
                     const safeTitle = (n.title || n.text.substring(0, 20)).replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                    const safeText = n.text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                    const icon = type === 'notice' ? 'megaphone' : (type === 'tip' ? 'lightbulb' : 'calendar');
-                    const adminBadge = `<span class="bg-blue-100 text-blue-600 text-[10px] px-1.5 py-0.5 rounded-md font-bold ml-1 align-middle">관리자</span>`;
-                    list.innerHTML += `<div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onclick="openNoticeDetail('${n.id}')"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-gray-800 text-lg flex items-center"><i data-lucide="${icon}" class="w-4 h-4 mr-2 text-emerald-600"></i> ${safeTitle}${adminBadge}</h3><span class="text-xs text-gray-400 shrink-0">${date}</span></div><p class="text-gray-500 text-sm line-clamp-1">${n.text.replace(/<[^>]*>/g, '')}</p></div>`;
+                    const icon = n.category === 'notice' ? 'megaphone' : (n.category === 'tip' ? 'lightbulb' : 'calendar');
+                    let badge = "";
+                    if (n.category === 'festival') badge = `<span class="bg-purple-100 text-purple-700 text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold align-middle">🎆 축제</span>`;
+                    else if (n.category === 'event') badge = `<span class="bg-orange-100 text-orange-700 text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold align-middle">🎁 이벤트</span>`;
+
+                    list.innerHTML += `<div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onclick="openNoticeDetail('${n.id}')"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-gray-800 text-lg flex items-center"><i data-lucide="${icon}" class="w-4 h-4 mr-2 text-emerald-600"></i> ${safeTitle}${badge}</h3><span class="text-xs text-gray-400 shrink-0">${date}</span></div><p class="text-gray-500 text-sm line-clamp-1">${n.text.replace(/<[^>]*>/g, '')}</p></div>`;
                 });
                 lucide.createIcons();
             } else { list.innerHTML = '<div class="text-center py-20 text-gray-400">등록된 글이 없습니다.</div>'; }
@@ -529,8 +482,7 @@ apiKey: "AIzaSyC0SzZuWIl-E0L4VItN4nrHu-O1DaoZd88",
                 imgEl.onload = () => { imgLoader.classList.add("hidden"); imgEl.classList.remove("opacity-0"); };
                 
                 window.updateCarousel = () => {
-                    imgLoader.classList.remove("hidden");
-                    imgEl.classList.add("opacity-0");
+                    imgLoader.classList.remove("hidden"); imgEl.classList.add("opacity-0");
                     const prev = document.getElementById("btn-prev");
                     const next = document.getElementById("btn-next");
                     const indic = document.getElementById("img-indicator");
@@ -546,6 +498,7 @@ apiKey: "AIzaSyC0SzZuWIl-E0L4VItN4nrHu-O1DaoZd88",
                 document.getElementById("detail-rating").innerText = place.rating || 0;
                 document.getElementById("detail-views").innerText = place.views || 0;
                 document.getElementById("detail-tags").innerHTML = (place.tags || []).map(t => `<span class="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg text-sm font-medium">#${t}</span>`).join('');
+
                 document.getElementById("detail-view").classList.remove("hidden");
                 window.scrollTo(0, 0);
                 if(window.lucide) lucide.createIcons();
@@ -613,10 +566,9 @@ apiKey: "AIzaSyC0SzZuWIl-E0L4VItN4nrHu-O1DaoZd88",
             if (!n) { getDoc(doc(db, "notices", id)).then(snap => { if(snap.exists()) { n = {id: snap.id, ...snap.data()}; renderNoticeDetail(n); } else { alert("존재하지 않는 글"); }}); } else { renderNoticeDetail(n); }
         };
         function renderNoticeDetail(n) {
-            const titles = { notice: "공지사항", tip: "꿀팁", event: "이벤트" };
-            const adminBadge = `<span class="bg-blue-100 text-blue-600 text-[10px] px-1.5 py-0.5 rounded-md font-bold ml-1 align-middle">관리자</span>`;
+            const titles = { notice: "공지사항", tip: "꿀팁", event: "이벤트", festival: "축제" };
             document.getElementById("notice-detail-cat").innerText = titles[n.category] || "알림";
-            document.getElementById("notice-detail-title").innerHTML = n.title + adminBadge;
+            document.getElementById("notice-detail-title").innerText = n.title || "";
             document.getElementById("notice-detail-content").innerHTML = n.text; 
             document.getElementById("notice-detail-date").innerText = new Date(n.createdAt).toLocaleDateString();
             const btns = document.getElementById("notice-admin-btns");
@@ -629,7 +581,7 @@ apiKey: "AIzaSyC0SzZuWIl-E0L4VItN4nrHu-O1DaoZd88",
         window.saveNotice = async() => {
             const id = document.getElementById("notice-edit-id").value; const cat = document.getElementById("notice-cat").value; const title = document.getElementById("notice-title").value; const t = document.getElementById("notice-text").value;
             if(!title || !t) return alert("입력 필요");
-            try { if(id) await updateDoc(doc(db, "notices", id), {category:cat, title, text:t}); else await addDoc(collection(db, "notices"), {category:cat, title, text:t, createdAt:Date.now()}); closeModal("notice-modal"); if (location.hash.startsWith(`#board/${cat}`)) loadBoardData(cat); } catch(e) { alert("실패"); }
+            try { if(id) await updateDoc(doc(db, "notices", id), {category:cat, title, text:t}); else await addDoc(collection(db, "notices"), {category:cat, title, text:t, createdAt:Date.now()}); closeModal("notice-modal"); if (location.hash.startsWith(`#board/`)) loadBoardData(location.hash.split("/")[1]); } catch(e) { alert("실패"); }
         };
 
         window.loadFreeBoard = () => {
@@ -674,23 +626,19 @@ apiKey: "AIzaSyC0SzZuWIl-E0L4VItN4nrHu-O1DaoZd88",
         };
         window.sortFreeBoard = (m) => { freeBoardSort = m; loadFreeBoard(); };
 
-        // Fixed Comments with client-side sort
         let commentUnsub;
         function loadComments(postId) {
             if(commentUnsub) commentUnsub();
             const list = document.getElementById("comment-list");
             list.innerHTML = "<div class='text-xs text-gray-400 text-center'>로딩...</div>";
-            
-            const q = query(collection(db, "comments"), where("postId", "==", postId)); // Removed orderBy to fix index error
+            const q = query(collection(db, "comments"), where("postId", "==", postId));
             commentUnsub = onSnapshot(q, (snap) => {
                 const comments = [];
                 snap.forEach(doc => comments.push({id: doc.id, ...doc.data()}));
-                comments.sort((a,b) => a.createdAt - b.createdAt); // Client sort
-                
+                comments.sort((a,b) => a.createdAt - b.createdAt);
                 document.getElementById("comment-count").innerText = comments.length;
                 list.innerHTML = "";
                 if(comments.length === 0) { list.innerHTML="<div class='text-center text-xs text-gray-400 py-2'>댓글 없음</div>"; return; }
-                
                 comments.forEach(c => {
                     const date = new Date(c.createdAt).toLocaleDateString();
                     const isOwner = isAdmin || (currentUser && currentUser.uid === c.uid);
