@@ -15,11 +15,8 @@
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #10b981; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
-        /* 채팅 스크롤 디자인 */
         .chat-scroll::-webkit-scrollbar { width: 4px; }
         .chat-scroll::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 4px; }
-        .chat-scroll::-webkit-scrollbar-track { background-color: transparent; }
-        
         .nav-item.active { background-color: #ecfdf5; color: #059669; font-weight: 700; border-right: 3px solid #059669; }
     </style>
 </head>
@@ -86,8 +83,7 @@
                     </div>
                 </div>
 
-                <!-- 3. 실시간 채팅방 (PC용) - 방문자 통계 바로 밑에 배치 -->
-                <!-- lg:flex로 PC에서만 보임 / hidden으로 모바일 숨김 -->
+                <!-- 3. 실시간 채팅방 (PC용) -->
                 <div class="hidden lg:flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 h-[400px] overflow-hidden">
                     <div class="bg-emerald-600 p-3 text-white font-bold flex justify-between items-center shrink-0">
                         <span class="flex items-center text-sm"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> 실시간 톡</span>
@@ -96,11 +92,9 @@
                             <span class="text-[10px] text-emerald-100">Live</span>
                         </div>
                     </div>
-                    <!-- 메시지 영역 -->
                     <div id="desktop-chat-messages" class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50 text-sm chat-scroll">
                         <div class="text-center text-xs text-gray-400 py-10">채팅 서버 연결 중...</div>
                     </div>
-                    <!-- 입력 영역 -->
                     <form onsubmit="sendChat(event, 'desktop')" class="p-2 border-t bg-white shrink-0">
                         <div class="flex gap-1">
                             <input id="desktop-chat-input" class="flex-1 bg-gray-100 rounded-lg px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-emerald-500" placeholder="메시지 입력..." required>
@@ -251,7 +245,7 @@
         </div>
     </div>
 
-    <!-- 공지 등록 -->
+    <!-- 공지/게시글 등록 (제목 + 내용 분리) -->
     <div id="notice-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
             <h3 class="font-bold text-lg mb-4">게시글 등록</h3>
@@ -260,17 +254,22 @@
                 <option value="tip">🍯 꿀팁</option>
                 <option value="event">🎉 이벤트</option>
             </select>
+            <!-- 제목 입력 추가 -->
+            <input id="notice-title" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none" placeholder="제목을 입력하세요">
             <textarea id="notice-text" class="w-full mb-4 p-3 border rounded-lg h-32 resize-none outline-none" placeholder="내용을 입력하세요"></textarea>
             <button onclick="saveNotice()" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold">등록</button>
             <button onclick="closeModal('notice-modal')" class="w-full mt-2 py-2 text-gray-400 text-sm">취소</button>
         </div>
     </div>
 
-    <!-- 공지 상세 보기 -->
+    <!-- 공지 상세 보기 (제목 표시) -->
     <div id="notice-detail-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-4 pb-2 border-b">
-                <h3 class="font-bold text-lg text-emerald-700" id="notice-detail-cat"></h3>
+            <div class="flex justify-between items-start mb-4 pb-2 border-b">
+                <div>
+                    <span class="text-xs text-emerald-600 font-bold mb-1 block" id="notice-detail-cat"></span>
+                    <h3 class="font-bold text-xl text-gray-800 leading-tight" id="notice-detail-title"></h3>
+                </div>
                 <button onclick="closeModal('notice-detail-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
             </div>
             <div id="notice-detail-content" class="text-gray-700 text-base leading-relaxed whitespace-pre-line min-h-[100px]"></div>
@@ -329,8 +328,8 @@
             apiKey: "AIzaSyC0SzZuWIl-E0L4VItN4nrHu-O1DaoZd88",
             authDomain: "project-5196212932199830884.firebaseapp.com",
             projectId: "project-5196212932199830884",
-            storageBucket: "project-5196212932199830884.firebasestorage.app",
-            messagingSenderId: "491579175390",
+            storageBucket: "491579175390",
+            messagingSenderId: "SENDER_ID",
             appId: "1:491579175390:web:e18c1334c7fd6a6c0ead4f"
         };
         // ============================================================
@@ -398,26 +397,34 @@
             const list = document.getElementById("board-list");
             list.innerHTML = '<div class="text-center py-20 text-gray-400">로딩 중...</div>';
             
-            const q = query(collection(db, "notices"), where("category", "==", type), orderBy("createdAt", "desc"));
+            const q = query(collection(db, "notices"));
             
             onSnapshot(q, (snap) => {
                 list.innerHTML = "";
-                if(!snap.empty) {
-                    snap.forEach(doc => {
-                        const n = doc.data();
+                const docs = [];
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    if(data.category === type) docs.push({...data, id:doc.id});
+                });
+                
+                docs.sort((a,b) => b.createdAt - a.createdAt);
+
+                if(docs.length > 0) {
+                    docs.forEach(n => {
                         const date = new Date(n.createdAt).toLocaleDateString();
                         const safeText = n.text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        const safeTitle = (n.title || n.text.substring(0, 20)).replace(/'/g, "\\'").replace(/"/g, '&quot;'); // 제목 없으면 내용 일부
                         const icon = type === 'notice' ? 'megaphone' : (type === 'tip' ? 'lightbulb' : 'calendar');
                         
                         list.innerHTML += `
-                            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onclick="openNoticeDetail('${type}', '${safeText}', '${date}')">
+                            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onclick="openNoticeDetail('${type}', '${safeTitle}', '${safeText}', '${date}')">
                                 <div class="flex justify-between items-start mb-2">
                                     <h3 class="font-bold text-gray-800 text-lg flex items-center">
-                                        <i data-lucide="${icon}" class="w-4 h-4 mr-2 text-emerald-600"></i> ${type === 'event' ? 'D-Day' : ''}
+                                        <i data-lucide="${icon}" class="w-4 h-4 mr-2 text-emerald-600"></i> ${safeTitle}
                                     </h3>
-                                    <span class="text-xs text-gray-400">${date}</span>
+                                    <span class="text-xs text-gray-400 shrink-0">${date}</span>
                                 </div>
-                                <p class="text-gray-600 line-clamp-2">${n.text}</p>
+                                <p class="text-gray-500 text-sm line-clamp-1">${n.text.replace(/<[^>]*>/g, '')}</p> 
                             </div>
                         `;
                     });
@@ -433,11 +440,10 @@
             if(!place && allPlaces.length === 0) { setTimeout(()=>showDetailView(id), 200); return; }
             if(!place) { alert("글 없음"); location.hash=""; return; }
 
-            // 조회수 버그 수정: 세션 체크 후 1회만 증가
             if (db && !sessionStorage.getItem(`viewed_${id}`)) {
                 updateDoc(doc(db, "places", id), { views: increment(1) }).catch(e=>{});
                 sessionStorage.setItem(`viewed_${id}`, "true");
-                place.views = (place.views || 0) + 1; // 즉시 반영
+                place.views = (place.views || 0) + 1;
             }
 
             currentDetailImages = (place.images && place.images.length > 0) ? place.images : [place.image || 'https://via.placeholder.com/800?text=No+Image'];
@@ -622,10 +628,11 @@
             }
         }
 
-        window.openNoticeDetail = (type, text, date) => {
+        window.openNoticeDetail = (type, title, text, date) => {
             const titles = { notice: "공지사항", tip: "꿀팁", event: "이벤트" };
             document.getElementById("notice-detail-cat").innerText = titles[type] || "알림";
-            document.getElementById("notice-detail-content").innerText = text;
+            document.getElementById("notice-detail-title").innerText = title;
+            document.getElementById("notice-detail-content").innerHTML = text; // HTML 허용 (주의: XSS 방지 필요하지만 간편 구현)
             document.getElementById("notice-detail-date").innerText = date;
             document.getElementById("notice-detail-modal").classList.remove("hidden");
         };
@@ -688,8 +695,20 @@
         window.deletePlace = async(id) => { if(confirm("삭제?") && db) await deleteDoc(doc(db, "places", id)); };
         window.saveNotice = async() => {
             const cat = document.getElementById("notice-cat").value;
+            const title = document.getElementById("notice-title").value;
             const t = document.getElementById("notice-text").value;
-            if(t && db) { await addDoc(collection(db, "notices"), {category: cat, text:t, createdAt:Date.now()}); closeModal("notice-modal"); alert("등록됨"); showBoardView(cat); }
+            if(title && t && db) { 
+                await addDoc(collection(db, "notices"), {category: cat, title: title, text:t, createdAt:Date.now()}); 
+                closeModal("notice-modal"); 
+                alert("등록됨"); 
+                if (location.hash.startsWith(`#board/${cat}`)) {
+                    loadBoardData(cat);
+                } else {
+                    showBoardView(cat);
+                }
+            } else {
+                alert("제목과 내용을 입력해주세요.");
+            }
         };
 
         window.toggleAuth = () => document.getElementById("login-modal").classList.remove("hidden");
