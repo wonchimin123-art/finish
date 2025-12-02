@@ -74,35 +74,69 @@
             
             <!-- [좌측 사이드바] -->
             <div id="mobile-sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden opacity-0 transition-opacity duration-300"></div>
+            
             <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-72 bg-white z-50 transform -translate-x-full lg:translate-x-0 lg:static lg:w-72 shrink-0 space-y-6 lg:block transition-transform duration-300 overflow-y-auto lg:overflow-visible shadow-2xl lg:shadow-none p-4 lg:p-0">
                 <div class="flex justify-between items-center lg:hidden mb-4 px-2">
                     <span class="font-bold text-lg text-gray-800">메뉴</span>
                     <button onclick="toggleSidebar()" class="p-1 hover:bg-gray-100 rounded"><i data-lucide="x" class="w-6 h-6"></i></button>
                 </div>
-                <!-- 메뉴 리스트 -->
+
+                <!-- 1. 메뉴 리스트 -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="p-4 bg-gray-50 border-b border-gray-100 font-bold text-gray-700 flex items-center hidden lg:flex"><i data-lucide="menu" class="w-4 h-4 mr-2"></i> 메뉴</div>
+                    <div class="p-4 bg-gray-50 border-b border-gray-100 font-bold text-gray-700 flex items-center hidden lg:flex">
+                        <i data-lucide="menu" class="w-4 h-4 mr-2"></i> 메뉴
+                    </div>
                     <nav class="flex flex-col text-sm">
-                        <a onclick="menuClick('')" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600"><i data-lucide="home" class="w-4 h-4 mr-3"></i> 홈 (여행지 목록)</a>
-                        <a onclick="menuClick('#board/notice')" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600"><i data-lucide="megaphone" class="w-4 h-4 mr-3"></i> 공지사항</a>
-                        <a onclick="menuClick('#board/tip')" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600"><i data-lucide="lightbulb" class="w-4 h-4 mr-3"></i> 대전 여행 꿀팁</a>
-                        <a onclick="menuClick('#board/event')" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600"><i data-lucide="calendar" class="w-4 h-4 mr-3"></i> 축제 & 이벤트</a>
+                        <a onclick="menuClick('')" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600">
+                            <i data-lucide="home" class="w-4 h-4 mr-3"></i> 홈 (여행지 목록)
+                        </a>
+                        <a onclick="menuClick('#board/notice')" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600">
+                            <i data-lucide="megaphone" class="w-4 h-4 mr-3"></i> 공지사항
+                        </a>
+                        <a onclick="menuClick('#board/tip')" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600">
+                            <i data-lucide="lightbulb" class="w-4 h-4 mr-3"></i> 대전 여행 꿀팁
+                        </a>
+                        <a onclick="menuClick('#board/event')" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600">
+                            <i data-lucide="calendar" class="w-4 h-4 mr-3"></i> 축제 & 이벤트
+                        </a>
                         <div class="h-px bg-gray-100 my-1"></div>
-                        <a onclick="menuClick('#freeboard')" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-emerald-600 font-bold"><i data-lucide="message-square" class="w-4 h-4 mr-3"></i> 자유게시판</a>
+                        <a onclick="menuClick('#freeboard')" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-emerald-600 font-bold">
+                            <i data-lucide="message-square" class="w-4 h-4 mr-3"></i> 자유게시판
+                        </a>
                     </nav>
                 </div>
-                <!-- 방문자 현황 -->
+
+                <!-- 2. 방문자 현황 -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <h3 class="font-bold text-gray-800 mb-4 flex items-center"><i data-lucide="bar-chart-3" class="w-4 h-4 mr-2 text-emerald-600"></i> 방문자 통계</h3>
-                    <div class="flex justify-between items-center text-sm mb-2"><span class="text-gray-500">오늘 (KST)</span><span id="daily-count" class="font-bold text-emerald-600">0</span></div>
-                    <div class="w-full bg-gray-100 h-1.5 rounded-full mb-4 overflow-hidden"><div class="bg-emerald-500 h-1.5 rounded-full animate-[width_1s_ease-out]" style="width: 60%"></div></div>
-                    <div class="flex justify-between items-center text-sm"><span class="text-gray-500">누적</span><span id="total-count" class="font-bold text-gray-700">0</span></div>
+                    <div class="flex justify-between items-center text-sm mb-2">
+                        <span class="text-gray-500">오늘 (KST)</span>
+                        <span id="daily-count" class="font-bold text-emerald-600">0</span>
+                    </div>
+                    <div class="w-full bg-gray-100 h-1.5 rounded-full mb-4 overflow-hidden">
+                        <div class="bg-emerald-500 h-1.5 rounded-full animate-[width_1s_ease-out]" style="width: 60%"></div>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-500">누적</span>
+                        <span id="total-count" class="font-bold text-gray-700">0</span>
+                    </div>
                 </div>
-                <!-- 실시간 채팅방 (PC) -->
+
+                <!-- 3. 실시간 채팅방 (PC용) -->
                 <div class="hidden lg:flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 h-[350px] overflow-hidden sticky top-24">
-                    <div class="bg-emerald-600 p-3 text-white font-bold flex justify-between items-center shrink-0"><span class="flex items-center text-sm"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> 실시간 톡</span><span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span> ON</span></div>
-                    <div id="desktop-chat-messages" class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50 text-sm chat-scroll"><div class="text-center text-xs text-gray-400 py-10">로딩 중...</div></div>
-                    <form onsubmit="sendChat(event, 'desktop')" class="p-2 border-t bg-white shrink-0"><div class="flex gap-1"><input id="desktop-chat-input" class="flex-1 bg-gray-100 rounded-lg px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-emerald-500" placeholder="메시지 입력..." required><button type="submit" class="bg-emerald-600 text-white p-2 rounded-lg hover:bg-emerald-700 transition-colors"><i data-lucide="send" class="w-3 h-3"></i></button></div></form>
+                    <div class="bg-emerald-600 p-3 text-white font-bold flex justify-between items-center shrink-0">
+                        <span class="flex items-center text-sm"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> 실시간 톡</span>
+                        <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span> ON</span>
+                    </div>
+                    <div id="desktop-chat-messages" class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50 text-sm chat-scroll">
+                        <div class="text-center text-xs text-gray-400 py-10">로딩 중...</div>
+                    </div>
+                    <form onsubmit="sendChat(event, 'desktop')" class="p-2 border-t bg-white shrink-0">
+                        <div class="flex gap-1">
+                            <input id="desktop-chat-input" class="flex-1 bg-gray-100 rounded-lg px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-emerald-500" placeholder="메시지 입력..." required>
+                            <button type="submit" class="bg-emerald-600 text-white p-2 rounded-lg hover:bg-emerald-700 transition-colors"><i data-lucide="send" class="w-3 h-3"></i></button>
+                        </div>
+                    </form>
                 </div>
             </aside>
 
@@ -113,20 +147,26 @@
                 <div id="home-view">
                     <!-- 히어로 -->
                     <div class="relative bg-emerald-900 rounded-3xl overflow-hidden h-[240px] mb-8 shadow-lg group">
-                        <div class="absolute inset-0 opacity-60"><img id="hero-bg-img" src="https://images.unsplash.com/photo-1627960682701-7b001a140228?auto=format&fit=crop&q=80&w=1600" class="w-full h-full object-cover transition-transform duration-[20s] group-hover:scale-110"></div>
+                        <div class="absolute inset-0 opacity-60">
+                            <img id="hero-bg-img" src="https://images.unsplash.com/photo-1627960682701-7b001a140228?auto=format&fit=crop&q=80&w=1600" class="w-full h-full object-cover transition-transform duration-[20s] group-hover:scale-110">
+                        </div>
                         <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent"></div>
                         <div class="relative z-10 h-full flex flex-col justify-center px-8 md:px-12 items-start text-left">
                             <div class="bg-white/20 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded-md mb-3 border border-white/30">DAEJEON TRAVEL</div>
                             <h1 id="hero-main-text" class="text-3xl md:text-4xl font-extrabold text-white mb-2 leading-tight">노잼도시 탈출!<br><span class="text-emerald-300">대전 핫플 가이드</span></h1>
                             <p id="hero-sub-text" class="text-emerald-100 text-sm font-light mb-6">현지인이 직접 추천하는 맛집 & 힐링 스팟</p>
                             <div class="flex gap-2">
-                                <button id="write-btn" onclick="openWriteModal()" class="hidden bg-emerald-600 text-white text-sm font-bold py-2.5 px-5 rounded-full shadow-lg hover:bg-emerald-700 transition-all active:scale-95 flex items-center"><i data-lucide="edit-3" class="w-4 h-4 mr-2"></i> 여행지 등록</button>
-                                <button id="edit-hero-btn" onclick="openHeroEditModal()" class="hidden bg-black/50 backdrop-blur text-white text-xs px-3 py-2 rounded-full hover:bg-black/70 flex items-center border border-white/20"><i data-lucide="settings" class="w-3.5 h-3.5 mr-1.5"></i> 배경 편집</button>
+                                <button id="write-btn" onclick="openWriteModal()" class="hidden bg-emerald-600 text-white text-sm font-bold py-2.5 px-5 rounded-full shadow-lg hover:bg-emerald-700 transition-all active:scale-95 flex items-center">
+                                    <i data-lucide="edit-3" class="w-4 h-4 mr-2"></i> 여행지 등록
+                                </button>
+                                <button id="edit-hero-btn" onclick="openHeroEditModal()" class="hidden bg-black/50 backdrop-blur text-white text-xs px-3 py-2 rounded-full hover:bg-black/70 flex items-center border border-white/20">
+                                    <i data-lucide="settings" class="w-3.5 h-3.5 mr-1.5"></i> 배경 편집
+                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 필터 & 검색 -->
+                    <!-- ★ 검색 및 필터 -->
                     <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row justify-between items-center gap-3 sticky top-16 z-30">
                         <div class="flex gap-1 overflow-x-auto max-w-full scrollbar-hide w-full md:w-auto pb-1 md:pb-0 shrink-0">
                             <button onclick="filterDistrict('전체')" class="cat-btn active px-3 py-1.5 rounded-lg text-sm font-bold bg-emerald-100 text-emerald-700 transition-colors whitespace-nowrap" data-val="전체">전체</button>
@@ -136,23 +176,34 @@
                             <button onclick="filterDistrict('유성구')" class="cat-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap" data-val="유성구">유성구</button>
                             <button onclick="filterDistrict('대덕구')" class="cat-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap" data-val="대덕구">대덕구</button>
                         </div>
+                        
                         <div class="flex w-full md:w-auto gap-2">
                             <div class="relative flex-1 md:w-48">
                                 <input id="search-input" type="text" onkeyup="renderPlaces()" placeholder="장소 검색..." class="w-full bg-gray-50 border-0 rounded-lg pl-9 pr-3 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500">
                                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
                             </div>
-                            <select onchange="sortPlaces(this.value)" class="bg-gray-50 border-0 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 focus:ring-2 focus:ring-emerald-500 w-auto shrink-0"><option value="recent">✨ 최신순</option><option value="rating">⭐ 평점순</option><option value="views">🔥 조회순</option></select>
+                            <select onchange="sortPlaces(this.value)" class="bg-gray-50 border-0 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 focus:ring-2 focus:ring-emerald-500 w-auto shrink-0">
+                                <option value="recent">✨ 최신순</option>
+                                <option value="rating">⭐ 평점순</option>
+                                <option value="views">🔥 조회순</option>
+                            </select>
                         </div>
                     </div>
+
                     <div id="loader-area" class="flex justify-center py-20"><div class="loader"></div></div>
                     <div id="places-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6 fade-in hidden"></div>
                 </div>
 
-                <!-- (B) 게시판 뷰 -->
+                <!-- (B) 게시판 뷰 (공지/팁/이벤트) -->
                 <div id="board-view" class="hidden fade-in">
                     <div class="flex justify-between items-end mb-6 border-b border-gray-200 pb-4">
-                        <div><h2 id="board-title" class="text-2xl font-bold text-gray-800">게시판</h2><p id="board-desc" class="text-sm text-gray-500 mt-1">유용한 정보를 확인하세요.</p></div>
-                        <button id="board-write-btn" onclick="openNoticeModal()" class="hidden bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg font-bold hover:bg-emerald-700 flex items-center transition-colors"><i data-lucide="pen-tool" class="w-4 h-4 mr-2"></i> 글쓰기</button>
+                        <div>
+                            <h2 id="board-title" class="text-2xl font-bold text-gray-800">게시판</h2>
+                            <p id="board-desc" class="text-sm text-gray-500 mt-1">유용한 정보를 확인하세요.</p>
+                        </div>
+                        <button id="board-write-btn" onclick="openNoticeModal()" class="hidden bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg font-bold hover:bg-emerald-700 flex items-center transition-colors">
+                            <i data-lucide="pen-tool" class="w-4 h-4 mr-2"></i> 글쓰기
+                        </button>
                     </div>
                     <div id="board-list" class="space-y-4"></div>
                 </div>
@@ -160,15 +211,30 @@
                 <!-- (C) 자유게시판 -->
                 <div id="free-board-view" class="hidden fade-in">
                     <div class="flex justify-between items-end mb-6 border-b border-gray-200 pb-4">
-                        <div><h2 class="text-2xl font-bold text-gray-800">💬 자유게시판</h2><p class="text-sm text-gray-500 mt-1">여행자들과 자유롭게 소통하세요.</p></div>
-                        <div class="flex items-center gap-2"><select onchange="sortFreeBoard(this.value)" class="text-sm border rounded-lg px-2 py-1.5 bg-white"><option value="desc">최신순</option><option value="asc">오래된순</option></select><button onclick="openFreeWriteModal()" class="bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg font-bold hover:bg-emerald-700 flex items-center transition-colors"><i data-lucide="pen-tool" class="w-4 h-4 mr-2"></i> 글쓰기</button></div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">💬 자유게시판</h2>
+                            <p class="text-sm text-gray-500 mt-1">여행자들과 자유롭게 소통하세요.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <select onchange="sortFreeBoard(this.value)" class="text-sm border rounded-lg px-2 py-1.5 bg-white">
+                                <option value="desc">최신순</option>
+                                <option value="asc">오래된순</option>
+                            </select>
+                            <button onclick="openFreeWriteModal()" class="bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg font-bold hover:bg-emerald-700 flex items-center transition-colors">
+                                <i data-lucide="pen-tool" class="w-4 h-4 mr-2"></i> 글쓰기
+                            </button>
+                        </div>
                     </div>
                     <div id="free-board-list" class="space-y-4"></div>
                 </div>
 
                 <!-- (D) 여행지 상세 뷰 (상세 평점 추가됨) -->
                 <div id="detail-view" class="hidden fade-in">
-                    <div class="mb-4"><button onclick="history.back()" class="flex items-center text-gray-500 hover:text-emerald-600 font-bold transition-colors"><i data-lucide="arrow-left" class="w-5 h-5 mr-1"></i> 뒤로가기</button></div>
+                    <div class="mb-4">
+                        <button onclick="history.back()" class="flex items-center text-gray-500 hover:text-emerald-600 font-bold transition-colors">
+                            <i data-lucide="arrow-left" class="w-5 h-5 mr-1"></i> 뒤로가기
+                        </button>
+                    </div>
                     <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100">
                         <div class="relative w-full bg-gray-100 group aspect-video">
                             <div id="detail-img-loader" class="absolute inset-0 flex items-center justify-center bg-gray-50 z-20 hidden"><div class="loader"></div></div>
@@ -180,7 +246,12 @@
                         <div class="p-6 md:p-10">
                             <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 border-b border-gray-100 pb-6">
                                 <div>
-                                    <div class="flex items-center gap-2 mb-3"><span id="detail-district" class="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1 rounded font-bold"></span><div class="flex items-center text-yellow-500 text-sm font-bold"><i data-lucide="star" class="w-4 h-4 fill-yellow-500 mr-1"></i> <span id="detail-rating"></span></div><a id="map-link" href="#" target="_blank" class="flex items-center bg-green-50 text-green-600 text-xs px-2.5 py-1 rounded font-bold hover:bg-green-100 transition-colors ml-1"><i data-lucide="map" class="w-3 h-3 mr-1"></i> 지도</a><button onclick="shareLink()" class="flex items-center bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded font-bold hover:bg-gray-200 transition-colors"><i data-lucide="share-2" class="w-3 h-3 mr-1"></i> 공유</button></div>
+                                    <div class="flex items-center gap-2 mb-3">
+                                        <span id="detail-district" class="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1 rounded font-bold"></span>
+                                        <div class="flex items-center text-yellow-500 text-sm font-bold"><i data-lucide="star" class="w-4 h-4 fill-yellow-500 mr-1"></i> <span id="detail-rating"></span></div>
+                                        <a id="map-link" href="#" target="_blank" class="flex items-center bg-green-50 text-green-600 text-xs px-2.5 py-1 rounded font-bold hover:bg-green-100 transition-colors ml-1"><i data-lucide="map" class="w-3 h-3 mr-1"></i> 지도</a>
+                                        <button onclick="shareLink()" class="flex items-center bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded font-bold hover:bg-gray-200 transition-colors"><i data-lucide="share-2" class="w-3 h-3 mr-1"></i> 공유</button>
+                                    </div>
                                     <h1 id="detail-title" class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight"></h1>
                                 </div>
                                 <div class="text-gray-400 text-sm flex items-center shrink-0"><i data-lucide="eye" class="w-4 h-4 mr-1.5"></i> <span id="detail-views"></span>회 조회</div>
@@ -197,71 +268,185 @@
                     </div>
                 </div>
 
-                <!-- 공지/자유게시판 상세 뷰 생략 (위와 동일) -->
-                <div id="notice-detail-view" class="hidden fade-in"><div class="mb-4"><button onclick="history.back()" class="flex items-center text-gray-500 hover:text-emerald-600 font-bold transition-colors"><i data-lucide="arrow-left" class="w-5 h-5 mr-1"></i> 목록으로</button></div><div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden"><div class="p-8 md:p-12"><div class="border-b border-gray-100 pb-6 mb-8"><span id="notice-view-cat" class="text-sm font-bold text-emerald-600 mb-2 block">공지사항</span><h1 id="notice-view-title" class="text-3xl font-extrabold text-gray-900 mb-4 leading-tight"></h1><div class="flex justify-between items-center text-sm text-gray-400"><span id="notice-view-date"></span><div id="notice-view-admin-btns" class="hidden gap-2"><button id="btn-notice-view-edit" class="bg-blue-50 text-blue-600 px-3 py-1 rounded hover:bg-blue-100 text-xs font-bold">수정</button><button id="btn-notice-view-delete" class="bg-red-50 text-red-600 px-3 py-1 rounded hover:bg-red-100 text-xs font-bold">삭제</button></div></div></div><div class="prose prose-emerald max-w-none min-h-[200px]"><p id="notice-view-content" class="text-gray-700 leading-8 whitespace-pre-line text-lg"></p></div></div></div></div>
-                <div id="free-detail-view" class="hidden fade-in"><div class="mb-4"><button onclick="history.back()" class="flex items-center text-gray-500 hover:text-emerald-600 font-bold transition-colors"><i data-lucide="arrow-left" class="w-5 h-5 mr-1"></i> 목록으로</button></div><div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden"><div class="p-6 md:p-10"><div class="flex justify-between items-start mb-6 pb-4 border-b border-gray-100"><div class="flex items-center gap-4"><img id="free-view-avatar" src="" class="w-12 h-12 rounded-full border border-gray-200"><div><h1 id="free-view-title" class="text-2xl font-bold text-gray-900 leading-tight mb-1"></h1><div class="text-sm text-gray-500" id="free-view-author"></div></div></div><div class="text-right"><span class="text-xs text-gray-400 block mb-2" id="free-view-date"></span><div id="free-view-owner-btns" class="hidden gap-2 justify-end"><button id="btn-free-view-delete" class="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-100 font-bold transition-colors">삭제</button></div></div></div><div class="prose prose-emerald max-w-none mb-12 min-h-[100px]"><p id="free-view-content" class="text-gray-700 leading-8 whitespace-pre-line text-lg"></p></div><div class="bg-gray-50 rounded-2xl p-6"><h4 class="font-bold text-gray-800 mb-4 flex items-center"><i data-lucide="message-square" class="w-4 h-4 mr-2 text-emerald-600"></i> 댓글 <span id="free-view-comment-count" class="text-emerald-600 ml-1">0</span></h4><div id="free-view-comment-list" class="space-y-3 mb-6"></div><form onsubmit="saveComment(event)" class="flex gap-2"><input id="comment-input" class="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="댓글을 남겨보세요..." required><button type="submit" class="bg-emerald-600 text-white text-sm px-5 rounded-xl font-bold hover:bg-emerald-700 transition-colors">등록</button></form></div></div></div></div>
+                <!-- (E) ★ 공지사항 상세 뷰 (페이지 방식) -->
+                <div id="notice-detail-view" class="hidden fade-in">
+                    <div class="mb-4">
+                        <button onclick="history.back()" class="flex items-center text-gray-500 hover:text-emerald-600 font-bold transition-colors">
+                            <i data-lucide="arrow-left" class="w-5 h-5 mr-1"></i> 목록으로
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-8 md:p-12">
+                            <div class="border-b border-gray-100 pb-6 mb-8">
+                                <span id="notice-view-cat" class="text-sm font-bold text-emerald-600 mb-2 block">공지사항</span>
+                                <h1 id="notice-view-title" class="text-3xl font-extrabold text-gray-900 mb-4 leading-tight"></h1>
+                                <div class="flex justify-between items-center text-sm text-gray-400">
+                                    <span id="notice-view-date"></span>
+                                    <div id="notice-view-admin-btns" class="hidden gap-2">
+                                        <button id="btn-notice-view-edit" class="bg-blue-50 text-blue-600 px-3 py-1 rounded hover:bg-blue-100 text-xs font-bold">수정</button>
+                                        <button id="btn-notice-view-delete" class="bg-red-50 text-red-600 px-3 py-1 rounded hover:bg-red-100 text-xs font-bold">삭제</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="prose prose-emerald max-w-none min-h-[200px]">
+                                <p id="notice-view-content" class="text-gray-700 leading-8 whitespace-pre-line text-lg"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                <footer class="mt-12 text-center text-gray-400 text-xs py-6 border-t border-gray-100"><p>대전여행 가이드 &copy; 2025</p></footer>
+                <!-- (F) ★ 자유게시판 상세 뷰 (페이지 방식) -->
+                <div id="free-detail-view" class="hidden fade-in">
+                    <div class="mb-4">
+                        <button onclick="history.back()" class="flex items-center text-gray-500 hover:text-emerald-600 font-bold transition-colors">
+                            <i data-lucide="arrow-left" class="w-5 h-5 mr-1"></i> 목록으로
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-6 md:p-10">
+                            <!-- 글 헤더 -->
+                            <div class="flex justify-between items-start mb-6 pb-4 border-b border-gray-100">
+                                <div class="flex items-center gap-4">
+                                    <img id="free-view-avatar" src="" class="w-12 h-12 rounded-full border border-gray-200">
+                                    <div>
+                                        <h1 id="free-view-title" class="text-2xl font-bold text-gray-900 leading-tight mb-1"></h1>
+                                        <div class="text-sm text-gray-500" id="free-view-author"></div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs text-gray-400 block mb-2" id="free-view-date"></span>
+                                    <div id="free-view-owner-btns" class="hidden gap-2 justify-end">
+                                        <button id="btn-free-view-delete" class="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-100 font-bold transition-colors">삭제</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 본문 -->
+                            <div class="prose prose-emerald max-w-none mb-12 min-h-[100px]">
+                                <p id="free-view-content" class="text-gray-700 leading-8 whitespace-pre-line text-lg"></p>
+                            </div>
+
+                            <!-- 댓글 영역 -->
+                            <div class="bg-gray-50 rounded-2xl p-6">
+                                <h4 class="font-bold text-gray-800 mb-4 flex items-center">
+                                    <i data-lucide="message-square" class="w-4 h-4 mr-2 text-emerald-600"></i>
+                                    댓글 <span id="free-view-comment-count" class="text-emerald-600 ml-1">0</span>
+                                </h4>
+                                
+                                <div id="free-view-comment-list" class="space-y-3 mb-6"></div>
+
+                                <form onsubmit="saveComment(event)" class="flex gap-2">
+                                    <input id="comment-input" class="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="댓글을 남겨보세요..." required>
+                                    <button type="submit" class="bg-emerald-600 text-white text-sm px-5 rounded-xl font-bold hover:bg-emerald-700 transition-colors">등록</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="mt-12 text-center text-gray-400 text-xs py-6 border-t border-gray-100">
+                    <p>대전여행 가이드 &copy; 2025</p>
+                </footer>
             </section>
         </div>
     </div>
 
     <!-- ================= [모달들] ================= -->
 
-    <!-- 로그인, 공유, 공지 등 기존 모달들 (생략된 부분 없음) -->
-    <div id="share-modal" class="fixed inset-0 z-[200] hidden bg-black/60 flex items-center justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-xs p-6 shadow-2xl relative"><button onclick="closeModal('share-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button><h3 class="font-bold text-lg mb-4 text-center">공유하기</h3><div class="grid grid-cols-4 gap-4"><button onclick="shareToKakao()" class="flex flex-col items-center gap-2 group"><div class="w-12 h-12 btn-kakao rounded-full flex items-center justify-center shadow-md group-hover:scale-105 transition-transform"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C5.373 3 0 7.253 0 12.5c0 3.334 2.168 6.275 5.47 8.025-.255.94-1.658 6.03-1.716 6.411-.068.45.17.438.355.312.227-.154 3.596-2.477 4.258-2.934.536.078 1.084.119 1.633.119 6.627 0 12-4.253 12-9.5S18.627 3 12 3z"/></svg></div><span class="text-xs text-gray-600">카카오톡</span></button><button onclick="shareToTwitter()" class="flex flex-col items-center gap-2 group"><div class="w-12 h-12 btn-twitter rounded-full flex items-center justify-center shadow-md group-hover:scale-105 transition-transform"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></div><span class="text-xs text-gray-600">X</span></button><button onclick="shareToFacebook()" class="flex flex-col items-center gap-2 group"><div class="w-12 h-12 btn-facebook rounded-full flex items-center justify-center shadow-md group-hover:scale-105 transition-transform"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div><span class="text-xs text-gray-600">페이스북</span></button><button onclick="copyLinkToClipboard()" class="flex flex-col items-center gap-2 group"><div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center shadow-md group-hover:scale-105 transition-transform"><i data-lucide="link" class="w-6 h-6 text-gray-600"></i></div><span class="text-xs text-gray-600">주소복사</span></button></div></div></div>
-    <div id="login-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-8 shadow-2xl relative"><button onclick="closeModal('login-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button><h3 class="font-bold text-xl mb-6 text-center text-gray-800">로그인</h3><button onclick="loginWithGoogle()" class="w-full bg-white border border-gray-300 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-50 flex items-center justify-center mb-4 transition-colors"><svg class="w-5 h-5 mr-2" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Google로 계속하기</button><div class="relative my-6"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div><div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-500">또는 관리자 로그인</span></div></div><input type="email" id="email" placeholder="관리자 이메일" class="w-full mb-3 p-3 border rounded-xl bg-gray-50 outline-none text-sm"><input type="password" id="password" placeholder="비밀번호" class="w-full mb-4 p-3 border rounded-xl bg-gray-50 outline-none text-sm"><button onclick="handleAdminLogin()" class="w-full bg-gray-800 text-white py-3 rounded-xl font-bold hover:bg-gray-900 text-sm">관리자 로그인</button></div></div>
-    <div id="notice-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl"><div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg" id="notice-modal-title">게시글 등록</h3><button onclick="closeModal('notice-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button></div><input type="hidden" id="notice-edit-id"><select id="notice-cat" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none"><option value="notice">📢 공지사항</option><option value="tip">🍯 꿀팁</option><option value="festival">🎆 축제</option><option value="event">🎁 이벤트</option></select><input id="notice-title" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none" placeholder="제목을 입력하세요"><textarea id="notice-text" class="w-full mb-4 p-3 border rounded-lg h-32 resize-none outline-none" placeholder="내용을 입력하세요"></textarea><button onclick="saveNotice()" id="notice-save-btn" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold">등록</button></div></div>
-    <div id="free-write-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl"><div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg">자유게시판 글쓰기</h3><button onclick="closeModal('free-write-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button></div><input id="free-title" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none" placeholder="제목"><textarea id="free-text" class="w-full mb-4 p-3 border rounded-lg h-32 resize-none outline-none" placeholder="내용을 자유롭게 적어주세요."></textarea><button onclick="saveFreePost()" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold">등록하기</button></div></div>
-    <div id="hero-edit-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl"><h3 class="font-bold text-lg mb-4">메인 화면 설정</h3><div class="space-y-3"><input id="edit-hero-title" class="w-full p-2 border rounded bg-gray-50" placeholder="메인 문구"><input id="edit-hero-sub" class="w-full p-2 border rounded bg-gray-50" placeholder="서브 문구"><input id="edit-hero-img" class="w-full p-2 border rounded bg-gray-50" placeholder="배경 이미지 URL"><button onclick="saveHeroConfig()" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold mt-2">저장하기</button><button onclick="closeModal('hero-edit-modal')" class="w-full py-2 text-gray-400 text-sm">취소</button></div></div></div>
-    <div class="lg:hidden fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3"><div id="mobile-chat-window" class="hidden bg-white w-[300px] h-[400px] rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-[slideUp_0.3s_ease-out]"><div class="bg-emerald-600 p-3 text-white font-bold flex justify-between items-center shrink-0"><span class="flex items-center text-sm"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> 실시간 톡</span><button onclick="toggleMobileChat()" class="hover:bg-emerald-700 p-1 rounded"><i data-lucide="x" class="w-5 h-5"></i></button></div><div id="mobile-chat-messages" class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50 text-sm chat-scroll"></div><form onsubmit="sendChat(event, 'mobile')" class="p-2 border-t bg-white shrink-0"><div class="flex gap-1"><input id="mobile-chat-input" class="flex-1 bg-gray-100 rounded-full px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-emerald-500" placeholder="메시지 입력..." required><button type="submit" class="bg-emerald-600 text-white p-2 rounded-full hover:bg-emerald-700 shadow-md"><i data-lucide="send" class="w-3 h-3"></i></button></div></form></div><button onclick="toggleMobileChat()" class="bg-emerald-600 text-white p-3.5 rounded-full shadow-xl hover:bg-emerald-700 transition-transform hover:scale-105 flex items-center justify-center ring-4 ring-emerald-50"><i data-lucide="message-circle" class="w-6 h-6"></i></button></div>
-
-    <!-- ★ 여행지 글쓰기 (상세 평점 추가) -->
-    <div id="write-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-6"><h3 id="write-modal-title" class="font-bold text-xl text-gray-900">여행지 작성</h3><button onclick="closeModal('write-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button></div>
-            <input type="hidden" id="edit-id">
-            <div class="space-y-5">
-                <input id="inp-name" class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-emerald-500" placeholder="제목 (예: 성심당 본점)">
-                <select id="inp-district" class="w-full p-3 border rounded-xl bg-gray-50 outline-none"><option>동구</option><option>중구</option><option>서구</option><option>유성구</option><option>대덕구</option></select>
-                
-                <!-- 상세 평점 슬라이더 -->
-                <div class="bg-gray-50 p-4 rounded-xl space-y-3">
-                    <h4 class="text-sm font-bold text-gray-600 mb-2">상세 평가</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="flex justify-between text-xs font-bold text-gray-500 mb-1"><span>청결도</span><span id="val-clean" class="text-emerald-600">5.0</span></label>
-                            <input type="range" id="inp-clean" min="1" max="5" step="0.5" value="5.0" oninput="document.getElementById('val-clean').innerText=this.value">
-                        </div>
-                        <div>
-                            <label class="flex justify-between text-xs font-bold text-gray-500 mb-1"><span>접근성</span><span id="val-access" class="text-emerald-600">5.0</span></label>
-                            <input type="range" id="inp-access" min="1" max="5" step="0.5" value="5.0" oninput="document.getElementById('val-access').innerText=this.value">
-                        </div>
-                        <div>
-                            <label class="flex justify-between text-xs font-bold text-gray-500 mb-1"><span>볼거리</span><span id="val-content" class="text-emerald-600">5.0</span></label>
-                            <input type="range" id="inp-content" min="1" max="5" step="0.5" value="5.0" oninput="document.getElementById('val-content').innerText=this.value">
-                        </div>
-                        <div>
-                            <label class="flex justify-between text-xs font-bold text-gray-500 mb-1"><span>체류시간</span><span id="val-stay" class="text-emerald-600">5.0</span></label>
-                            <input type="range" id="inp-stay" min="1" max="5" step="0.5" value="5.0" oninput="document.getElementById('val-stay').innerText=this.value">
-                        </div>
+    <!-- ★ 커스텀 공유 모달 (New) -->
+    <div id="share-modal" class="fixed inset-0 z-[200] hidden bg-black/60 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-xs p-6 shadow-2xl relative">
+            <button onclick="closeModal('share-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
+            <h3 class="font-bold text-lg mb-4 text-center">공유하기</h3>
+            <div class="grid grid-cols-4 gap-4">
+                <button onclick="shareToKakao()" class="flex flex-col items-center gap-2 group">
+                    <div class="w-12 h-12 btn-kakao rounded-full flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C5.373 3 0 7.253 0 12.5c0 3.334 2.168 6.275 5.47 8.025-.255.94-1.658 6.03-1.716 6.411-.068.45.17.438.355.312.227-.154 3.596-2.477 4.258-2.934.536.078 1.084.119 1.633.119 6.627 0 12-4.253 12-9.5S18.627 3 12 3z"/></svg>
                     </div>
-                </div>
-
-                <div>
-                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center relative group hover:bg-gray-50 transition-colors">
-                        <input type="file" id="inp-files" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        <div id="upload-msg" class="text-sm text-gray-500 group-hover:text-emerald-600"><i data-lucide="image-plus" class="inline mb-1"></i><br>사진 추가 (클릭)</div>
-                        <div id="upload-status" class="text-sm text-blue-600 hidden font-bold animate-pulse">업로드 중...</div>
+                    <span class="text-xs text-gray-600">카카오톡</span>
+                </button>
+                <button onclick="shareToTwitter()" class="flex flex-col items-center gap-2 group">
+                    <div class="w-12 h-12 btn-twitter rounded-full flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                     </div>
-                    <div id="preview-area" class="flex gap-2 mt-3 overflow-x-auto h-20 scrollbar-hide"></div>
-                </div>
-                <textarea id="inp-desc" rows="5" class="w-full p-3 border rounded-xl bg-gray-50 outline-none resize-none focus:ring-2 focus:ring-emerald-500" placeholder="내용을 입력하세요"></textarea>
-                <input id="inp-tags" class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-emerald-500" placeholder="태그 (#맛집 #데이트)">
-                <button onclick="savePlace()" id="save-btn" class="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-bold hover:bg-emerald-700 shadow-lg transition-transform active:scale-95">저장하기</button>
+                    <span class="text-xs text-gray-600">X</span>
+                </button>
+                <button onclick="shareToFacebook()" class="flex flex-col items-center gap-2 group">
+                    <div class="w-12 h-12 btn-facebook rounded-full flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    </div>
+                    <span class="text-xs text-gray-600">페이스북</span>
+                </button>
+                <button onclick="copyLinkToClipboard()" class="flex flex-col items-center gap-2 group">
+                    <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+                        <i data-lucide="link" class="w-6 h-6 text-gray-600"></i>
+                    </div>
+                    <span class="text-xs text-gray-600">주소복사</span>
+                </button>
             </div>
         </div>
     </div>
+
+    <!-- 로그인 -->
+    <div id="login-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-8 shadow-2xl relative">
+            <button onclick="closeModal('login-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
+            <h3 class="font-bold text-xl mb-6 text-center text-gray-800">로그인</h3>
+            <button onclick="loginWithGoogle()" class="w-full bg-white border border-gray-300 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-50 flex items-center justify-center mb-4 transition-colors">
+                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Google로 계속하기
+            </button>
+            <div class="relative my-6"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div><div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-500">또는 관리자 로그인</span></div></div>
+            <input type="email" id="email" placeholder="관리자 이메일" class="w-full mb-3 p-3 border rounded-xl bg-gray-50 outline-none text-sm">
+            <input type="password" id="password" placeholder="비밀번호" class="w-full mb-4 p-3 border rounded-xl bg-gray-50 outline-none text-sm">
+            <button onclick="handleAdminLogin()" class="w-full bg-gray-800 text-white py-3 rounded-xl font-bold hover:bg-gray-900 text-sm">관리자 로그인</button>
+        </div>
+    </div>
+
+    <!-- 모바일 채팅 (버튼 + 창) -->
+    <div class="lg:hidden fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+        <div id="mobile-chat-window" class="hidden bg-white w-[300px] h-[400px] rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-[slideUp_0.3s_ease-out]">
+            <div class="bg-emerald-600 p-3 text-white font-bold flex justify-between items-center shrink-0">
+                <span class="flex items-center text-sm"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> 실시간 톡</span>
+                <button onclick="toggleMobileChat()" class="hover:bg-emerald-700 p-1 rounded"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="mobile-chat-messages" class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50 text-sm chat-scroll"></div>
+            <form onsubmit="sendChat(event, 'mobile')" class="p-2 border-t bg-white shrink-0">
+                <div class="flex gap-1">
+                    <input id="mobile-chat-input" class="flex-1 bg-gray-100 rounded-full px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-emerald-500" placeholder="메시지 입력..." required>
+                    <button type="submit" class="bg-emerald-600 text-white p-2 rounded-full hover:bg-emerald-700 shadow-md"><i data-lucide="send" class="w-3 h-3"></i></button>
+                </div>
+            </form>
+        </div>
+        <button onclick="toggleMobileChat()" class="bg-emerald-600 text-white p-3.5 rounded-full shadow-xl hover:bg-emerald-700 transition-transform hover:scale-105 flex items-center justify-center ring-4 ring-emerald-50">
+            <i data-lucide="message-circle" class="w-6 h-6"></i>
+        </button>
+    </div>
+
+    <!-- 공지/게시글 등록 -->
+    <div id="notice-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg" id="notice-modal-title">게시글 등록</h3><button onclick="closeModal('notice-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button></div>
+            <input type="hidden" id="notice-edit-id">
+            <select id="notice-cat" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none">
+                <option value="notice">📢 공지사항</option>
+                <option value="tip">🍯 꿀팁</option>
+                <option value="festival">🎆 축제</option> 
+                <option value="event">🎁 이벤트</option>
+            </select>
+            <input id="notice-title" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none" placeholder="제목을 입력하세요">
+            <textarea id="notice-text" class="w-full mb-4 p-3 border rounded-lg h-32 resize-none outline-none" placeholder="내용을 입력하세요"></textarea>
+            <button onclick="saveNotice()" id="notice-save-btn" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold">등록</button>
+        </div>
+    </div>
+
+    <!-- 자유게시판 글쓰기 -->
+    <div id="free-write-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl"><div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg">자유게시판 글쓰기</h3><button onclick="closeModal('free-write-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button></div><input id="free-title" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none" placeholder="제목"><textarea id="free-text" class="w-full mb-4 p-3 border rounded-lg h-32 resize-none outline-none" placeholder="내용을 자유롭게 적어주세요."></textarea><button onclick="saveFreePost()" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold">등록하기</button></div></div>
+    
+    <!-- 메인화면 편집 -->
+    <div id="hero-edit-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl"><h3 class="font-bold text-lg mb-4">메인 화면 설정</h3><div class="space-y-3"><input id="edit-hero-title" class="w-full p-2 border rounded bg-gray-50" placeholder="메인 문구"><input id="edit-hero-sub" class="w-full p-2 border rounded bg-gray-50" placeholder="서브 문구"><input id="edit-hero-img" class="w-full p-2 border rounded bg-gray-50" placeholder="배경 이미지 URL"><button onclick="saveHeroConfig()" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold mt-2">저장하기</button><button onclick="closeModal('hero-edit-modal')" class="w-full py-2 text-gray-400 text-sm">취소</button></div></div></div>
+    
+    <!-- 여행지 글쓰기 -->
+    <div id="write-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-6"><h3 id="write-modal-title" class="font-bold text-xl text-gray-900">여행지 작성</h3><button onclick="closeModal('write-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button></div><input type="hidden" id="edit-id"><div class="space-y-5"><input id="inp-name" class="w-full p-3 border rounded-xl bg-gray-50 outline-none" placeholder="제목"><div class="grid grid-cols-2 gap-4"><select id="inp-district" class="w-full p-3 border rounded-xl bg-gray-50 outline-none"><option>동구</option><option>중구</option><option>서구</option><option>유성구</option><option>대덕구</option></select><input type="number" id="inp-rating" step="0.1" max="5" class="w-full p-3 border rounded-xl bg-gray-50 outline-none" placeholder="평점 (4.5)"></div><div><div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center relative"><input type="file" id="inp-files" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"><div id="upload-msg" class="text-sm text-gray-500">사진 추가 (클릭)</div><div id="upload-status" class="text-sm text-blue-600 hidden">업로드 중...</div></div><div id="preview-area" class="flex gap-2 mt-3 overflow-x-auto h-20 scrollbar-hide"></div></div><textarea id="inp-desc" rows="6" class="w-full p-3 border rounded-xl bg-gray-50 outline-none resize-none" placeholder="내용"></textarea><input id="inp-tags" class="w-full p-3 border rounded-xl bg-gray-50 outline-none" placeholder="태그 (#맛집)"><button onclick="savePlace()" id="save-btn" class="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-bold">저장하기</button></div></div></div>
 
     <!-- 스크립트 -->
     <script type="module">
@@ -331,7 +516,7 @@
             if (hash.startsWith("#detail/")) {
                 const id = hash.split("/")[1];
                 showDetailView(id);
-            } else if (hash.startsWith("#notice_detail/")) { 
+            } else if (hash.startsWith("#notice_detail/")) { // ★ 변경됨: 공지사항 상세
                 const id = hash.split("/")[1];
                 showNoticeDetailView(id);
             } else if (hash.startsWith("#free_detail/")) { 
@@ -395,6 +580,7 @@
                     else if (n.category === 'notice') badge = `<span class="bg-red-100 text-red-700 text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold align-middle">📢 공지</span>`;
                     else if (n.category === 'tip') badge = `<span class="bg-yellow-100 text-yellow-700 text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold align-middle">🍯 꿀팁</span>`;
 
+                    // ★ 수정됨: onclick -> hash 이동, 제목 중심 리스트
                     list.innerHTML += `
                         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer flex items-center justify-between" onclick="location.hash='#notice_detail/${n.id}'">
                             <div class="flex items-center gap-3 overflow-hidden">
@@ -412,33 +598,44 @@
             } else { list.innerHTML = '<div class="text-center py-20 text-gray-400">등록된 글이 없습니다.</div>'; }
         }
 
+        // ★ 공지 상세 페이지 뷰 로직 (New!)
         function showNoticeDetailView(id) {
             let n = allNotices.find(item => item.id === id);
+            
+            // 데이터가 아직 로드되지 않은 경우 (새로고침 직후)
             if (!n) {
                 if(!db) return;
                 getDoc(doc(db, "notices", id)).then(snap => {
                     if(snap.exists()) { n = {id: snap.id, ...snap.data()}; renderNoticeView(n); } 
                     else { alert("존재하지 않는 글입니다."); location.hash = ""; }
                 });
-            } else { renderNoticeView(n); }
+            } else {
+                renderNoticeView(n);
+            }
         }
 
         function renderNoticeView(n) {
             const titles = { notice: "공지사항", tip: "대전 여행 꿀팁", event: "축제 & 이벤트", festival: "축제 & 이벤트" };
             document.getElementById("notice-view-cat").innerText = titles[n.category] || "게시판";
             document.getElementById("notice-view-title").innerText = n.title || "";
-            document.getElementById("notice-view-content").innerHTML = n.text; 
+            document.getElementById("notice-view-content").innerHTML = n.text; // HTML 허용
             document.getElementById("notice-view-date").innerText = new Date(n.createdAt).toLocaleDateString();
+            
             const btns = document.getElementById("notice-view-admin-btns");
             if(isAdmin) {
-                btns.classList.remove("hidden"); btns.classList.add("flex");
+                btns.classList.remove("hidden");
+                btns.classList.add("flex");
                 document.getElementById("btn-notice-view-edit").onclick = () => { editNotice(n.id); };
                 document.getElementById("btn-notice-view-delete").onclick = () => { deleteNotice(n.id); };
-            } else { btns.classList.add("hidden"); }
+            } else {
+                btns.classList.add("hidden");
+            }
+
             document.getElementById("notice-detail-view").classList.remove("hidden");
             window.scrollTo(0,0);
         }
 
+        // (기존 공지 수정/삭제 함수 재활용)
         window.editNotice = (id) => {
             getDoc(doc(db, "notices", id)).then(snap => {
                 if(snap.exists()) {
@@ -457,11 +654,14 @@
         window.deleteNotice = async (id) => {
             if(confirm("정말 삭제하시겠습니까?")) {
                 await deleteDoc(doc(db, "notices", id));
+                // 삭제 후 해당 게시판 목록으로 이동
                 const n = allNotices.find(item => item.id === id);
-                if (n) location.hash = "#board/" + n.category; else location.hash = "";
+                if (n) location.hash = "#board/" + n.category;
+                else location.hash = "";
             }
         };
 
+        // 자유게시판 상세 (기존 유지)
         async function showFreeDetailView(id) {
             currentFreePostId = id;
             try {
@@ -469,11 +669,13 @@
                 if(!docSnap.exists()) { alert("삭제된 글입니다."); location.hash=""; return; }
                 const p = docSnap.data();
                 const badge = (p.isAdmin) ? `<span class="bg-blue-100 text-blue-600 text-[10px] px-1.5 py-0.5 rounded-md font-bold ml-1 align-middle">관리자</span>` : "";
+                
                 document.getElementById("free-view-title").innerText = p.title;
                 document.getElementById("free-view-content").innerText = p.text;
                 document.getElementById("free-view-author").innerHTML = p.author + badge;
                 document.getElementById("free-view-date").innerText = new Date(p.createdAt).toLocaleDateString();
                 document.getElementById("free-view-avatar").src = p.photo || 'https://via.placeholder.com/40?text=U';
+                
                 const btnBox = document.getElementById("free-view-owner-btns");
                 if (isAdmin || (currentUser && currentUser.uid === p.uid)) {
                     btnBox.classList.remove("hidden"); btnBox.classList.add("flex");
@@ -481,6 +683,7 @@
                         if(confirm("삭제하시겠습니까?")) { await deleteDoc(doc(db, "free_posts", id)); location.hash = "#freeboard"; }
                     };
                 } else btnBox.classList.add("hidden");
+                
                 loadCommentsForView(id);
                 document.getElementById("free-detail-view").classList.remove("hidden");
                 window.scrollTo(0,0);
@@ -497,18 +700,61 @@
                 const comments = [];
                 snap.forEach(doc => comments.push({id: doc.id, ...doc.data()}));
                 comments.sort((a,b) => a.createdAt - b.createdAt);
+                
                 document.getElementById("free-view-comment-count").innerText = comments.length;
                 list.innerHTML = "";
                 if(comments.length === 0) { list.innerHTML="<div class='text-center text-xs text-gray-400 py-4'>첫 댓글을 남겨보세요!</div>"; return; }
+                
                 comments.forEach(c => {
                     const date = new Date(c.createdAt).toLocaleDateString();
                     const isOwner = isAdmin || (currentUser && currentUser.uid === c.uid);
                     const delBtn = isOwner ? `<button onclick="deleteComment('${c.id}')" class="text-[10px] text-red-400 ml-2 hover:underline">삭제</button>` : "";
                     const badge = (c.isAdmin) ? `<span class="bg-blue-100 text-blue-600 text-[10px] px-1.5 py-0.5 rounded-md font-bold ml-1 align-middle">관리자</span>` : "";
-                    list.innerHTML += `<div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-sm"><div class="flex justify-between items-start mb-1"><div class="flex items-center gap-1.5"><span class="font-bold text-gray-700 text-xs">${c.author} ${badge}</span><span class="text-[10px] text-gray-400">${date}</span></div>${delBtn}</div><div class="text-gray-600 text-sm break-all whitespace-pre-wrap">${c.text}</div></div>`;
+                    
+                    list.innerHTML += `
+                        <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm text-sm">
+                            <div class="flex justify-between items-start mb-1">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-bold text-gray-700 text-xs">${c.author} ${badge}</span>
+                                    <span class="text-[10px] text-gray-400">${date}</span>
+                                </div>
+                                ${delBtn}
+                            </div>
+                            <div class="text-gray-600 text-sm break-all whitespace-pre-wrap">${c.text}</div>
+                        </div>
+                    `;
                 });
             });
         }
+
+        // 공유하기 모달
+        window.openShareModal = () => {
+            document.getElementById("share-modal").classList.remove("hidden");
+        };
+        
+        window.shareToTwitter = () => {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent("대전여행 가이드 추천! 여기 어때요?");
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+        };
+
+        window.shareToFacebook = () => {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+        };
+
+        window.shareToKakao = () => {
+            window.copyLinkToClipboard(); // Fallback to copy
+        };
+
+        window.copyLinkToClipboard = () => {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert("링크가 복사되었습니다! 카카오톡에 붙여넣으세요.");
+                closeModal("share-modal");
+            }).catch(() => {
+                alert("복사 실패");
+            });
+        };
 
         function showDetailView(id) {
             try {
@@ -566,12 +812,8 @@
             } catch(e) { location.hash = ""; }
         }
 
+        // 공유하기 기능 (Backup direct share)
         window.shareLink = () => openShareModal();
-        window.openShareModal = () => document.getElementById("share-modal").classList.remove("hidden");
-        window.shareToTwitter = () => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("대전여행 가이드 추천!")}&url=${encodeURIComponent(window.location.href)}`, '_blank');
-        window.shareToFacebook = () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank');
-        window.shareToKakao = () => window.copyLinkToClipboard();
-        window.copyLinkToClipboard = () => navigator.clipboard.writeText(window.location.href).then(() => { alert("복사되었습니다!"); closeModal("share-modal"); }).catch(() => alert("실패"));
 
         let currentDetailImages = [];
         let currentImgIdx = 0;
@@ -588,8 +830,10 @@
             const term = document.getElementById("search-input").value.toLowerCase();
             if (!grid) return;
             grid.innerHTML = "";
+            
             let filtered = currentFilter === "전체" ? allPlaces : allPlaces.filter(p => p.district === currentFilter);
             if (term) filtered = filtered.filter(p => p.name.toLowerCase().includes(term) || p.description.toLowerCase().includes(term));
+            
             filtered.sort((a, b) => { if(currentSort === 'rating') return (b.rating||0) - (a.rating||0); if(currentSort === 'views') return (b.views||0) - (a.views||0); return (b.createdAt||0) - (a.createdAt||0); });
             filtered.forEach(place => {
                 const thumb = (place.images && place.images.length > 0) ? place.images[0] : (place.image || 'https://via.placeholder.com/400?text=No+Image');
@@ -646,73 +890,11 @@
 
         window.saveComment = async (e) => { e.preventDefault(); if(!currentUser) return alert("로그인 필요"); const inp = document.getElementById("comment-input"); if(inp.value.trim()) { await addDoc(collection(db, "comments"), {postId:currentFreePostId, text:inp.value, author:currentUser.displayName||"익명", uid:currentUser.uid, createdAt:Date.now(), isAdmin: isAdmin}); inp.value=""; } };
         window.deleteComment = async (id) => { if(confirm("삭제?")) await deleteDoc(doc(db, "comments", id)); };
-        
         let upImgs = [];
-        window.openWriteModal = () => { 
-            upImgs=[]; 
-            document.getElementById("preview-area").innerHTML=""; 
-            document.getElementById("write-modal-title").innerText="여행지 작성"; 
-            document.getElementById("edit-id").value=""; 
-            document.getElementById("inp-name").value=""; 
-            document.getElementById("inp-desc").value=""; 
-            document.getElementById("inp-tags").value="";
-            // Reset sliders
-            ['clean','access','content','stay'].forEach(k => {
-                document.getElementById(`inp-${k}`).value = 5.0;
-                document.getElementById(`val-${k}`).innerText = "5.0";
-            });
-            document.getElementById("write-modal").classList.remove("hidden"); 
-        };
+        window.openWriteModal = () => { upImgs=[]; document.getElementById("preview-area").innerHTML=""; document.getElementById("write-modal").classList.remove("hidden"); };
         document.getElementById("inp-files").addEventListener("change", async(e) => { const files = Array.from(e.target.files); if(!files.length) return; document.getElementById("upload-status").classList.remove("hidden"); try { const urls = await Promise.all(files.map(f => uploadBytesResumable(ref(storage, 'img/'+Date.now()+'_'+f.name), f).then(s => getDownloadURL(s.ref)))); upImgs=[...upImgs,...urls]; const p=document.getElementById("preview-area"); urls.forEach(u=>p.innerHTML+=`<img src="${u}" class="h-16 w-16 object-cover rounded-lg border">`); document.getElementById("upload-status").innerText="완료"; } catch(e){alert("업로드 실패");} });
-        window.savePlace = async() => { 
-            const id = document.getElementById("edit-id").value;
-            
-            // 상세 평점 읽기
-            const r_clean = parseFloat(document.getElementById('inp-clean').value);
-            const r_access = parseFloat(document.getElementById('inp-access').value);
-            const r_content = parseFloat(document.getElementById('inp-content').value);
-            const r_stay = parseFloat(document.getElementById('inp-stay').value);
-            
-            // 평균 계산
-            const avg = parseFloat(((r_clean + r_access + r_content + r_stay) / 4).toFixed(1));
-
-            const data = { 
-                name: document.getElementById("inp-name").value, 
-                district: document.getElementById("inp-district").value, 
-                rating: avg, // 평균값 저장
-                ratings: { clean: r_clean, access: r_access, content: r_content, stay: r_stay }, // 상세 저장
-                description: document.getElementById("inp-desc").value, 
-                tags: document.getElementById("inp-tags").value.split(",").filter(t=>t.trim()), 
-                images: upImgs, 
-                image: upImgs[0]||"", 
-                createdAt: Date.now() 
-            }; 
-            if(!data.name) return alert("제목 필요"); 
-            try { if(id) await updateDoc(doc(db, "places", id), data); else { data.views=0; await addDoc(collection(db, "places"), data); } closeModal("write-modal"); } catch(e){alert("실패");} 
-        };
-        
-        window.editPlace = (id) => { 
-            const p = allPlaces.find(x=>x.id===id); if(!p) return; 
-            openWriteModal(); 
-            document.getElementById("write-modal-title").innerText="여행지 수정"; 
-            document.getElementById("edit-id").value=p.id; 
-            document.getElementById("inp-name").value=p.name; 
-            document.getElementById("inp-district").value=p.district; 
-            
-            // 평점 로드 (없으면 기본값)
-            if(p.ratings) {
-                document.getElementById('inp-clean').value = p.ratings.clean; document.getElementById('val-clean').innerText = p.ratings.clean;
-                document.getElementById('inp-access').value = p.ratings.access; document.getElementById('val-access').innerText = p.ratings.access;
-                document.getElementById('inp-content').value = p.ratings.content; document.getElementById('val-content').innerText = p.ratings.content;
-                document.getElementById('inp-stay').value = p.ratings.stay; document.getElementById('val-stay').innerText = p.ratings.stay;
-            }
-
-            document.getElementById("inp-desc").value=p.description; 
-            document.getElementById("inp-tags").value=p.tags.join(","); 
-            upImgs=p.images||[p.image]; 
-            const pr = document.getElementById("preview-area"); 
-            upImgs.forEach(u=>{if(u) pr.innerHTML+=`<img src="${u}" class="h-16 w-16 object-cover rounded-lg border">`;}); 
-        };
+        window.savePlace = async() => { const id = document.getElementById("edit-id").value; const data = { name: document.getElementById("inp-name").value, district: document.getElementById("inp-district").value, rating: parseFloat(document.getElementById("inp-rating").value)||0, description: document.getElementById("inp-desc").value, tags: document.getElementById("inp-tags").value.split(",").filter(t=>t.trim()), images: upImgs, image: upImgs[0]||"", createdAt: Date.now() }; if(!data.name) return alert("제목 필요"); try { if(id) await updateDoc(doc(db, "places", id), data); else { data.views=0; await addDoc(collection(db, "places"), data); } closeModal("write-modal"); } catch(e){alert("실패");} };
+        window.editPlace = (id) => { const p = allPlaces.find(x=>x.id===id); if(!p) return; openWriteModal(); document.getElementById("write-modal-title").innerText="여행지 수정"; document.getElementById("edit-id").value=p.id; document.getElementById("inp-name").value=p.name; document.getElementById("inp-district").value=p.district; document.getElementById("inp-rating").value=p.rating; document.getElementById("inp-desc").value=p.description; document.getElementById("inp-tags").value=p.tags.join(","); upImgs=p.images||[p.image]; const pr = document.getElementById("preview-area"); upImgs.forEach(u=>{if(u) pr.innerHTML+=`<img src="${u}" class="h-16 w-16 object-cover rounded-lg border">`;}); };
         window.deletePlace = async(id) => { if(confirm("삭제?") && db) await deleteDoc(doc(db, "places", id)); };
         
         window.openHeroEditModal = () => document.getElementById("hero-edit-modal").classList.remove("hidden");
