@@ -17,7 +17,12 @@
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .chat-scroll::-webkit-scrollbar { width: 4px; }
         .chat-scroll::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 4px; }
+        
         .nav-item.active { background-color: #ecfdf5; color: #059669; font-weight: 700; border-right: 3px solid #059669; }
+        
+        /* 모바일 사이드바 트랜지션 */
+        #mobile-sidebar-backdrop { transition: opacity 0.3s; }
+        #mobile-sidebar-content { transition: transform 0.3s; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
@@ -26,43 +31,66 @@
     <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center gap-2 cursor-pointer" onclick="location.hash=''">
-                    <div class="bg-emerald-600 text-white p-1.5 rounded-lg shadow-md"><i data-lucide="map-pin"></i></div>
-                    <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500">대전 여행 가이드</span>
-                </div>
                 <div class="flex items-center gap-3">
-                    <button id="auth-btn" onclick="toggleAuth()" class="flex items-center text-xs font-bold px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
-                        <i data-lucide="user" class="w-3.5 h-3.5 mr-1"></i> 관리자
+                    <!-- 햄버거 버튼 (모바일용) -->
+                    <button onclick="toggleSidebar()" class="lg:hidden p-2 hover:bg-gray-100 rounded-lg text-gray-600">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
+                    <!-- 로고 -->
+                    <div class="flex items-center gap-2 cursor-pointer" onclick="location.hash=''">
+                        <div class="bg-emerald-600 text-white p-1.5 rounded-lg shadow-md"><i data-lucide="map-pin"></i></div>
+                        <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500">대전 여행 가이드</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <button id="auth-btn" onclick="openLoginModal()" class="flex items-center text-xs font-bold px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                        <i data-lucide="log-in" class="w-3.5 h-3.5 mr-1"></i> 로그인
+                    </button>
+                    <!-- 프로필 이미지 (로그인 시 표시) -->
+                    <img id="user-profile-img" class="w-8 h-8 rounded-full border border-gray-200 hidden" src="" alt="Profile">
                 </div>
             </div>
         </div>
     </nav>
 
     <!-- ================= [1] 메인 레이아웃 ================= -->
-    <div id="main-layout" class="max-w-7xl mx-auto px-4 py-8 page-enter">
+    <div id="main-layout" class="max-w-7xl mx-auto px-4 py-8 page-enter relative">
         <div class="flex flex-col lg:flex-row gap-8 items-start">
             
-            <!-- [좌측 사이드바] -->
-            <aside class="w-full lg:w-72 shrink-0 space-y-6 order-2 lg:order-1">
+            <!-- [좌측 사이드바 - 반응형] -->
+            <!-- 모바일용 백드롭 (어두운 배경) -->
+            <div id="mobile-sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden opacity-0"></div>
+            
+            <!-- 사이드바 본체 -->
+            <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-72 bg-white z-50 transform -translate-x-full lg:translate-x-0 lg:static lg:w-72 shrink-0 space-y-6 lg:block transition-transform duration-300 overflow-y-auto lg:overflow-visible shadow-2xl lg:shadow-none p-4 lg:p-0">
                 
-                <!-- 1. 메뉴 -->
+                <div class="flex justify-between items-center lg:hidden mb-4 px-2">
+                    <span class="font-bold text-lg text-gray-800">메뉴</span>
+                    <button onclick="toggleSidebar()" class="p-1 hover:bg-gray-100 rounded"><i data-lucide="x" class="w-6 h-6"></i></button>
+                </div>
+
+                <!-- 1. 메뉴 리스트 -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="p-4 bg-gray-50 border-b border-gray-100 font-bold text-gray-700 flex items-center">
+                    <div class="p-4 bg-gray-50 border-b border-gray-100 font-bold text-gray-700 flex items-center hidden lg:flex">
                         <i data-lucide="menu" class="w-4 h-4 mr-2"></i> 메뉴
                     </div>
                     <nav class="flex flex-col text-sm">
-                        <a onclick="location.hash=''" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600">
+                        <a onclick="menuClick('')" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600">
                             <i data-lucide="home" class="w-4 h-4 mr-3"></i> 홈 (여행지 목록)
                         </a>
-                        <a onclick="location.hash='#board/notice'" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600">
+                        <a onclick="menuClick('#board/notice')" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600">
                             <i data-lucide="megaphone" class="w-4 h-4 mr-3"></i> 공지사항
                         </a>
-                        <a onclick="location.hash='#board/tip'" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600">
+                        <a onclick="menuClick('#board/tip')" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600">
                             <i data-lucide="lightbulb" class="w-4 h-4 mr-3"></i> 대전 여행 꿀팁
                         </a>
-                        <a onclick="location.hash='#board/event'" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600">
+                        <a onclick="menuClick('#board/event')" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-gray-600">
                             <i data-lucide="calendar" class="w-4 h-4 mr-3"></i> 축제 & 이벤트
+                        </a>
+                        <div class="h-px bg-gray-100 my-1"></div>
+                        <a onclick="menuClick('#freeboard')" class="nav-item cursor-pointer px-5 py-3 hover:bg-gray-50 transition-colors flex items-center text-emerald-600 font-bold">
+                            <i data-lucide="message-square" class="w-4 h-4 mr-3"></i> 자유게시판
                         </a>
                     </nav>
                 </div>
@@ -83,17 +111,14 @@
                     </div>
                 </div>
 
-                <!-- 3. 실시간 채팅방 (PC용) -->
-                <div class="hidden lg:flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 h-[400px] overflow-hidden">
+                <!-- 3. 실시간 채팅방 (고정) -->
+                <div class="flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 h-[350px] overflow-hidden">
                     <div class="bg-emerald-600 p-3 text-white font-bold flex justify-between items-center shrink-0">
                         <span class="flex items-center text-sm"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> 실시간 톡</span>
-                        <div class="flex items-center gap-1">
-                            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                            <span class="text-[10px] text-emerald-100">Live</span>
-                        </div>
+                        <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span> ON</span>
                     </div>
                     <div id="desktop-chat-messages" class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50 text-sm chat-scroll">
-                        <div class="text-center text-xs text-gray-400 py-10">채팅 서버 연결 중...</div>
+                        <div class="text-center text-xs text-gray-400 py-10">로딩 중...</div>
                     </div>
                     <form onsubmit="sendChat(event, 'desktop')" class="p-2 border-t bg-white shrink-0">
                         <div class="flex gap-1">
@@ -107,7 +132,7 @@
             <!-- [우측 컨텐츠 영역] -->
             <section class="flex-1 w-full order-1 lg:order-2 min-h-[500px]">
                 
-                <!-- (A) 홈 뷰 -->
+                <!-- (A) 홈 뷰: 여행지 목록 -->
                 <div id="home-view">
                     <!-- 히어로 -->
                     <div class="relative bg-emerald-900 rounded-3xl overflow-hidden h-[240px] mb-8 shadow-lg group">
@@ -151,13 +176,14 @@
                     <div id="places-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6 fade-in hidden"></div>
                 </div>
 
-                <!-- (B) 게시판 뷰 -->
+                <!-- (B) 공지/꿀팁 게시판 -->
                 <div id="board-view" class="hidden fade-in">
                     <div class="flex justify-between items-end mb-6 border-b border-gray-200 pb-4">
                         <div>
                             <h2 id="board-title" class="text-2xl font-bold text-gray-800">게시판</h2>
                             <p id="board-desc" class="text-sm text-gray-500 mt-1">유용한 정보를 확인하세요.</p>
                         </div>
+                        <!-- 관리자만 작성 가능 -->
                         <button id="board-write-btn" onclick="openNoticeModal()" class="hidden bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg font-bold hover:bg-emerald-700 flex items-center transition-colors">
                             <i data-lucide="pen-tool" class="w-4 h-4 mr-2"></i> 글쓰기
                         </button>
@@ -165,14 +191,33 @@
                     <div id="board-list" class="space-y-4"></div>
                 </div>
 
-                <!-- (C) 상세 뷰 -->
+                <!-- (C) ★ 자유게시판 (New) -->
+                <div id="free-board-view" class="hidden fade-in">
+                    <div class="flex justify-between items-end mb-6 border-b border-gray-200 pb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">💬 자유게시판</h2>
+                            <p class="text-sm text-gray-500 mt-1">여행자들과 자유롭게 소통하세요.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <select onchange="sortFreeBoard(this.value)" class="text-sm border rounded-lg px-2 py-1.5 bg-white">
+                                <option value="desc">최신순</option>
+                                <option value="asc">오래된순</option>
+                            </select>
+                            <button onclick="openFreeWriteModal()" class="bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg font-bold hover:bg-emerald-700 flex items-center transition-colors">
+                                <i data-lucide="pen-tool" class="w-4 h-4 mr-2"></i> 글쓰기
+                            </button>
+                        </div>
+                    </div>
+                    <div id="free-board-list" class="space-y-4"></div>
+                </div>
+
+                <!-- (D) 상세 뷰 -->
                 <div id="detail-view" class="hidden fade-in">
                     <div class="mb-4">
                         <button onclick="history.back()" class="flex items-center text-gray-500 hover:text-emerald-600 font-bold transition-colors">
                             <i data-lucide="arrow-left" class="w-5 h-5 mr-1"></i> 뒤로가기
                         </button>
                     </div>
-                    
                     <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100">
                         <div class="relative w-full bg-gray-100 group aspect-video">
                             <img id="detail-img" src="" class="w-full h-full object-cover">
@@ -180,7 +225,6 @@
                             <button onclick="nextImage()" id="btn-next" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 backdrop-blur text-white p-2 rounded-full hover:bg-black/50 hidden"><i data-lucide="chevron-right"></i></button>
                             <div id="img-indicator" class="absolute bottom-4 right-4 bg-black/50 backdrop-blur text-white text-xs px-3 py-1 rounded-full font-medium">1 / 1</div>
                         </div>
-
                         <div class="p-6 md:p-10">
                             <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 border-b border-gray-100 pb-6">
                                 <div>
@@ -212,59 +256,54 @@
         </div>
     </div>
 
-    <!-- ================= [4] 모달들 ================= -->
+    <!-- ================= [모달들] ================= -->
 
-    <!-- 모바일 채팅 (버튼 + 창) -->
-    <div class="lg:hidden fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-        <div id="mobile-chat-window" class="hidden bg-white w-[300px] h-[400px] rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-[slideUp_0.3s_ease-out]">
-            <div class="bg-emerald-600 p-3 text-white font-bold flex justify-between items-center shrink-0">
-                <span class="flex items-center text-sm"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> 실시간 톡</span>
-                <button onclick="toggleMobileChat()" class="hover:bg-emerald-700 p-1 rounded"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div id="mobile-chat-messages" class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50 text-sm chat-scroll"></div>
-            <form onsubmit="sendChat(event, 'mobile')" class="p-2 border-t bg-white shrink-0">
-                <div class="flex gap-1">
-                    <input id="mobile-chat-input" class="flex-1 bg-gray-100 rounded-full px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-emerald-500" placeholder="메시지 입력..." required>
-                    <button type="submit" class="bg-emerald-600 text-white p-2 rounded-full hover:bg-emerald-700 shadow-md"><i data-lucide="send" class="w-3 h-3"></i></button>
-                </div>
-            </form>
-        </div>
-        <button onclick="toggleMobileChat()" class="bg-emerald-600 text-white p-3.5 rounded-full shadow-xl hover:bg-emerald-700 transition-transform hover:scale-105 flex items-center justify-center ring-4 ring-emerald-50">
-            <i data-lucide="message-circle" class="w-6 h-6"></i>
-        </button>
-    </div>
-
-    <!-- 로그인 -->
+    <!-- 로그인 선택 모달 -->
     <div id="login-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-xs p-8 shadow-2xl">
-            <h3 class="font-bold text-xl mb-6 text-center text-gray-800">관리자 접속</h3>
-            <input type="email" id="email" placeholder="이메일" class="w-full mb-3 p-3 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-emerald-500">
-            <input type="password" id="password" placeholder="비밀번호" class="w-full mb-6 p-3 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-emerald-500">
-            <button onclick="handleLogin()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 shadow-lg mb-3">로그인</button>
-            <button onclick="closeModal('login-modal')" class="w-full py-2 text-gray-400 text-sm hover:text-gray-600">닫기</button>
+        <div class="bg-white rounded-2xl w-full max-w-sm p-8 shadow-2xl relative">
+            <button onclick="closeModal('login-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
+            <h3 class="font-bold text-xl mb-6 text-center text-gray-800">로그인</h3>
+            
+            <!-- 구글 로그인 -->
+            <button onclick="loginWithGoogle()" class="w-full bg-white border border-gray-300 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-50 flex items-center justify-center mb-4 transition-colors">
+                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                Google로 계속하기 (여행자)
+            </button>
+
+            <div class="relative my-6">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div>
+                <div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-500">또는 관리자 로그인</span></div>
+            </div>
+
+            <!-- 관리자 로그인 -->
+            <input type="email" id="email" placeholder="관리자 이메일" class="w-full mb-3 p-3 border rounded-xl bg-gray-50 outline-none text-sm">
+            <input type="password" id="password" placeholder="비밀번호" class="w-full mb-4 p-3 border rounded-xl bg-gray-50 outline-none text-sm">
+            <button onclick="handleAdminLogin()" class="w-full bg-gray-800 text-white py-3 rounded-xl font-bold hover:bg-gray-900 text-sm">관리자 로그인</button>
         </div>
     </div>
 
-    <!-- 공지/게시글 등록 (제목 + 내용 분리) -->
+    <!-- 공지/게시글 등록 (수정/삭제 지원) -->
     <div id="notice-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
-            <h3 class="font-bold text-lg mb-4">게시글 등록</h3>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg" id="notice-modal-title">게시글 등록</h3>
+                <button onclick="closeModal('notice-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
+            </div>
+            <input type="hidden" id="notice-edit-id">
             <select id="notice-cat" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none">
                 <option value="notice">📢 공지사항</option>
                 <option value="tip">🍯 꿀팁</option>
                 <option value="event">🎉 이벤트</option>
             </select>
-            <!-- 제목 입력 추가 -->
             <input id="notice-title" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none" placeholder="제목을 입력하세요">
             <textarea id="notice-text" class="w-full mb-4 p-3 border rounded-lg h-32 resize-none outline-none" placeholder="내용을 입력하세요"></textarea>
-            <button onclick="saveNotice()" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold">등록</button>
-            <button onclick="closeModal('notice-modal')" class="w-full mt-2 py-2 text-gray-400 text-sm">취소</button>
+            <button onclick="saveNotice()" id="notice-save-btn" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold">등록</button>
         </div>
     </div>
 
-    <!-- 공지 상세 보기 (제목 표시) -->
+    <!-- 공지 상세 보기 -->
     <div id="notice-detail-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
             <div class="flex justify-between items-start mb-4 pb-2 border-b">
                 <div>
                     <span class="text-xs text-emerald-600 font-bold mb-1 block" id="notice-detail-cat"></span>
@@ -273,7 +312,49 @@
                 <button onclick="closeModal('notice-detail-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
             </div>
             <div id="notice-detail-content" class="text-gray-700 text-base leading-relaxed whitespace-pre-line min-h-[100px]"></div>
-            <div class="mt-4 text-right text-xs text-gray-400" id="notice-detail-date"></div>
+            <div class="flex justify-between items-center mt-6 pt-4 border-t border-gray-100">
+                <span class="text-xs text-gray-400" id="notice-detail-date"></span>
+                <div id="notice-admin-btns" class="hidden gap-2">
+                    <button id="btn-notice-edit" class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100">수정</button>
+                    <button id="btn-notice-delete" class="text-xs bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100">삭제</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ★ 자유게시판 글쓰기 모달 -->
+    <div id="free-write-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg">자유게시판 글쓰기</h3>
+                <button onclick="closeModal('free-write-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
+            </div>
+            <input id="free-title" class="w-full mb-3 p-3 border rounded-lg bg-gray-50 outline-none" placeholder="제목">
+            <textarea id="free-text" class="w-full mb-4 p-3 border rounded-lg h-32 resize-none outline-none" placeholder="내용을 자유롭게 적어주세요."></textarea>
+            <button onclick="saveFreePost()" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold">등록하기</button>
+        </div>
+    </div>
+
+    <!-- ★ 자유게시판 상세 보기 -->
+    <div id="free-detail-modal" class="fixed inset-0 z-[100] hidden bg-black/60 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+            <div class="flex justify-between items-start mb-4 pb-2 border-b">
+                <div class="flex items-center gap-3">
+                    <img id="free-detail-avatar" src="" class="w-10 h-10 rounded-full border">
+                    <div>
+                        <div class="text-xs text-gray-500" id="free-detail-author"></div>
+                        <h3 class="font-bold text-lg text-gray-800 leading-tight" id="free-detail-title"></h3>
+                    </div>
+                </div>
+                <button onclick="closeModal('free-detail-modal')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
+            </div>
+            <div id="free-detail-content" class="text-gray-700 text-base leading-relaxed whitespace-pre-line min-h-[100px]"></div>
+            <div class="flex justify-between items-center mt-6 pt-4 border-t border-gray-100">
+                <span class="text-xs text-gray-400" id="free-detail-date"></span>
+                <div id="free-owner-btns" class="hidden gap-2">
+                    <button id="btn-free-delete" class="text-xs bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100">삭제</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -328,18 +409,18 @@
             apiKey: "AIzaSyC0SzZuWIl-E0L4VItN4nrHu-O1DaoZd88",
             authDomain: "project-5196212932199830884.firebaseapp.com",
             projectId: "project-5196212932199830884",
-            storageBucket: "491579175390",
-            messagingSenderId: "SENDER_ID",
+            storageBucket: "project-5196212932199830884.firebasestorage.app",
+            messagingSenderId: "491579175390",
             appId: "1:491579175390:web:e18c1334c7fd6a6c0ead4f"
         };
         // ============================================================
 
         if (firebaseConfig.projectId === "본인_PROJECT_ID") {
-            alert("⚠️ 오류: Firebase 설정이 완료되지 않았습니다!\nindex.html 파일을 열고 'firebaseConfig' 부분을 본인의 Firebase 키값으로 변경해주세요.");
+            alert("⚠️ 오류: Firebase 설정 미완료! index.html의 firebaseConfig 부분을 채워주세요.");
         }
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc, deleteDoc, increment, setDoc, getDoc, query, orderBy, limit, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
@@ -352,9 +433,12 @@
         } catch(e) { console.error(e); }
 
         let currentUser = null;
+        let isAdmin = false;
         let allPlaces = [];
+        let allNotices = [];
         let currentFilter = "전체";
         let currentSort = "recent";
+        let freeBoardSort = "desc"; // desc: 최신순, asc: 오래된순
 
         // ============ [ROUTER] ============
         window.addEventListener('hashchange', handleRoute);
@@ -362,9 +446,13 @@
 
         function handleRoute() {
             const hash = location.hash;
-            // 뷰 초기화
             document.querySelectorAll('[id$="-view"]').forEach(el => el.classList.add("hidden"));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove("active")); 
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove("active"));
+            
+            // 모바일 메뉴 닫기 (자동)
+            document.getElementById("sidebar").classList.add("-translate-x-full");
+            document.getElementById("mobile-sidebar-backdrop").classList.add("hidden");
+            document.getElementById("mobile-sidebar-backdrop").classList.remove("opacity-100");
 
             if (hash.startsWith("#detail/")) {
                 const id = hash.split("/")[1];
@@ -374,13 +462,42 @@
                 showBoardView(type);
                 const link = document.querySelector(`a[onclick*="#board/${type}"]`);
                 if(link) link.classList.add("active");
+            } else if (hash === "#freeboard") {
+                document.getElementById("free-board-view").classList.remove("hidden");
+                const link = document.querySelector(`a[onclick*="#freeboard"]`);
+                if(link) link.classList.add("active");
+                loadFreeBoard();
             } else {
                 document.getElementById("home-view").classList.remove("hidden");
-                document.querySelector(`a[onclick="location.hash=''"]`).classList.add("active");
+                const link = document.querySelector(`a[onclick*="''"]`);
+                if(link) link.classList.add("active");
                 window.scrollTo(0,0);
             }
         }
 
+        window.menuClick = (hash) => {
+            location.hash = hash;
+        }
+
+        // 사이드바 토글
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById("sidebar");
+            const backdrop = document.getElementById("mobile-sidebar-backdrop");
+            
+            if (sidebar.classList.contains("-translate-x-full")) {
+                // 열기
+                sidebar.classList.remove("-translate-x-full");
+                backdrop.classList.remove("hidden");
+                setTimeout(() => backdrop.classList.add("opacity-100"), 10);
+            } else {
+                // 닫기
+                sidebar.classList.add("-translate-x-full");
+                backdrop.classList.remove("opacity-100");
+                setTimeout(() => backdrop.classList.add("hidden"), 300);
+            }
+        };
+
+        // 게시판 뷰 로직
         function showBoardView(type) {
             const titles = { notice: "공지사항", tip: "대전 여행 꿀팁", event: "축제 & 이벤트" };
             const descs = { notice: "새로운 소식을 확인하세요.", tip: "현지인이 알려주는 진짜 정보!", event: "다채로운 즐거움이 가득!" };
@@ -397,27 +514,20 @@
             const list = document.getElementById("board-list");
             list.innerHTML = '<div class="text-center py-20 text-gray-400">로딩 중...</div>';
             
-            const q = query(collection(db, "notices"));
+            const q = query(collection(db, "notices"), where("category", "==", type), orderBy("createdAt", "desc"));
             
             onSnapshot(q, (snap) => {
                 list.innerHTML = "";
-                const docs = [];
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    if(data.category === type) docs.push({...data, id:doc.id});
-                });
-                
-                docs.sort((a,b) => b.createdAt - a.createdAt);
-
-                if(docs.length > 0) {
-                    docs.forEach(n => {
+                if(!snap.empty) {
+                    snap.forEach(doc => {
+                        const n = doc.data();
                         const date = new Date(n.createdAt).toLocaleDateString();
                         const safeText = n.text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                        const safeTitle = (n.title || n.text.substring(0, 20)).replace(/'/g, "\\'").replace(/"/g, '&quot;'); // 제목 없으면 내용 일부
+                        const safeTitle = (n.title || n.text.substring(0, 20)).replace(/'/g, "\\'").replace(/"/g, '&quot;');
                         const icon = type === 'notice' ? 'megaphone' : (type === 'tip' ? 'lightbulb' : 'calendar');
                         
                         list.innerHTML += `
-                            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onclick="openNoticeDetail('${type}', '${safeTitle}', '${safeText}', '${date}')">
+                            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onclick="openNoticeDetail('${n.id}')">
                                 <div class="flex justify-between items-start mb-2">
                                     <h3 class="font-bold text-gray-800 text-lg flex items-center">
                                         <i data-lucide="${icon}" class="w-4 h-4 mr-2 text-emerald-600"></i> ${safeTitle}
@@ -435,6 +545,100 @@
             });
         }
 
+        // ★ 자유게시판 로직
+        window.loadFreeBoard = () => {
+            if(!db) return;
+            const list = document.getElementById("free-board-list");
+            list.innerHTML = '<div class="text-center py-20 text-gray-400">로딩 중...</div>';
+            
+            const q = query(collection(db, "free_posts"), orderBy("createdAt", freeBoardSort));
+            
+            onSnapshot(q, (snap) => {
+                list.innerHTML = "";
+                if(!snap.empty) {
+                    snap.forEach(doc => {
+                        const p = doc.data();
+                        const date = new Date(p.createdAt).toLocaleDateString();
+                        const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        const safeText = p.text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        const safeAuthor = p.author.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        const avatar = p.photo || 'https://via.placeholder.com/40?text=U';
+
+                        list.innerHTML += `
+                            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onclick="openFreeDetail('${doc.id}', '${safeTitle}', '${safeText}', '${safeAuthor}', '${avatar}', '${date}', '${p.uid}')">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <img src="${avatar}" class="w-8 h-8 rounded-full border border-gray-100">
+                                    <div>
+                                        <div class="text-xs text-gray-500">${p.author}</div>
+                                        <h3 class="font-bold text-gray-800 text-base line-clamp-1">${p.title}</h3>
+                                    </div>
+                                    <span class="text-xs text-gray-400 ml-auto">${date}</span>
+                                </div>
+                                <p class="text-gray-500 text-sm line-clamp-2 pl-11">${p.text}</p>
+                            </div>
+                        `;
+                    });
+                } else {
+                    list.innerHTML = '<div class="text-center py-20 text-gray-400">자유롭게 글을 남겨보세요!</div>';
+                }
+            });
+        };
+
+        window.openFreeWriteModal = () => {
+            if(!currentUser) { alert("로그인이 필요합니다."); openLoginModal(); return; }
+            document.getElementById("free-title").value = "";
+            document.getElementById("free-text").value = "";
+            document.getElementById("free-write-modal").classList.remove("hidden");
+        };
+
+        window.saveFreePost = async () => {
+            const title = document.getElementById("free-title").value;
+            const text = document.getElementById("free-text").value;
+            if(!title || !text) return alert("내용을 입력해주세요.");
+            
+            try {
+                await addDoc(collection(db, "free_posts"), {
+                    title, text,
+                    author: currentUser.displayName || "익명",
+                    uid: currentUser.uid,
+                    photo: currentUser.photoURL,
+                    createdAt: Date.now()
+                });
+                closeModal("free-write-modal");
+                alert("등록되었습니다!");
+            } catch(e) { alert("오류: " + e.message); }
+        };
+
+        window.openFreeDetail = (id, title, text, author, avatar, date, uid) => {
+            document.getElementById("free-detail-title").innerText = title;
+            document.getElementById("free-detail-content").innerText = text;
+            document.getElementById("free-detail-author").innerText = author;
+            document.getElementById("free-detail-date").innerText = date;
+            document.getElementById("free-detail-avatar").src = avatar;
+            
+            const btnBox = document.getElementById("free-owner-btns");
+            // 관리자거나 본인 글이면 삭제 버튼 표시
+            if (isAdmin || (currentUser && currentUser.uid === uid)) {
+                btnBox.classList.remove("hidden");
+                btnBox.classList.add("flex");
+                document.getElementById("btn-free-delete").onclick = async () => {
+                    if(confirm("삭제하시겠습니까?")) {
+                        await deleteDoc(doc(db, "free_posts", id));
+                        closeModal("free-detail-modal");
+                    }
+                };
+            } else {
+                btnBox.classList.add("hidden");
+            }
+            document.getElementById("free-detail-modal").classList.remove("hidden");
+        };
+
+        window.sortFreeBoard = (mode) => {
+            freeBoardSort = mode;
+            loadFreeBoard();
+        };
+
+        // 상세 뷰 로직
         function showDetailView(id) {
             const place = allPlaces.find(p => p.id === id);
             if(!place && allPlaces.length === 0) { setTimeout(()=>showDetailView(id), 200); return; }
@@ -495,6 +699,13 @@
                     if(p) document.getElementById("detail-views").innerText = p.views;
                 }
             });
+            onSnapshot(collection(db, "notices"), (snapshot) => {
+                allNotices = [];
+                snapshot.forEach(doc => allNotices.push({ id: doc.id, ...doc.data() }));
+                if(location.hash.startsWith("#board/")) {
+                    loadBoardData(location.hash.split("/")[1]);
+                }
+            });
             onSnapshot(doc(db, "config", "hero"), (doc) => {
                 if(doc.exists()) {
                     const d = doc.data();
@@ -515,12 +726,15 @@
                 return (b.createdAt||0) - (a.createdAt||0);
             });
             filtered.forEach(place => {
-                const isAdmin = !!currentUser;
+                const isAdminUser = isAdmin; // 전역 변수 사용
                 const thumb = (place.images && place.images.length > 0) ? place.images[0] : (place.image || 'https://via.placeholder.com/400?text=No+Image');
                 const card = document.createElement("div");
                 card.className = "group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border border-gray-100 overflow-hidden flex flex-col h-full cursor-pointer relative";
-                card.onclick = (e) => { if(e.target.closest('.admin-btn')) return; location.hash = "#detail/" + place.id; };
-                let adminHtml = isAdmin ? `<div class="absolute top-2 right-2 z-20 flex gap-1"><button onclick="editPlace('${place.id}')" class="admin-btn bg-white/90 p-2 rounded-full text-blue-600 hover:bg-blue-100 shadow-sm"><i data-lucide="edit-2" class="w-3 h-3"></i></button><button onclick="deletePlace('${place.id}')" class="admin-btn bg-white/90 p-2 rounded-full text-red-600 hover:bg-red-100 shadow-sm"><i data-lucide="trash-2" class="w-3 h-3"></i></button></div>` : "";
+                card.onclick = (e) => { 
+                    if(e.target.closest('.admin-btn')) return; 
+                    location.hash = "#detail/" + place.id; 
+                };
+                let adminHtml = isAdminUser ? `<div class="absolute top-2 right-2 z-20 flex gap-1"><button onclick="event.stopPropagation(); editPlace('${place.id}')" class="admin-btn bg-white/90 p-2 rounded-full text-blue-600 hover:bg-blue-100 shadow-sm"><i data-lucide="edit-2" class="w-3 h-3"></i></button><button onclick="event.stopPropagation(); deletePlace('${place.id}')" class="admin-btn bg-white/90 p-2 rounded-full text-red-600 hover:bg-red-100 shadow-sm"><i data-lucide="trash-2" class="w-3 h-3"></i></button></div>` : "";
                 card.innerHTML = `<div class="relative h-48 overflow-hidden bg-gray-100"><img src="${thumb}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"><div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-[10px] font-bold text-emerald-600 shadow-sm z-10">${place.district}</div>${adminHtml}</div><div class="p-5 flex flex-col flex-1"><div class="flex justify-between items-start mb-2"><h3 class="text-lg font-bold text-gray-800 group-hover:text-emerald-600 transition-colors line-clamp-1">${place.name}</h3><div class="flex items-center text-yellow-500 text-xs font-bold bg-yellow-50 px-1.5 py-0.5 rounded ml-2 shrink-0"><i data-lucide="star" class="w-3 h-3 fill-yellow-500 mr-1"></i> ${place.rating || 0}</div></div><p class="text-gray-500 text-sm mb-4 line-clamp-2 leading-relaxed">${place.description}</p><div class="mt-auto flex items-center justify-between"><div class="flex gap-1 flex-wrap">${(place.tags || []).slice(0, 3).map(t => `<span class="bg-gray-100 text-gray-500 text-[10px] px-2 py-1 rounded-md">#${t}</span>`).join('')}</div><div class="text-gray-400 text-xs flex items-center"><i data-lucide="eye" class="w-3 h-3 mr-1"></i> ${place.views || 0}</div></div></div>`;
                 grid.appendChild(card);
             });
@@ -539,27 +753,71 @@
         if (auth) {
             onAuthStateChanged(auth, (user) => {
                 currentUser = user;
+                // 관리자 이메일 확인 (하드코딩 - 실제론 DB 연동 추천)
+                isAdmin = user && (user.email === 'admin@test.com' || user.email === 'admin@daejeon-trip.com'); 
+                
                 const authBtn = document.getElementById("auth-btn");
                 const writeBtn = document.getElementById("write-btn");
                 const boardWriteBtn = document.getElementById("board-write-btn");
                 const editHeroBtn = document.getElementById("edit-hero-btn");
+                const profileImg = document.getElementById("user-profile-img");
                 
                 if(user) {
                     authBtn.innerHTML = `<i data-lucide="log-out" class="w-3.5 h-3.5 mr-1"></i> 로그아웃`;
                     authBtn.onclick = async () => { if(confirm("로그아웃?")) await signOut(auth); };
-                    writeBtn.classList.remove("hidden");
-                    boardWriteBtn.classList.remove("hidden");
-                    editHeroBtn.classList.remove("hidden");
+                    
+                    if(user.photoURL) {
+                        profileImg.src = user.photoURL;
+                        profileImg.classList.remove("hidden");
+                    }
+
+                    if(isAdmin) {
+                        writeBtn.classList.remove("hidden");
+                        boardWriteBtn.classList.remove("hidden");
+                        editHeroBtn.classList.remove("hidden");
+                    } else {
+                        writeBtn.classList.add("hidden");
+                        boardWriteBtn.classList.add("hidden");
+                        editHeroBtn.classList.add("hidden");
+                    }
                 } else {
-                    authBtn.innerHTML = `<i data-lucide="user" class="w-3.5 h-3.5 mr-1"></i> 관리자`;
-                    authBtn.onclick = toggleAuth;
+                    authBtn.innerHTML = `<i data-lucide="log-in" class="w-3.5 h-3.5 mr-1"></i> 로그인`;
+                    authBtn.onclick = openLoginModal;
+                    profileImg.classList.add("hidden");
                     writeBtn.classList.add("hidden");
                     boardWriteBtn.classList.add("hidden");
                     editHeroBtn.classList.add("hidden");
+                    isAdmin = false;
                 }
                 renderPlaces();
+                if(location.hash === "#freeboard") loadFreeBoard();
             });
         }
+
+        // 로그인 기능
+        window.openLoginModal = () => document.getElementById("login-modal").classList.remove("hidden");
+        window.closeModal = (id) => document.getElementById(id).classList.add("hidden");
+        
+        window.handleAdminLogin = async() => {
+            try { 
+                await signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value); 
+                closeModal("login-modal"); 
+            } catch(e) { alert("로그인 실패: " + e.message); }
+        };
+
+        window.loginWithGoogle = async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+                closeModal("login-modal");
+            } catch (error) {
+                alert("구글 로그인 실패: " + error.message);
+            }
+        };
+
+        // ... [이전 코드와 동일한 나머지 부분들: openHeroEditModal, saveHeroConfig, 채팅 등] ...
+        // 코드 길이 제한으로 생략된 부분은 위와 동일하게 작동합니다. (채팅, 공지, 통계 로직 유지)
+        // 아래는 중요 로직만 다시 기재합니다.
 
         window.openHeroEditModal = () => {
             const title = document.getElementById("hero-main-text").innerHTML;
@@ -581,7 +839,6 @@
             } catch(e) { alert("저장 실패"); }
         };
 
-        // 채팅
         let chatUnsub;
         function initChatListener() {
             if (!db) return;
@@ -591,7 +848,8 @@
                 const htmlContent = [];
                 snap.forEach(doc => {
                     const d = doc.data();
-                    const isAdm = d.uid === 'admin';
+                    // isAdm 체크를 uid로 변경 (보안상 더 좋음) 또는 닉네임으로
+                    const isAdm = d.uid && (d.uid === 'admin' || d.uid === 'SENDER_ID'); // 예시
                     const time = new Date(d.createdAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
                     htmlContent.push(`<div class="flex flex-col ${isAdm?'items-start':'items-end'}"><div class="${isAdm?'bg-emerald-100 text-emerald-900':'bg-gray-100 text-gray-800'} px-3 py-1.5 rounded-lg text-sm max-w-[85%]">${d.text}</div><span class="text-[9px] text-gray-400 mt-0.5">${time}</span></div>`);
                 });
@@ -608,7 +866,13 @@
             e.preventDefault();
             const inp = document.getElementById(mode === 'desktop' ? "desktop-chat-input" : "mobile-chat-input");
             if(inp.value.trim() && db) {
-                await addDoc(collection(db, "chat"), { text: inp.value, createdAt: Date.now(), uid: currentUser?'admin':'anon' });
+                // 채팅에도 uid 저장
+                await addDoc(collection(db, "chat"), { 
+                    text: inp.value, 
+                    createdAt: Date.now(), 
+                    uid: currentUser ? currentUser.uid : 'anon',
+                    author: currentUser ? (currentUser.displayName || '익명') : '익명'
+                });
                 inp.value = "";
             }
         };
@@ -628,13 +892,45 @@
             }
         }
 
-        window.openNoticeDetail = (type, title, text, date) => {
+        window.openNoticeDetail = (id) => {
+            const n = allNotices.find(item => item.id === id);
+            if(!n) return;
             const titles = { notice: "공지사항", tip: "꿀팁", event: "이벤트" };
-            document.getElementById("notice-detail-cat").innerText = titles[type] || "알림";
-            document.getElementById("notice-detail-title").innerText = title;
-            document.getElementById("notice-detail-content").innerHTML = text; // HTML 허용 (주의: XSS 방지 필요하지만 간편 구현)
-            document.getElementById("notice-detail-date").innerText = date;
+            document.getElementById("notice-detail-cat").innerText = titles[n.category] || "알림";
+            document.getElementById("notice-detail-title").innerText = n.title || "";
+            document.getElementById("notice-detail-content").innerHTML = n.text; 
+            document.getElementById("notice-detail-date").innerText = new Date(n.createdAt).toLocaleDateString();
+            
+            const btns = document.getElementById("notice-admin-btns");
+            if(isAdmin) {
+                btns.classList.remove("hidden");
+                btns.classList.add("flex");
+                document.getElementById("btn-notice-edit").onclick = () => { closeModal('notice-detail-modal'); editNotice(id); };
+                document.getElementById("btn-notice-delete").onclick = () => { deleteNotice(id); };
+            } else {
+                btns.classList.add("hidden");
+            }
             document.getElementById("notice-detail-modal").classList.remove("hidden");
+        };
+
+        window.editNotice = (id) => {
+            const n = allNotices.find(item => item.id === id);
+            if(!n) return;
+            openNoticeModal();
+            document.getElementById("notice-modal-title").innerText = "게시글 수정";
+            document.getElementById("notice-edit-id").value = id;
+            document.getElementById("notice-cat").value = n.category;
+            document.getElementById("notice-title").value = n.title || "";
+            document.getElementById("notice-text").value = n.text;
+            document.getElementById("notice-save-btn").innerText = "수정하기";
+        };
+
+        window.deleteNotice = async (id) => {
+            if(confirm("정말 삭제하시겠습니까?")) {
+                await deleteDoc(doc(db, "notices", id));
+                closeModal("notice-detail-modal");
+                alert("삭제되었습니다.");
+            }
         };
 
         let upImgs = [];
@@ -693,31 +989,41 @@
             upImgs.forEach(u => { if(u) preview.innerHTML += `<img src="${u}" class="h-16 w-16 object-cover rounded-lg border border-gray-200 shrink-0">`; });
         };
         window.deletePlace = async(id) => { if(confirm("삭제?") && db) await deleteDoc(doc(db, "places", id)); };
+        
+        // 공지 등록/수정
+        window.openNoticeModal = () => {
+            document.getElementById("notice-modal-title").innerText = "게시글 등록";
+            document.getElementById("notice-edit-id").value = "";
+            document.getElementById("notice-title").value = "";
+            document.getElementById("notice-text").value = "";
+            document.getElementById("notice-save-btn").innerText = "등록";
+            document.getElementById("notice-modal").classList.remove("hidden");
+        };
         window.saveNotice = async() => {
+            const id = document.getElementById("notice-edit-id").value;
             const cat = document.getElementById("notice-cat").value;
             const title = document.getElementById("notice-title").value;
             const t = document.getElementById("notice-text").value;
-            if(title && t && db) { 
-                await addDoc(collection(db, "notices"), {category: cat, title: title, text:t, createdAt:Date.now()}); 
-                closeModal("notice-modal"); 
-                alert("등록됨"); 
-                if (location.hash.startsWith(`#board/${cat}`)) {
-                    loadBoardData(cat);
+            
+            if(!title || !t) return alert("제목과 내용을 입력해주세요.");
+            if(!db) return;
+
+            const data = {category: cat, title: title, text:t, createdAt:Date.now()};
+            
+            try {
+                if(id) {
+                    delete data.createdAt; 
+                    await updateDoc(doc(db, "notices", id), data);
+                    alert("수정되었습니다.");
                 } else {
-                    showBoardView(cat);
+                    await addDoc(collection(db, "notices"), data);
+                    alert("등록되었습니다.");
                 }
-            } else {
-                alert("제목과 내용을 입력해주세요.");
-            }
+                closeModal("notice-modal");
+                if (location.hash.startsWith(`#board/${cat}`)) loadBoardData(cat);
+            } catch(e) { alert("저장 실패"); }
         };
 
-        window.toggleAuth = () => document.getElementById("login-modal").classList.remove("hidden");
-        window.openNoticeModal = () => document.getElementById("notice-modal").classList.remove("hidden");
-        window.closeModal = (id) => document.getElementById(id).classList.add("hidden");
-        window.handleLogin = async() => {
-            try { if(auth) await signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value); closeModal("login-modal"); }
-            catch(e) { alert("로그인 실패"); }
-        };
         window.lucide = lucide;
 
     </script>
