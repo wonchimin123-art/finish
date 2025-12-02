@@ -19,13 +19,11 @@
         .chat-scroll::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 4px; }
         .nav-item.active { background-color: #ecfdf5; color: #059669; font-weight: 700; border-right: 3px solid #059669; }
         
-        /* 슬라이더 커스텀 */
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #059669; cursor: pointer; margin-top: -6px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e5e7eb; border-radius: 2px; }
         input[type=range]:focus::-webkit-slider-runnable-track { background: #a7f3d0; }
         
-        /* 소셜 버튼 */
         .btn-kakao { background-color: #FEE500; color: #000000; }
         .btn-twitter { background-color: #000000; color: #ffffff; }
         .btn-facebook { background-color: #1877F2; color: #ffffff; }
@@ -67,7 +65,7 @@
                     <button id="auth-btn" onclick="openLoginModal()" class="flex items-center text-xs font-bold px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
                         <i data-lucide="log-in" class="w-3.5 h-3.5 mr-1"></i> 로그인
                     </button>
-                    <img id="user-profile-img" class="w-8 h-8 rounded-full border border-gray-200 hidden object-cover" src="" alt="Profile">
+                    <img id="user-profile-img" class="w-8 h-8 rounded-full border border-gray-200 hidden" src="" alt="Profile">
                 </div>
             </div>
         </div>
@@ -171,7 +169,7 @@
                         </div>
                     </div>
 
-                    <!-- 필터 & 검색 -->
+                    <!-- ★ 검색 및 필터 -->
                     <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row justify-between items-center gap-3 sticky top-16 z-30">
                         <div class="flex gap-1 overflow-x-auto max-w-full scrollbar-hide w-full md:w-auto pb-1 md:pb-0 shrink-0">
                             <button onclick="filterDistrict('전체')" class="cat-btn active px-3 py-1.5 rounded-lg text-sm font-bold bg-emerald-100 text-emerald-700 transition-colors whitespace-nowrap" data-val="전체">전체</button>
@@ -199,7 +197,7 @@
                     <div id="places-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6 fade-in hidden"></div>
                 </div>
 
-                <!-- (B) 게시판 뷰 (공지/팁/이벤트) -->
+                <!-- (B) 게시판 뷰 -->
                 <div id="board-view" class="hidden fade-in">
                     <div class="flex justify-between items-end mb-6 border-b border-gray-200 pb-4">
                         <div>
@@ -213,7 +211,7 @@
                     <div id="board-list" class="space-y-4"></div>
                 </div>
 
-                <!-- (C) 자유게시판 목록 -->
+                <!-- (C) 자유게시판 -->
                 <div id="free-board-view" class="hidden fade-in">
                     <div class="flex justify-between items-end mb-6 border-b border-gray-200 pb-4">
                         <div>
@@ -262,16 +260,18 @@
                                 <div class="text-gray-400 text-sm flex items-center shrink-0"><i data-lucide="eye" class="w-4 h-4 mr-1.5"></i> <span id="detail-views"></span>회 조회</div>
                             </div>
 
-                            <!-- 상세 평점 -->
-                            <div id="detail-ratings-box" class="bg-gray-50 rounded-xl p-5 mb-8 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-                            
+                            <!-- 상세 평점 (그래프) -->
+                            <div id="detail-ratings-box" class="bg-gray-50 rounded-xl p-5 mb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <!-- JS로 채워짐 -->
+                            </div>
+
                             <div class="prose prose-emerald max-w-none mb-10"><p id="detail-desc" class="text-gray-700 leading-8 whitespace-pre-line text-lg"></p></div>
                             <div><h3 class="font-bold text-gray-900 mb-3 flex items-center text-sm uppercase tracking-wide text-gray-400">Tags</h3><div id="detail-tags" class="flex flex-wrap gap-2"></div></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- (E) 공지사항 상세 뷰 -->
+                <!-- (E) 공지사항 상세 뷰 (페이지 방식) -->
                 <div id="notice-detail-view" class="hidden fade-in">
                     <div class="mb-4">
                         <button onclick="history.back()" class="flex items-center text-gray-500 hover:text-emerald-600 font-bold transition-colors">
@@ -298,7 +298,7 @@
                     </div>
                 </div>
 
-                <!-- (F) 자유게시판 상세 뷰 -->
+                <!-- (F) 자유게시판 상세 뷰 (페이지 방식) -->
                 <div id="free-detail-view" class="hidden fade-in">
                     <div class="mb-4">
                         <button onclick="history.back()" class="flex items-center text-gray-500 hover:text-emerald-600 font-bold transition-colors">
@@ -307,6 +307,7 @@
                     </div>
                     <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="p-6 md:p-10">
+                            <!-- 글 헤더 -->
                             <div class="flex justify-between items-start mb-6 pb-4 border-b border-gray-100">
                                 <div class="flex items-center gap-4">
                                     <img id="free-view-avatar" src="" class="w-12 h-12 rounded-full border border-gray-200">
@@ -322,15 +323,21 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <!-- 본문 -->
                             <div class="prose prose-emerald max-w-none mb-12 min-h-[100px]">
                                 <p id="free-view-content" class="text-gray-700 leading-8 whitespace-pre-line text-lg"></p>
                             </div>
+
+                            <!-- 댓글 영역 -->
                             <div class="bg-gray-50 rounded-2xl p-6">
                                 <h4 class="font-bold text-gray-800 mb-4 flex items-center">
                                     <i data-lucide="message-square" class="w-4 h-4 mr-2 text-emerald-600"></i>
                                     댓글 <span id="free-view-comment-count" class="text-emerald-600 ml-1">0</span>
                                 </h4>
+                                
                                 <div id="free-view-comment-list" class="space-y-3 mb-6"></div>
+
                                 <form onsubmit="saveComment(event)" class="flex gap-2">
                                     <input id="comment-input" class="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="댓글을 남겨보세요..." required>
                                     <button type="submit" class="bg-emerald-600 text-white text-sm px-5 rounded-xl font-bold hover:bg-emerald-700 transition-colors">등록</button>
@@ -349,7 +356,7 @@
 
     <!-- ================= [모달들] ================= -->
 
-    <!-- 공유 모달 -->
+    <!-- ★ 커스텀 공유 모달 -->
     <div id="share-modal" class="fixed inset-0 z-[200] hidden bg-black/60 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-xs p-6 shadow-2xl relative">
             <button onclick="closeModal('share-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
@@ -378,7 +385,7 @@
         </div>
     </div>
 
-    <!-- 모바일 채팅 -->
+    <!-- 모바일 채팅 (버튼 + 창) -->
     <div class="lg:hidden fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         <div id="mobile-chat-window" class="hidden bg-white w-[300px] h-[400px] rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-[slideUp_0.3s_ease-out]">
             <div class="bg-emerald-600 p-3 text-white font-bold flex justify-between items-center shrink-0">
@@ -492,7 +499,7 @@
             if (hash.startsWith("#detail/")) {
                 const id = hash.split("/")[1];
                 showDetailView(id);
-            } else if (hash.startsWith("#notice_detail/")) { // 공지 상세 뷰
+            } else if (hash.startsWith("#notice_detail/")) { // ★ 변경됨: 공지사항 상세
                 const id = hash.split("/")[1];
                 showNoticeDetailView(id);
             } else if (hash.startsWith("#free_detail/")) { 
@@ -537,6 +544,10 @@
             const list = document.getElementById("board-list");
             list.innerHTML = '<div class="text-center py-20 text-gray-400">로딩 중...</div>';
             
+            // 인덱스 문제를 피하기 위해 collection 전체 구독 후 JS로 필터/정렬
+            // (onSnapshot(collection(db, "notices"))는 아래에서 이미 실행중)
+            // 여기서는 allNotices 배열을 활용
+            
             let filtered;
             if (type === 'event') {
                 filtered = allNotices.filter(n => n.category === 'event' || n.category === 'festival');
@@ -578,6 +589,7 @@
         function showNoticeDetailView(id) {
             let n = allNotices.find(item => item.id === id);
             
+            // 데이터가 아직 로드되지 않은 경우 (새로고침 직후)
             if (!n) {
                 if(!db) return;
                 getDoc(doc(db, "notices", id)).then(snap => {
@@ -593,7 +605,7 @@
             const titles = { notice: "공지사항", tip: "대전 여행 꿀팁", event: "축제 & 이벤트", festival: "축제 & 이벤트" };
             document.getElementById("notice-view-cat").innerText = titles[n.category] || "게시판";
             document.getElementById("notice-view-title").innerText = n.title || "";
-            document.getElementById("notice-view-content").innerHTML = n.text; 
+            document.getElementById("notice-view-content").innerHTML = n.text; // HTML 허용
             document.getElementById("notice-view-date").innerText = new Date(n.createdAt).toLocaleDateString();
             
             const btns = document.getElementById("notice-view-admin-btns");
@@ -609,7 +621,7 @@
             window.scrollTo(0,0);
         }
 
-        // 기존 공지 수정/삭제 함수
+        // (기존 공지 수정/삭제 함수 재활용)
         window.editNotice = (id) => {
             getDoc(doc(db, "notices", id)).then(snap => {
                 if(snap.exists()) {
@@ -628,6 +640,7 @@
         window.deleteNotice = async (id) => {
             if(confirm("정말 삭제하시겠습니까?")) {
                 await deleteDoc(doc(db, "notices", id));
+                // 삭제 후 해당 게시판 목록으로 이동
                 const n = allNotices.find(item => item.id === id);
                 if (n) location.hash = "#board/" + n.category;
                 else location.hash = "";
@@ -668,10 +681,15 @@
             if(commentUnsubView) commentUnsubView();
             const list = document.getElementById("free-view-comment-list");
             list.innerHTML = "<div class='text-xs text-gray-400 text-center'>로딩...</div>";
-            const q = query(collection(db, "comments"), where("postId", "==", postId));
+            
+            // 인덱스 문제 회피: collection 전체 가져와서 필터링
+            const q = collection(db, "comments");
             commentUnsubView = onSnapshot(q, (snap) => {
                 const comments = [];
-                snap.forEach(doc => comments.push({id: doc.id, ...doc.data()}));
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    if(data.postId === postId) comments.push({id: doc.id, ...data});
+                });
                 comments.sort((a,b) => a.createdAt - b.createdAt);
                 
                 document.getElementById("free-view-comment-count").innerText = comments.length;
@@ -828,6 +846,56 @@
             onSnapshot(doc(db, "stats", "global"), (doc) => { if(doc.exists()) { document.getElementById("total-count").innerText = (doc.data().total||0).toLocaleString(); document.getElementById("daily-count").innerText = (doc.data()[todayKey]||0).toLocaleString(); }});
             if(!sessionStorage.getItem("visited")) { setDoc(doc(db, "stats", "global"), { total: increment(1), [todayKey]: increment(1) }, { merge: true }); sessionStorage.setItem("visited", "true"); }
         }
+
+        // ★ 자유게시판 로직 (클라이언트 정렬)
+        window.loadFreeBoard = () => {
+            if(!db) return;
+            const list = document.getElementById("free-board-list");
+            list.innerHTML = '<div class="text-center py-20 text-gray-400">로딩 중...</div>';
+            
+            // 인덱스 문제 해결: collection 전체를 가져온 후 JS로 정렬
+            const q = collection(db, "free_posts");
+            
+            onSnapshot(q, (snap) => {
+                const posts = [];
+                snap.forEach(doc => posts.push({id: doc.id, ...doc.data()}));
+                
+                // JS 정렬
+                posts.sort((a,b) => {
+                    return freeBoardSort === 'desc' ? b.createdAt - a.createdAt : a.createdAt - b.createdAt;
+                });
+
+                list.innerHTML = "";
+                if(posts.length > 0) {
+                    posts.forEach(p => {
+                        const date = new Date(p.createdAt).toLocaleDateString();
+                        const avatar = p.photo || 'https://via.placeholder.com/40?text=U';
+                        const badge = (p.isAdmin) ? `<span class="bg-blue-100 text-blue-600 text-[10px] px-1.5 py-0.5 rounded-md font-bold ml-1 align-middle">관리자</span>` : "";
+                        
+                        // ★ onclick -> hash 이동
+                        list.innerHTML += `
+                            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer flex items-center justify-between" onclick="location.hash='#free_detail/${p.id}'">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <img src="${avatar}" class="w-10 h-10 rounded-full border border-gray-100 shrink-0">
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="font-bold text-gray-800 text-base truncate">${p.title}</h3>
+                                        <div class="text-xs text-gray-500 flex items-center gap-2">
+                                            <span>${p.author} ${badge}</span>
+                                            <span class="w-0.5 h-3 bg-gray-300"></span>
+                                            <span>${date}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                            </div>
+                        `;
+                    });
+                    lucide.createIcons();
+                } else {
+                    list.innerHTML = '<div class="text-center py-20 text-gray-400">자유롭게 글을 남겨보세요!</div>';
+                }
+            });
+        };
 
         if (auth) {
             onAuthStateChanged(auth, (user) => {
