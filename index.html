@@ -157,9 +157,10 @@
                         </div>
                     </div>
 
-                    <!-- 필터 -->
-                    <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col sm:flex-row justify-between items-center gap-3 sticky top-16 z-30">
-                        <div class="flex gap-1 overflow-x-auto max-w-full scrollbar-hide w-full sm:w-auto pb-1 sm:pb-0">
+                    <!-- ★ 검색 및 필터 (검색창 추가됨) -->
+                    <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row justify-between items-center gap-3 sticky top-16 z-30">
+                        <!-- 카테고리 필터 -->
+                        <div class="flex gap-1 overflow-x-auto max-w-full scrollbar-hide w-full md:w-auto pb-1 md:pb-0 shrink-0">
                             <button onclick="filterDistrict('전체')" class="cat-btn active px-3 py-1.5 rounded-lg text-sm font-bold bg-emerald-100 text-emerald-700 transition-colors whitespace-nowrap" data-val="전체">전체</button>
                             <button onclick="filterDistrict('동구')" class="cat-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap" data-val="동구">동구</button>
                             <button onclick="filterDistrict('중구')" class="cat-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap" data-val="중구">중구</button>
@@ -167,11 +168,19 @@
                             <button onclick="filterDistrict('유성구')" class="cat-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap" data-val="유성구">유성구</button>
                             <button onclick="filterDistrict('대덕구')" class="cat-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors whitespace-nowrap" data-val="대덕구">대덕구</button>
                         </div>
-                        <select onchange="sortPlaces(this.value)" class="bg-gray-50 border-0 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 focus:ring-2 focus:ring-emerald-500 w-full sm:w-auto">
-                            <option value="recent">✨ 최신순</option>
-                            <option value="rating">⭐ 평점순</option>
-                            <option value="views">🔥 조회순</option>
-                        </select>
+                        
+                        <!-- 검색 및 정렬 -->
+                        <div class="flex w-full md:w-auto gap-2">
+                            <div class="relative flex-1 md:w-48">
+                                <input id="search-input" type="text" onkeyup="renderPlaces()" placeholder="장소 검색..." class="w-full bg-gray-50 border-0 rounded-lg pl-9 pr-3 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500">
+                                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            </div>
+                            <select onchange="sortPlaces(this.value)" class="bg-gray-50 border-0 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 focus:ring-2 focus:ring-emerald-500 w-auto shrink-0">
+                                <option value="recent">✨ 최신순</option>
+                                <option value="rating">⭐ 평점순</option>
+                                <option value="views">🔥 조회순</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div id="loader-area" class="flex justify-center py-20"><div class="loader"></div></div>
@@ -212,7 +221,7 @@
                     <div id="free-board-list" class="space-y-4"></div>
                 </div>
 
-                <!-- (D) 상세 뷰 -->
+                <!-- (D) 상세 뷰 (기능 추가됨: 지도, 공유) -->
                 <div id="detail-view" class="hidden fade-in">
                     <div class="mb-4">
                         <button onclick="history.back()" class="flex items-center text-gray-500 hover:text-emerald-600 font-bold transition-colors">
@@ -233,6 +242,13 @@
                                     <div class="flex items-center gap-2 mb-3">
                                         <span id="detail-district" class="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1 rounded font-bold"></span>
                                         <div class="flex items-center text-yellow-500 text-sm font-bold"><i data-lucide="star" class="w-4 h-4 fill-yellow-500 mr-1"></i> <span id="detail-rating"></span></div>
+                                        <!-- ★ 지도 보기 & 공유 버튼 -->
+                                        <a id="map-link" href="#" target="_blank" class="flex items-center bg-green-50 text-green-600 text-xs px-2.5 py-1 rounded font-bold hover:bg-green-100 transition-colors ml-1">
+                                            <i data-lucide="map" class="w-3 h-3 mr-1"></i> 지도
+                                        </a>
+                                        <button onclick="shareLink()" class="flex items-center bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded font-bold hover:bg-gray-200 transition-colors">
+                                            <i data-lucide="share-2" class="w-3 h-3 mr-1"></i> 공유
+                                        </button>
                                     </div>
                                     <h1 id="detail-title" class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight"></h1>
                                 </div>
@@ -500,12 +516,24 @@
                 document.getElementById("detail-rating").innerText = place.rating || 0;
                 document.getElementById("detail-views").innerText = place.views || 0;
                 document.getElementById("detail-tags").innerHTML = (place.tags || []).map(t => `<span class="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg text-sm font-medium">#${t}</span>`).join('');
+                
+                // 지도 링크 업데이트
+                document.getElementById("map-link").href = `https://map.naver.com/v5/search/${encodeURIComponent(place.name)}`;
 
                 document.getElementById("detail-view").classList.remove("hidden");
                 window.scrollTo(0, 0);
                 if(window.lucide) lucide.createIcons();
             } catch(e) { location.hash = ""; }
         }
+
+        // 공유하기 기능
+        window.shareLink = () => {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert("링크가 복사되었습니다! 친구에게 공유해보세요.");
+            }).catch(err => {
+                alert("복사 실패");
+            });
+        };
 
         let currentDetailImages = [];
         let currentImgIdx = 0;
@@ -519,8 +547,16 @@
 
         window.renderPlaces = () => {
             const grid = document.getElementById("places-grid");
+            const term = document.getElementById("search-input").value.toLowerCase(); // 검색어
             grid.innerHTML = "";
+            
             let filtered = currentFilter === "전체" ? allPlaces : allPlaces.filter(p => p.district === currentFilter);
+            
+            // 검색어 필터링 추가
+            if (term) {
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(term) || p.description.toLowerCase().includes(term));
+            }
+
             filtered.sort((a, b) => { if(currentSort === 'rating') return (b.rating||0) - (a.rating||0); if(currentSort === 'views') return (b.views||0) - (a.views||0); return (b.createdAt||0) - (a.createdAt||0); });
             filtered.forEach(place => {
                 const thumb = (place.images && place.images.length > 0) ? place.images[0] : (place.image || 'https://via.placeholder.com/400?text=No+Image');
